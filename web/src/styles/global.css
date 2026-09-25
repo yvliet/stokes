@@ -80,17 +80,17 @@
 }
 
 .dark {
-  /* Stokes dark theme tokens */
-  --background: 0 0% 5.9%;
-  --foreground: 0 0% 96%;
-  --card: 0 0% 5.9%;
-  --card-foreground: 0 0% 96%;
-  --muted: 0 0% 14.9%;
-  --muted-foreground: 0 0% 65.9%;
-  --border: 0 0% 14.9%;
-  --ring: 0 0% 65.9%;
-  --accent: 0 0% 14.9%;
-  --accent-foreground: 0 0% 96%;
+  /* Aligned with Stokes Studio (OpenPencil) charcoal palette - Light Mode Mirror */
+  --background: 0 0% 14.1%;       /* #242424 canvas */
+  --foreground: 0 0% 94.1%;       /* #f0f0f0 surface text */
+  --card: 0 0% 14.1%;             /* #242424 canvas-unified like light mode */
+  --card-foreground: 0 0% 94.1%;  /* #f0f0f0 */
+  --muted: 0 0% 17%;              /* #2b2b2b subtle titlebars & tabs */
+  --muted-foreground: 0 0% 65.1%; /* #a6a6a6 muted text */
+  --border: 0 0% 23%;             /* #3a3a3a border */
+  --ring: 217 91% 60%;            /* #3b82f6 focus blue */
+  --accent: 0 0% 19%;             /* #303030 hover */
+  --accent-foreground: 0 0% 94.1%;
 }
 
 /* Custom theme-matching scrollbar */
@@ -218,15 +218,28 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .dark .mac-window {
-  box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.4);
-  border-color: hsl(var(--border) / 0.8);
+  background-color: #242424 !important;
+  border-color: #3a3a3a !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
 }
 
-/* Feather-light ambient card shadow */
+.dark .mac-window > div:first-child {
+  background-color: #2b2b2b !important;
+  border-bottom-color: #3a3a3a !important;
+}
+
+/* Feather-light ambient card shadow - exact parity across light & dark */
 .stokes-card {
   box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.025), 0 2px 6px -1px rgba(0, 0, 0, 0.015);
 }
 
 .dark .stokes-card {
-  box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.4), 0 2px 8px -1px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+}
+
+/* Header blur aligned with Studio topbar */
+.dark header,
+.dark header[class*="bg-background"] {
+  background-color: rgba(36, 36, 36, 0.88) !important;
+  border-bottom-color: #3a3a3a !important;
 }
