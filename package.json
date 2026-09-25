@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "dev:studio": "cd openpencil-repo && bun run dev",
-    "build:studio": "cd openpencil-repo && bun run build:packages && bunx vite build && powershell -Command \"Copy-Item -Path 'dist\\*' -Destination '..\\public\\studio\\' -Recurse -Force\"",
+    "build:studio": "cd openpencil-repo && bunx vite build && powershell -Command \"Remove-Item -Path '..\\public\\studio\\assets\\*' -Recurse -Force; Copy-Item -Path 'dist\\*' -Destination '..\\public\\studio\\' -Recurse -Force; Copy-Item -Path '..\\public\\studio\\canvaskit.wasm' -Destination '..\\public\\studio\\assets\\canvaskit.wasm' -Force\"",
+    "build:packages": "cd openpencil-repo && bun run build:packages",
     "build": "npm run build:studio && astro build",
     "preview": "astro preview"
   },

@@ -103,10 +103,12 @@ for (const [dir, locales] of duplicateDirs) {
   if (locales.length > 1) report(`Locale directory '${dir}' is shared by ${locales.join(', ')}.`)
 }
 
-const actualLocaleDirs = readdirSync(LOCALES_DIR, { withFileTypes: true })
-  .filter((entry) => entry.isDirectory())
-  .map((entry) => entry.name)
-  .sort()
+const actualLocaleDirs = existsSync(LOCALES_DIR)
+  ? readdirSync(LOCALES_DIR, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
+      .sort()
+  : []
 const expectedDirs = [...expectedLocaleDirs.values()].sort()
 const dirDiff = sameMembers(actualLocaleDirs, expectedDirs)
 for (const dir of dirDiff.missing) report(`Missing locale directory '${dir}'.`)

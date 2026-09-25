@@ -35,23 +35,10 @@ export const notificationMessageDefaults = {
   openQueuedFilesFailed: params('Could not open the files handed to OpenPencil: {error}')
 } as const
 
-const localeLoaders = {
-  de: () => import('./locales/de.json'),
-  es: () => import('./locales/es.json'),
-  fr: () => import('./locales/fr.json'),
-  it: () => import('./locales/it.json'),
-  ja: () => import('./locales/ja.json'),
-  pl: () => import('./locales/pl.json'),
-  ru: () => import('./locales/ru.json'),
-  'zh-CN': () => import('./locales/zh-cn.json')
-} satisfies Record<TranslatedLocale, () => Promise<{ default: Record<string, string> }>>
-
 const appI18n = createI18n<Locale, 'en'>(locale, {
   baseLocale: 'en',
-  async get(code): Promise<ComponentsJSON> {
-    if (code === 'en') return {}
-    const loaded = await localeLoaders[code]()
-    return { notifications: loaded.default }
+  async get(): Promise<ComponentsJSON> {
+    return {}
   }
 })
 
