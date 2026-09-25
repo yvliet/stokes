@@ -203,6 +203,7 @@ export function automationPlugin(
     const readyMarker = `open-pencil-ready:${randomUUID()}`
     const spawned = spawn(spawnCommand, spawnArgs, {
       stdio: ['ignore', 'inherit', 'pipe'],
+      shell: process.platform === 'win32',
       env: {
         ...createAutomationEnvironment({
           authToken,

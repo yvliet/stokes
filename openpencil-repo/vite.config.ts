@@ -46,7 +46,7 @@ export default defineConfig(async ({ command }) => {
       tailwindcss(),
       Icons({ compiler: 'vue3' }),
       Components({ resolvers: [IconsResolver({ prefix: 'icon' })] }),
-      openPencilAutomationPlugin(command, host),
+      ...(process.env.ENABLE_MCP ? [openPencilAutomationPlugin(command, host)] : []),
       vue(),
       openPencilPwaPlugin()
     ],
