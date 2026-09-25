@@ -33,3 +33,5 @@ web/openpencil-repo/**/node_modules/
 web/openpencil-repo/dist/
 web/openpencil-repo/**/dist/
 *.log
+.wrangler/
+web/.wrangler/
