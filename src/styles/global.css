@@ -80,17 +80,17 @@
 }
 
 .dark {
-  /* Stokes dark theme tokens */
-  --background: 0 0% 5.9%;
-  --foreground: 0 0% 96%;
-  --card: 0 0% 5.9%;
-  --card-foreground: 0 0% 96%;
-  --muted: 0 0% 14.9%;
-  --muted-foreground: 0 0% 65.9%;
-  --border: 0 0% 14.9%;
-  --ring: 0 0% 65.9%;
-  --accent: 0 0% 14.9%;
-  --accent-foreground: 0 0% 96%;
+  /* Aligned with Stokes Studio (OpenPencil) charcoal palette */
+  --background: 0 0% 14.1%;       /* #242424 canvas */
+  --foreground: 0 0% 94.1%;       /* #f0f0f0 surface text */
+  --card: 0 0% 16.5%;             /* #2a2a2a panel */
+  --card-foreground: 0 0% 94.1%;  /* #f0f0f0 */
+  --muted: 0 0% 11.8%;            /* #1e1e1e recessed well */
+  --muted-foreground: 0 0% 65.1%; /* #a6a6a6 muted text */
+  --border: 0 0% 22.7%;           /* #3a3a3a border */
+  --ring: 217 91% 60%;            /* #3b82f6 focus blue */
+  --accent: 0 0% 20.8%;           /* #353535 hover */
+  --accent-foreground: 0 0% 94.1%;
 }
 
 /* Custom theme-matching scrollbar */

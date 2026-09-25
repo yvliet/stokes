@@ -8,9 +8,9 @@ interface Props {
 const { title, badge, class: className = "" } = Astro.props;
 ---
 
-<div class={`mac-window rounded-2xl border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-[#111114] shadow-xs overflow-hidden transition-all ${className}`}>
+<div class={`mac-window rounded-2xl border border-neutral-200 dark:border-[#3a3a3a] bg-white dark:bg-[#2a2a2a] shadow-xs overflow-hidden transition-all ${className}`}>
   <!-- macOS Title Bar -->
-  <div class="flex items-center justify-between px-4 py-2.5 border-b border-neutral-200/80 dark:border-neutral-800/80 bg-neutral-50/70 dark:bg-neutral-900/60 select-none">
+  <div class="flex items-center justify-between px-4 py-2.5 border-b border-neutral-200/80 dark:border-[#3a3a3a] bg-neutral-50/70 dark:bg-[#1e1e1e] select-none">
     <div class="flex items-center space-x-2">
       <!-- 3 macOS Traffic Light Dots -->
       <div class="flex items-center space-x-1.5">
