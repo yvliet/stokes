@@ -5,6 +5,10 @@ const faqs = [
     a: "Stokes is a CLI tool that checks whether your SQL schemas, Python ETL pipelines, and Rust services actually agree with each other. Think of it as a linter, but instead of checking one language at a time, it reads all three and flags the places where they silently disagree."
   },
   {
+    q: "what is stokes studio?",
+    a: "Stokes Studio is an interactive visual modeler for storage pipelines. It lets you visually map ClickHouse DDL schemas, Python ETL pipelines, Quicksilver KV meshes, and Rust reverse proxies onto a continuous 2D canvas, computing cross-boundary cardinality risk ratios in real-time."
+  },
+  {
     q: "how does stokes prevent cloudflare-style outages?",
     a: "The Cloudflare Nov 18, 2025 outage happened because sqlfluff, mypy, and rustc all passed individually, but nobody checked that a schema change pushed 280 features into a buffer sized for 200. Stokes catches exactly that kind of mismatch: it reads the SQL schema, the Python config, and the Rust buffer declaration together, and fails the build if the numbers don't line up."
   },
