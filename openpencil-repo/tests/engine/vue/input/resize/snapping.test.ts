@@ -105,4 +105,17 @@ describe('resize snapping preferences', () => {
 
     expect(editor.graph.getNode(nodeId)).toMatchObject({ width: 140.15 })
   })
+
+  test('snaps east edge to 20px grid when grid snapping is active', () => {
+    const { editor, nodeId, drag } = setup('e')
+    editor.updateNode(nodeId, { x: 0, y: 0, width: 100, height: 80 })
+    drag.startX = 100
+    drag.origRect = { x: 0, y: 0, width: 100, height: 80 }
+    editor.state.snappingPreferences = { geometry: false, objects: false, grid: true, pixelGrid: false }
+
+    applyResize(drag, 118, drag.startY, false, editor)
+    commitResizePreview(drag, editor)
+
+    expect(editor.graph.getNode(nodeId)).toMatchObject({ width: 120 })
+  })
 })

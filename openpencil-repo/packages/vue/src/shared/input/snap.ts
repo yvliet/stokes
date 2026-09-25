@@ -23,13 +23,9 @@ export function computeGridSnap(
   const snapTop = Math.round(bounds.y / gridSize) * gridSize
   const snapRight = Math.round((bounds.x + bounds.width) / gridSize) * gridSize - bounds.width
   const snapBottom = Math.round((bounds.y + bounds.height) / gridSize) * gridSize - bounds.height
-  const snapCenterX =
-    Math.round((bounds.x + bounds.width / 2) / gridSize) * gridSize - bounds.width / 2
-  const snapCenterY =
-    Math.round((bounds.y + bounds.height / 2) / gridSize) * gridSize - bounds.height / 2
 
-  const dxCandidates = [snapLeft - bounds.x, snapRight - bounds.x, snapCenterX - bounds.x]
-  const dyCandidates = [snapTop - bounds.y, snapBottom - bounds.y, snapCenterY - bounds.y]
+  const dxCandidates = [snapLeft - bounds.x, snapRight - bounds.x]
+  const dyCandidates = [snapTop - bounds.y, snapBottom - bounds.y]
 
   let bestDx = 0
   let minAbsDx = threshold
@@ -182,7 +178,7 @@ export function resolveObjectPixelSnap(
     ? computeSnap(movingIds, movingBounds, targets, threshold)
     : { dx: 0, dy: 0, guides: [] }
   const gridSnap = editor.state.snappingPreferences.grid
-    ? computeGridSnap(movingBounds, DEFAULT_GRID_SIZE, threshold)
+    ? computeGridSnap(movingBounds, DEFAULT_GRID_SIZE, Infinity)
     : { delta: { x: 0, y: 0 }, guides: [] }
   const pixelSnap = editor.state.snappingPreferences.pixelGrid
     ? computePixelGridSnap(movingBounds, threshold)

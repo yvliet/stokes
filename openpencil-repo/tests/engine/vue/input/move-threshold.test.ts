@@ -41,6 +41,7 @@ describe('selection move drag threshold', () => {
 
   test('moves selected nodes once pointer movement exceeds threshold', () => {
     const { editor, drag, nodeId } = setupMoveDrag()
+    editor.state.snappingPreferences = { geometry: false, objects: false, grid: false, pixelGrid: false }
 
     handleMoveMove(drag, 16, 27, 100 + MOVE_DRAG_START_THRESHOLD_PX + 1, 200, editor)
     handleMoveUp(drag, editor)
@@ -48,6 +49,19 @@ describe('selection move drag threshold', () => {
     const node = editor.graph.getNode(nodeId)
     expect(node?.x).toBe(16)
     expect(node?.y).toBe(27)
+    expect(drag.dragStarted).toBe(true)
+  })
+
+  test('snaps movement to 20px grid when grid snapping is enabled', () => {
+    const { editor, drag, nodeId } = setupMoveDrag()
+    editor.state.snappingPreferences = { geometry: false, objects: false, grid: true, pixelGrid: false }
+
+    handleMoveMove(drag, 16, 27, 100 + MOVE_DRAG_START_THRESHOLD_PX + 1, 200, editor)
+    handleMoveUp(drag, editor)
+
+    const node = editor.graph.getNode(nodeId)
+    expect(node?.x).toBe(20)
+    expect(node?.y).toBe(20)
     expect(drag.dragStarted).toBe(true)
   })
 

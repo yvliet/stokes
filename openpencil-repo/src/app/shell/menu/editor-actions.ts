@@ -1,7 +1,7 @@
 import type { SceneNode } from '@open-pencil/scene-graph'
 
 import { useEditorStore } from '@/app/editor/active-store'
-import { setSnappingPreference } from '@/app/settings/preferences/apply'
+import { setCanvasGridPreference, setSnappingPreference } from '@/app/settings/preferences/apply'
 
 type TextFormatUpdates = {
   fontWeight?: number
@@ -53,12 +53,15 @@ export function createSharedEditorMenuActions(
   return {
     'zoom-in': () => store.applyZoom(-100, window.innerWidth / 2, window.innerHeight / 2),
     'zoom-out': () => store.applyZoom(100, window.innerWidth / 2, window.innerHeight / 2),
+    'view-grid': () => setCanvasGridPreference(!(store.state.showGrid ?? true)),
     'view-split-right': () => store.splitPane(store.activePaneId.value, 'horizontal'),
     'view-split-down': () => store.splitPane(store.activePaneId.value, 'vertical'),
     'view-multiplayer-cursors': () => {
       store.state.showRemoteCursors = !store.state.showRemoteCursors
       store.requestRepaint()
     },
+    'snap-grid': () =>
+      setSnappingPreference('grid', !store.state.snappingPreferences.grid),
     'snap-geometry': () =>
       setSnappingPreference('geometry', !store.state.snappingPreferences.geometry),
     'snap-objects': () =>
