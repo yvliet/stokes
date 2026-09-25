@@ -12,6 +12,7 @@ import { nextTick, ref, watch } from 'vue'
 import { useEditorCommands, useI18n, formatShortcut } from '@open-pencil/vue'
 
 import { useEditorStore } from '@/app/editor/active-store'
+import { setCanvasGridPreference, setSnappingPreference } from '@/app/settings/preferences/apply'
 import { appMenuShortcut, appMenuShortcutLabel } from '@/app/shell/menu/shortcut'
 import AppShortcutText from '@/components/ui/menu/AppShortcutText.vue'
 import { menuItem, useMenuUI } from '@/components/ui/menu/menu'
@@ -50,10 +51,19 @@ function cancelInput() {
   editing.value = false
 }
 
-
 function toggleRemoteCursors() {
   store.state.showRemoteCursors = !store.state.showRemoteCursors
   store.requestRepaint()
+}
+
+function toggleDotGrid() {
+  const current = store.state.showGrid ?? true
+  setCanvasGridPreference(!current)
+}
+
+function toggleSnapToGrid() {
+  const current = store.state.snappingPreferences.grid
+  setSnappingPreference('grid', !current)
 }
 
 function zoomIn() {
@@ -156,6 +166,23 @@ watch(open, (v) => {
             class="absolute left-2 size-3.5"
           />
           <span class="flex-1">{{ panels.multiplayerCursors }}</span>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem :class="itemCls" @select.prevent="toggleDotGrid">
+          <icon-lucide-check
+            v-if="store.state.showGrid ?? true"
+            class="absolute left-2 size-3.5"
+          />
+          <span class="flex-1">{{ panels.dotGrid }}</span>
+          <AppShortcutText>{{ appMenuShortcutLabel('view-grid') }}</AppShortcutText>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem :class="itemCls" @select.prevent="toggleSnapToGrid">
+          <icon-lucide-check
+            v-if="store.state.snappingPreferences.grid"
+            class="absolute left-2 size-3.5"
+          />
+          <span class="flex-1">{{ panels.snapToGrid }}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenuPortal>

@@ -10,6 +10,7 @@ export function createInitialAppEditorState(pageId: string): AppEditorState {
   return {
     ...createDefaultEditorState(pageId),
     snappingPreferences: { ...appPreferences.value.editing.snapping },
+    showGrid: appPreferences.value.canvas.showGrid,
     showUI: true,
     showRemoteCursors: true,
     activeRibbonTab: 'panels',

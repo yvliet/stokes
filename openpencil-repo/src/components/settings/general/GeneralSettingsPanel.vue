@@ -4,7 +4,7 @@ import { computed } from 'vue'
 import { type Locale, useI18n } from '@open-pencil/vue'
 
 import { recoveryEnabled, setRecoveryEnabled } from '@/app/document/recovery/preferences'
-import { setSnappingPreference } from '@/app/settings/preferences/apply'
+import { setCanvasGridPreference, setSnappingPreference } from '@/app/settings/preferences/apply'
 import { appPreferences } from '@/app/settings/preferences/store'
 import { animationPreference } from '@/app/shell/motion'
 import { useAppTheme } from '@/app/shell/theme'
@@ -33,6 +33,16 @@ const languageOptions = availableLocales.map((value) => ({
 const preserveUnsavedWork = computed({
   get: () => recoveryEnabled.value,
   set: setRecoveryEnabled
+})
+
+const showDotGrid = computed({
+  get: () => appPreferences.value.canvas.showGrid,
+  set: (enabled: boolean) => setCanvasGridPreference(enabled)
+})
+
+const snapToGrid = computed({
+  get: () => appPreferences.value.editing.snapping.grid,
+  set: (enabled: boolean) => setSnappingPreference('grid', enabled)
 })
 
 const snapToGeometry = computed({
@@ -126,6 +136,32 @@ const snapToPixelGrid = computed({
       <template #description>{{ settings.snappingDescription }}</template>
 
       <SettingsGroup>
+        <label class="flex items-center justify-between gap-4 px-3 py-2.5">
+          <span>
+            <span class="block text-xs text-surface">{{ settings.showDotGrid }}</span>
+            <span class="block text-[10px] text-muted">{{
+              settings.showDotGridDescription
+            }}</span>
+          </span>
+          <AppSwitch
+            v-model="showDotGrid"
+            :label="settings.showDotGrid"
+            data-test-id="settings-show-dot-grid"
+          />
+        </label>
+        <label class="flex items-center justify-between gap-4 px-3 py-2.5">
+          <span>
+            <span class="block text-xs text-surface">{{ settings.snapToGrid }}</span>
+            <span class="block text-[10px] text-muted">{{
+              settings.snapToGridDescription
+            }}</span>
+          </span>
+          <AppSwitch
+            v-model="snapToGrid"
+            :label="settings.snapToGrid"
+            data-test-id="settings-snap-grid"
+          />
+        </label>
         <label class="flex items-center justify-between gap-4 px-3 py-2.5">
           <span>
             <span class="block text-xs text-surface">{{ settings.snapToGeometry }}</span>

@@ -12,6 +12,52 @@ export interface PixelSnapResult {
   guides: SnapGuide[]
 }
 
+export const DEFAULT_GRID_SIZE = 20
+
+export function computeGridSnap(
+  bounds: Rect,
+  gridSize = DEFAULT_GRID_SIZE,
+  threshold = Infinity
+): PixelSnapResult {
+  const snapLeft = Math.round(bounds.x / gridSize) * gridSize
+  const snapTop = Math.round(bounds.y / gridSize) * gridSize
+  const snapRight = Math.round((bounds.x + bounds.width) / gridSize) * gridSize - bounds.width
+  const snapBottom = Math.round((bounds.y + bounds.height) / gridSize) * gridSize - bounds.height
+  const snapCenterX =
+    Math.round((bounds.x + bounds.width / 2) / gridSize) * gridSize - bounds.width / 2
+  const snapCenterY =
+    Math.round((bounds.y + bounds.height / 2) / gridSize) * gridSize - bounds.height / 2
+
+  const dxCandidates = [snapLeft - bounds.x, snapRight - bounds.x, snapCenterX - bounds.x]
+  const dyCandidates = [snapTop - bounds.y, snapBottom - bounds.y, snapCenterY - bounds.y]
+
+  let bestDx = 0
+  let minAbsDx = threshold
+  for (const dx of dxCandidates) {
+    if (Math.abs(dx) < minAbsDx) {
+      minAbsDx = Math.abs(dx)
+      bestDx = dx
+    }
+  }
+
+  let bestDy = 0
+  let minAbsDy = threshold
+  for (const dy of dyCandidates) {
+    if (Math.abs(dy) < minAbsDy) {
+      minAbsDy = Math.abs(dy)
+      bestDy = dy
+    }
+  }
+
+  return {
+    delta: {
+      x: Math.abs(bestDx) < threshold ? bestDx : 0,
+      y: Math.abs(bestDy) < threshold ? bestDy : 0
+    },
+    guides: []
+  }
+}
+
 export function computePixelGridSnap(bounds: Rect, threshold: number): PixelSnapResult {
   const roundedX = Math.round(bounds.x)
   const roundedY = Math.round(bounds.y)
@@ -64,11 +110,14 @@ function winningCorrection(
   explicit: { delta: number } | null,
   objectMatched: boolean,
   objectDelta: number,
+  gridDelta: number,
   pixelDelta: number
 ): number {
   if (geometry) return geometry.delta
   if (explicit) return explicit.delta
-  return objectMatched ? objectDelta : pixelDelta
+  if (objectMatched) return objectDelta
+  if (gridDelta !== 0) return gridDelta
+  return pixelDelta
 }
 
 interface AxisCandidate<T extends SnapGuide> {
@@ -132,6 +181,9 @@ export function resolveObjectPixelSnap(
   const objectSnap = editor.state.snappingPreferences.objects
     ? computeSnap(movingIds, movingBounds, targets, threshold)
     : { dx: 0, dy: 0, guides: [] }
+  const gridSnap = editor.state.snappingPreferences.grid
+    ? computeGridSnap(movingBounds, DEFAULT_GRID_SIZE, threshold)
+    : { delta: { x: 0, y: 0 }, guides: [] }
   const pixelSnap = editor.state.snappingPreferences.pixelGrid
     ? computePixelGridSnap(movingBounds, threshold)
     : { delta: { x: 0, y: 0 }, guides: [] }
@@ -147,8 +199,22 @@ export function resolveObjectPixelSnap(
   const yBlockedByGeometry = Boolean(geometryY)
   return {
     correction: {
-      x: winningCorrection(geometryX, explicitX, objectX, objectSnap.dx, pixelSnap.delta.x),
-      y: winningCorrection(geometryY, explicitY, objectY, objectSnap.dy, pixelSnap.delta.y)
+      x: winningCorrection(
+        geometryX,
+        explicitX,
+        objectX,
+        objectSnap.dx,
+        gridSnap.delta.x,
+        pixelSnap.delta.x
+      ),
+      y: winningCorrection(
+        geometryY,
+        explicitY,
+        objectY,
+        objectSnap.dy,
+        gridSnap.delta.y,
+        pixelSnap.delta.y
+      )
     },
     guides: deduplicateGuides([
       ...geometryGuides,

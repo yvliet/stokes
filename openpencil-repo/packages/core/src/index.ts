@@ -135,6 +135,7 @@ export type {
   TypographyStyle
 } from './rpc'
 export { SkiaRenderer, type RenderOverlays } from './canvas'
+export { drawDotGrid, DEFAULT_GRID_SIZE } from './canvas/dot-grid'
 export { LabelCache, type CachedSection, type CachedComponent } from './canvas/labels/cache'
 export {
   RenderProfiler,

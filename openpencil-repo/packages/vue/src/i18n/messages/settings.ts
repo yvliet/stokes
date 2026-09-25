@@ -11,6 +11,11 @@ export const settingsMessageDefaults = {
   languageDescription: 'Choose the language used by the app interface.',
   editing: 'Editing',
   snappingDescription: 'Control alignment while editing paths, moving, and resizing layers.',
+  showDotGrid: 'Show dot grid',
+  showDotGridDescription: 'Display background dot grid on the canvas.',
+  snapToGrid: 'Snap to grid',
+  snapToGridDescription:
+    'Align moved layers, vector points, and resized edges to the background dot grid.',
   snapToGeometry: 'Snap to geometry',
   snapToGeometryDescription: 'Align dragged vector points to other points in the path.',
   snapToObjects: 'Snap to objects',

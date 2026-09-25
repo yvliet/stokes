@@ -154,6 +154,7 @@ export class SkiaRenderer {
   declare penHandlePaint: Paint
   declare penVertexFill: Paint
   declare penVertexStroke: Paint
+  declare gridPaint: Paint
 
   panX = 0
   panY = 0
@@ -163,6 +164,7 @@ export class SkiaRenderer {
   viewportHeight = 0
   pageColor = CANVAS_BG_COLOR
   pageId: string | null = null
+  showGrid = true
 
   boundEffectLayersToViewport = false
   worldViewport = { x: 0, y: 0, w: 0, h: 0 }

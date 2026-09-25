@@ -26,6 +26,7 @@ export function createDefaultEditorViewState(pageId: string): EditorViewState {
     navigation: { phase: 'idle', generation: 0, lastInputAt: 0 },
     renderVersion: 0,
     enteredContainerId: null,
+    showGrid: true,
     nodeEditState: null,
     cursorCanvasX: null,
     cursorCanvasY: null
@@ -45,6 +46,7 @@ export function copyEditorViewState(source: EditorViewState): EditorViewState {
     autoLayoutHover: structuredClone(source.autoLayoutHover),
     pageColor: { ...source.pageColor },
     navigation: { ...source.navigation },
+    showGrid: source.showGrid ?? true,
     nodeEditState: structuredClone(source.nodeEditState)
   }
 }

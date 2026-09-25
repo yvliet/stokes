@@ -7,6 +7,7 @@ import type { RenderOverlays, SkiaRenderer } from '#core/canvas/renderer'
 import type { EditorState } from '#core/editor/types'
 import { emitNavigationTrace } from '#core/profiler'
 
+import { drawDotGrid } from '#core/canvas/dot-grid'
 import { drawChromePass, drawLabelPass, drawOverlayPass } from './overlay-pass'
 import { renderSceneBacking, updateSceneBackingPreviewState } from './retained-backing'
 
@@ -48,6 +49,7 @@ export function renderFromEditorState(
   r.viewportHeight = viewportHeight
   r.pageColor = state.pageColor
   r.pageId = state.currentPageId
+  r.showGrid = state.showGrid ?? true
   r.navigationPhase = state.navigation.phase
   r.navigationGeneration = state.navigation.generation
   render(
@@ -210,6 +212,14 @@ export function render(
     }
     canvas.save()
     canvas.scale(r.dpr, r.dpr)
+
+    if (r.showGrid !== false) {
+      canvas.save()
+      canvas.translate(r.panX, r.panY)
+      canvas.scale(r.zoom, r.zoom)
+      drawDotGrid(r, canvas)
+      canvas.restore()
+    }
 
     p.beginPhase('render:scene')
     let renderedScene = false

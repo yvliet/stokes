@@ -1,6 +1,7 @@
 import { DEFAULT_TEXT_HEIGHT, DEFAULT_TEXT_WIDTH } from '@open-pencil/core/constants'
 import type { Editor } from '@open-pencil/core/editor'
 
+import { DEFAULT_GRID_SIZE } from '#vue/shared/input/snap'
 import { TOOL_TO_NODE } from '#vue/shared/input/types'
 import type { DragDraw, DragState } from '#vue/shared/input/types'
 
@@ -10,11 +11,17 @@ export function startTextDraw(
   editor: Editor,
   setDrag: (d: DragState) => void
 ) {
+  const startX = editor.state.snappingPreferences.grid
+    ? Math.round(cx / DEFAULT_GRID_SIZE) * DEFAULT_GRID_SIZE
+    : cx
+  const startY = editor.state.snappingPreferences.grid
+    ? Math.round(cy / DEFAULT_GRID_SIZE) * DEFAULT_GRID_SIZE
+    : cy
   editor.undo.beginBatch('Create text')
-  const nodeId = editor.createShape('TEXT', cx, cy, 0, 0)
+  const nodeId = editor.createShape('TEXT', startX, startY, 0, 0)
   editor.graph.updateNode(nodeId, { text: '' })
   editor.select([nodeId])
-  setDrag(createDraw(editor, nodeId, cx, cy))
+  setDrag(createDraw(editor, nodeId, startX, startY))
 }
 
 export function startShapeDraw(
@@ -26,15 +33,30 @@ export function startShapeDraw(
   const nodeType = TOOL_TO_NODE[editor.state.activeTool]
   if (!nodeType) return
 
+  const startX = editor.state.snappingPreferences.grid
+    ? Math.round(cx / DEFAULT_GRID_SIZE) * DEFAULT_GRID_SIZE
+    : cx
+  const startY = editor.state.snappingPreferences.grid
+    ? Math.round(cy / DEFAULT_GRID_SIZE) * DEFAULT_GRID_SIZE
+    : cy
+
   editor.undo.beginBatch('Create shape')
-  const nodeId = editor.createShape(nodeType, cx, cy, 0, 0)
+  const nodeId = editor.createShape(nodeType, startX, startY, 0, 0)
   editor.select([nodeId])
-  setDrag(createDraw(editor, nodeId, cx, cy))
+  setDrag(createDraw(editor, nodeId, startX, startY))
 }
 
-export function handleDrawMove(d: DragDraw, cx: number, cy: number, shiftKey: boolean) {
-  let w = cx - d.startX
-  let h = cy - d.startY
+export function handleDrawMove(
+  d: DragDraw,
+  cx: number,
+  cy: number,
+  shiftKey: boolean,
+  snapToGrid = false
+) {
+  const targetX = snapToGrid ? Math.round(cx / DEFAULT_GRID_SIZE) * DEFAULT_GRID_SIZE : cx
+  const targetY = snapToGrid ? Math.round(cy / DEFAULT_GRID_SIZE) * DEFAULT_GRID_SIZE : cy
+  let w = targetX - d.startX
+  let h = targetY - d.startY
 
   if (shiftKey) {
     const size = Math.max(Math.abs(w), Math.abs(h))

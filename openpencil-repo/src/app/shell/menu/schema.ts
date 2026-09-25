@@ -174,6 +174,7 @@ export const APP_MENU_SCHEMA = [
       { id: 'view-split-right', label: 'Split Right' },
       { id: 'view-split-down', label: 'Split Down' },
       { type: 'separator' },
+      { id: 'view-grid', label: 'Dot Grid', checkbox: true, shortcut: "MOD+'", handler: 'shell' },
       { id: 'view-multiplayer-cursors', label: 'Multiplayer Cursors', checkbox: true },
       { type: 'separator' },
       {
@@ -191,6 +192,12 @@ export const APP_MENU_SCHEMA = [
         id: 'preferences',
         label: 'Preferences',
         sub: [
+          {
+            id: 'snap-grid',
+            label: 'Snap to Grid',
+            checkbox: true,
+            handler: 'shell'
+          },
           {
             id: 'snap-geometry',
             label: 'Snap to Geometry',

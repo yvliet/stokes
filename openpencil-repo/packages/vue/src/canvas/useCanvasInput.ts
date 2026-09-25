@@ -339,7 +339,7 @@ export function useCanvasInput(
     }
 
     if (d.type === 'draw') {
-      handleDrawMove(d, cx, cy, e.shiftKey)
+      handleDrawMove(d, cx, cy, e.shiftKey, editor.state.snappingPreferences.grid)
       return
     }
 

@@ -93,6 +93,7 @@ export interface EditorViewState {
   navigation: NavigationState
   renderVersion: number
   enteredContainerId: string | null
+  showGrid?: boolean
   nodeEditState?: RenderOverlays['nodeEditState'] | null
   cursorCanvasX?: number | null
   cursorCanvasY?: number | null

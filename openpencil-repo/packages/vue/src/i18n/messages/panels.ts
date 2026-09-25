@@ -306,6 +306,8 @@ export const panelMessageDefaults = {
   colorPreviewClipped: params('Clipped to {space} preview gamut'),
   rulers: 'Rulers',
   multiplayerCursors: 'Multiplayer cursors',
+  dotGrid: 'Dot grid',
+  snapToGrid: 'Snap to grid',
   direction: 'Direction',
   flow: 'Flow',
   freeform: 'Freeform',

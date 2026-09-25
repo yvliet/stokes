@@ -17,6 +17,9 @@ export interface AppPreferences {
   recovery: {
     enabled: boolean
   }
+  canvas: {
+    showGrid: boolean
+  }
   editing: {
     snapping: SnappingPreferences
   }
@@ -30,6 +33,7 @@ export const DEFAULT_APP_PREFERENCES: Readonly<AppPreferences> = {
   chat: { reasoningDisplay: 'collapsed', maxAgentSteps: DEFAULT_AGENT_STEPS },
   version: 1,
   recovery: { enabled: true },
+  canvas: { showGrid: true },
   editing: {
     snapping: { ...DEFAULT_SNAPPING_PREFERENCES }
   },
@@ -46,12 +50,14 @@ interface StoredSnappingPreferences {
   geometry?: unknown
   objects?: unknown
   pixelGrid?: unknown
+  grid?: unknown
 }
 
 interface StoredAppPreferences {
   appearance?: { animations?: unknown }
   chat?: { reasoningDisplay?: unknown; maxAgentSteps?: unknown }
   recovery?: { enabled?: unknown }
+  canvas?: { showGrid?: unknown }
   editing?: { snapping?: StoredSnappingPreferences }
   rendering?: { canvasMode?: unknown }
 }
@@ -85,6 +91,12 @@ function normalizePreferences(value: unknown): AppPreferences {
     recovery: {
       enabled: booleanOrDefault(stored?.recovery?.enabled, DEFAULT_APP_PREFERENCES.recovery.enabled)
     },
+    canvas: {
+      showGrid: booleanOrDefault(
+        stored?.canvas?.showGrid,
+        DEFAULT_APP_PREFERENCES.canvas.showGrid
+      )
+    },
     editing: {
       snapping: {
         geometry: booleanOrDefault(
@@ -98,6 +110,10 @@ function normalizePreferences(value: unknown): AppPreferences {
         pixelGrid: booleanOrDefault(
           snapping?.pixelGrid,
           DEFAULT_APP_PREFERENCES.editing.snapping.pixelGrid
+        ),
+        grid: booleanOrDefault(
+          snapping?.grid,
+          DEFAULT_APP_PREFERENCES.editing.snapping.grid
         )
       }
     },
@@ -127,6 +143,13 @@ export function updateCanvasRenderingMode(canvasMode: CanvasRenderingMode): void
   appPreferences.value = {
     ...appPreferences.value,
     rendering: { canvasMode }
+  }
+}
+
+export function updateCanvasGridPreference(showGrid: boolean): void {
+  appPreferences.value = {
+    ...appPreferences.value,
+    canvas: { showGrid }
   }
 }
 

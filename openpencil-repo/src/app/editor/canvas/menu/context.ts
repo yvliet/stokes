@@ -9,6 +9,7 @@ import {
   CANVAS_VECTORIZE_TEST_ID,
   type CanvasContextActionId
 } from '@/app/editor/canvas/menu/registry'
+import { setCanvasGridPreference, setSnappingPreference } from '@/app/settings/preferences/apply'
 
 const STATIC_SELECTION_COMMAND_IDS = new Set([
   'selection.duplicate',
@@ -104,7 +105,22 @@ export function useCanvasContextMenu(
 ) {
   return computed<MenuEntry[]>(() => {
     const entries = withoutStaticSelectionCommands(baseEntries.value)
-    if (!hasSelection.value) return entries
+    if (!hasSelection.value) {
+      return [
+        ...entries,
+        { separator: true },
+        {
+          label: 'Dot grid',
+          checked: editor.state.showGrid ?? true,
+          action: () => setCanvasGridPreference(!(editor.state.showGrid ?? true))
+        },
+        {
+          label: 'Snap to grid',
+          checked: editor.state.snappingPreferences.grid,
+          action: () => setSnappingPreference('grid', !editor.state.snappingPreferences.grid)
+        }
+      ]
+    }
     if (actions.canVectorizeImage()) {
       entries.push(
         { separator: true },

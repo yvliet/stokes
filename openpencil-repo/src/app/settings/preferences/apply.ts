@@ -3,7 +3,7 @@ import type { SnappingPreferences } from '@open-pencil/core/editor'
 import { getTabsSnapshot } from '@/app/tabs'
 
 import { syncNativeSnappingMenu } from './native-menu'
-import { appPreferences, updateSnappingPreferences } from './store'
+import { appPreferences, updateCanvasGridPreference, updateSnappingPreferences } from './store'
 
 export function setSnappingPreference(
   preference: keyof SnappingPreferences,
@@ -18,3 +18,12 @@ export function setSnappingPreference(
     console.error('[Settings] Failed to synchronize native snapping preferences:', error)
   })
 }
+
+export function setCanvasGridPreference(showGrid: boolean): void {
+  updateCanvasGridPreference(showGrid)
+  for (const tab of getTabsSnapshot()) {
+    tab.store.state.showGrid = showGrid
+    tab.store.requestRepaint()
+  }
+}
+

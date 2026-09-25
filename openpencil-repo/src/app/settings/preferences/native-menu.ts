@@ -3,6 +3,7 @@ import type { SnappingPreferences } from '@open-pencil/core/editor'
 import { isTauri } from '@/app/tauri/env'
 
 const SNAPPING_MENU_IDS = {
+  grid: 'snap-grid',
   geometry: 'snap-geometry',
   objects: 'snap-objects',
   pixelGrid: 'snap-pixel-grid'

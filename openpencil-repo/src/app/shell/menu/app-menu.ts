@@ -20,7 +20,7 @@ import { shortcutPlatform, useEditorCommands, useI18n } from '@open-pencil/vue'
 
 import { useEditorStore } from '@/app/editor/active-store'
 import { openSettingsDialog } from '@/app/settings/dialog'
-import { setSnappingPreference } from '@/app/settings/preferences/apply'
+import { setCanvasGridPreference, setSnappingPreference } from '@/app/settings/preferences/apply'
 import { createSharedEditorMenuActions } from '@/app/shell/menu/editor-actions'
 import { openStorageWorkspace } from '@/app/shell/menu/navigation'
 import type {
@@ -107,7 +107,9 @@ export function useAppMenu() {
     language: 'language',
     preferences: 'preferences',
     settings: 'settings',
+    'view-grid': 'dotGrid',
     'view-multiplayer-cursors': 'multiplayerCursors',
+    'snap-grid': 'snapToGrid',
     'snap-geometry': 'snapToGeometry',
     'snap-objects': 'snapToObjects',
     'snap-pixel-grid': 'snapToPixelGrid',
@@ -177,8 +179,12 @@ export function useAppMenu() {
         return store.state.autosaveEnabled
       case 'profiler':
         return store.renderer?.profiler.hudVisible ?? false
+      case 'view-grid':
+        return store.state.showGrid ?? true
       case 'view-multiplayer-cursors':
         return store.state.showRemoteCursors
+      case 'snap-grid':
+        return store.state.snappingPreferences.grid
       case 'snap-geometry':
         return store.state.snappingPreferences.geometry
       case 'snap-objects':
@@ -204,10 +210,14 @@ export function useAppMenu() {
         }
       case 'profiler':
         return () => store.toggleProfiler()
+      case 'view-grid':
+        return (value: boolean) => setCanvasGridPreference(value)
       case 'view-multiplayer-cursors':
         return (value: boolean) => {
           if (store.state.showRemoteCursors !== value) itemAction(item)?.()
         }
+      case 'snap-grid':
+        return (value: boolean) => setSnappingPreference('grid', value)
       case 'snap-geometry':
         return (value: boolean) => setSnappingPreference('geometry', value)
       case 'snap-objects':

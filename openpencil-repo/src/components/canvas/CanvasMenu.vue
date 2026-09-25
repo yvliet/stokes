@@ -195,9 +195,13 @@ function contextCommandIcon(id: EditorCommandId | undefined): Component | undefi
           @select="item.action?.()"
         >
           <span class="flex min-w-0 flex-1 items-center gap-2">
+            <icon-lucide-check
+              v-if="item.checked"
+              class="size-3.5 shrink-0 text-accent"
+            />
             <component
               :is="contextCommandIcon(item.id)"
-              v-if="contextCommandIcon(item.id)"
+              v-else-if="contextCommandIcon(item.id)"
               class="size-3.5 shrink-0 text-muted"
             />
             <span class="truncate">{{ item.label }}</span>
