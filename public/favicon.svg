@@ -1,28 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="none">
   <style>
     :root { color: #09090b; }
     @media (prefers-color-scheme: dark) {
       :root { color: #ffffff; }
     }
   </style>
-  <!-- Row 0 -->
-  <rect x="0" y="0" width="4" height="4" fill="currentColor" fill-opacity="0.12" />
-  <rect x="4" y="0" width="4" height="4" fill="currentColor" fill-opacity="0.25" />
-  <rect x="8" y="0" width="4" height="4" fill="currentColor" fill-opacity="0.40" />
-  <rect x="12" y="0" width="4" height="4" fill="currentColor" fill-opacity="0.55" />
-  <!-- Row 1 -->
-  <rect x="0" y="4" width="4" height="4" fill="currentColor" fill-opacity="0.25" />
-  <rect x="4" y="4" width="4" height="4" fill="currentColor" fill-opacity="0.40" />
-  <rect x="8" y="4" width="4" height="4" fill="currentColor" fill-opacity="0.55" />
-  <rect x="12" y="4" width="4" height="4" fill="currentColor" fill-opacity="0.70" />
-  <!-- Row 2 -->
-  <rect x="0" y="8" width="4" height="4" fill="currentColor" fill-opacity="0.40" />
-  <rect x="4" y="8" width="4" height="4" fill="currentColor" fill-opacity="0.55" />
-  <rect x="8" y="8" width="4" height="4" fill="currentColor" fill-opacity="0.70" />
-  <rect x="12" y="8" width="4" height="4" fill="currentColor" fill-opacity="0.85" />
-  <!-- Row 3 -->
-  <rect x="0" y="12" width="4" height="4" fill="currentColor" fill-opacity="0.55" />
-  <rect x="4" y="12" width="4" height="4" fill="currentColor" fill-opacity="0.70" />
-  <rect x="8" y="12" width="4" height="4" fill="currentColor" fill-opacity="0.85" />
-  <rect x="12" y="12" width="4" height="4" fill="currentColor" fill-opacity="1.00" />
+  <path d="M92 108H307V216H200V806H307V914H92V108ZM930 108H715V216H822V806H715V914H930V108Z" fill="currentColor"/>
 </svg>
