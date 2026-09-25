@@ -76,7 +76,6 @@ useCanvas(sceneCanvasRef, store, {
   sceneRenderer: appRuntimeConfig.sceneRenderer,
   onReady: store.markCanvasReady,
   shouldSuspendRender,
-  showRulers: false,
   getRenderState,
   onViewportResize,
   onPresented: ({ sceneVersion }) =>
@@ -90,9 +89,6 @@ const { hitTestSectionTitle, hitTestComponentLabel, hitTestFrameTitle } = useCan
   store,
   {
     layer: 'overlays',
-    get showRulers() {
-      return appRuntimeConfig.showRulers && store.state.showRulers
-    },
     shouldSuspendRender,
     getRenderState,
     onViewportResize

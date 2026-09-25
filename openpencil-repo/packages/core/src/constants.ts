@@ -50,7 +50,7 @@ export const SNAP_THRESHOLD_SCREEN_PX = 5
 
 export const RULER_SIZE = 20
 export const RULER_BG_COLOR = { r: 42 / 255, g: 42 / 255, b: 42 / 255, a: 1 } satisfies Color // #2a2a2a
-export const RULER_TICK_COLOR = { r: 58 / 255, g: 58 / 255, b: 58 / 255, a: 1 } satisfies Color // #3a3a3a
+export const RULER_TICK_COLOR = { r: 110 / 255, g: 110 / 255, b: 110 / 255, a: 1 } satisfies Color // #6e6e6e
 export const RULER_TEXT_COLOR = { r: 160 / 255, g: 160 / 255, b: 160 / 255, a: 1 } satisfies Color // #a0a0a0
 export const RULER_BADGE_HEIGHT = 14
 export const RULER_BADGE_PADDING = 3

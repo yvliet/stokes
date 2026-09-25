@@ -50,10 +50,6 @@ function cancelInput() {
   editing.value = false
 }
 
-function toggleRulers() {
-  store.state.showRulers = !store.state.showRulers
-  store.requestRepaint()
-}
 
 function toggleRemoteCursors() {
   store.state.showRemoteCursors = !store.state.showRemoteCursors
@@ -154,10 +150,6 @@ watch(open, (v) => {
 
         <DropdownMenuSeparator :class="menuCls.separator" />
 
-        <DropdownMenuItem :class="itemCls" @select.prevent="toggleRulers">
-          <icon-lucide-check v-if="store.state.showRulers" class="absolute left-2 size-3.5" />
-          <span class="flex-1">{{ panels.rulers }}</span>
-        </DropdownMenuItem>
         <DropdownMenuItem :class="itemCls" @select.prevent="toggleRemoteCursors">
           <icon-lucide-check
             v-if="store.state.showRemoteCursors"

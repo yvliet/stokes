@@ -11,7 +11,6 @@ export function createInitialAppEditorState(pageId: string): AppEditorState {
     ...createDefaultEditorState(pageId),
     snappingPreferences: { ...appPreferences.value.editing.snapping },
     showUI: true,
-    showRulers: true,
     showRemoteCursors: true,
     activeRibbonTab: 'panels',
     panelMode: 'design',
@@ -32,7 +31,6 @@ export function createInitialAppEditorState(pageId: string): AppEditorState {
 
 export type AppEditorState = EditorState & {
   showUI: boolean
-  showRulers: boolean
   showRemoteCursors: boolean
   activeRibbonTab: 'panels' | 'code' | 'ai'
   panelMode: 'layers' | 'design'

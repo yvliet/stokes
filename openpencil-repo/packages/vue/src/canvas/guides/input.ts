@@ -63,10 +63,7 @@ export function createGuideInput({
     return axis === 'x' ? 'ew-resize' : 'ns-resize'
   }
 
-  function rulerAxis(sx: number, sy: number): DragGuide['axis'] | null {
-    if (sx < RULER_SIZE && sy < RULER_SIZE) return null
-    if (sy < RULER_SIZE) return 'y'
-    if (sx < RULER_SIZE) return 'x'
+  function rulerAxis(_sx: number, _sy: number): DragGuide['axis'] | null {
     return null
   }
 
@@ -106,23 +103,8 @@ export function createGuideInput({
     return true
   }
 
-  function tryStartFromRuler(sx: number, sy: number, cx: number, cy: number): boolean {
-    if (!('showRulers' in editor.state) || editor.state.showRulers !== true) return false
-    const axis = rulerAxis(sx, sy)
-    if (!axis) return false
-    const ownerId = ownerAt(cx, cy)
-    setDrag({
-      type: 'guide',
-      axis,
-      ownerId,
-      position: positionFor(ownerId, axis, cx, cy),
-      startScreenX: sx,
-      startScreenY: sy,
-      currentScreenX: sx,
-      currentScreenY: sy,
-      dragStarted: false
-    })
-    return true
+  function tryStartFromRuler(_sx: number, _sy: number, _cx: number, _cy: number): boolean {
+    return false
   }
 
   function handleMove(

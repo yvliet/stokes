@@ -1,11 +1,7 @@
 import { useLocalStorage, usePreferredDark } from '@vueuse/core'
 import { computed, watch } from 'vue'
 
-import type { RulerTheme } from '@open-pencil/core/canvas'
-import { parseColor } from '@open-pencil/core/color'
 import { IS_BROWSER } from '@open-pencil/core/constants'
-
-import { getActiveEditorStoreOrNull, useActiveEditorStoreRef } from '@/app/editor/active-store'
 
 export type AppTheme = 'dark' | 'light' | 'auto'
 
@@ -19,47 +15,17 @@ export const resolvedAppTheme = computed<'dark' | 'light'>(() => {
   return theme.value
 })
 
-function readRulerTheme(): RulerTheme | null {
-  if (!IS_BROWSER || !('document' in globalThis)) return null
-  const style = getComputedStyle(document.documentElement)
-  const bg = style.getPropertyValue('--color-ruler-bg').trim()
-  const tick = style.getPropertyValue('--color-ruler-tick').trim()
-  const text = style.getPropertyValue('--color-ruler-text').trim()
-  const label = style.getPropertyValue('--color-ruler-label').trim()
-  if (!bg && !tick && !text) return null
-  return {
-    background: parseColor(bg || 'rgb(42, 42, 42)'),
-    tick: parseColor(tick || '#3a3a3a'),
-    text: parseColor(text || 'rgb(160, 160, 160)'),
-    label: parseColor(label || 'rgb(255, 255, 255)')
-  }
-}
-
-function updateCanvasTheme(): void {
-  if (!IS_BROWSER) return
-  const store = getActiveEditorStoreOrNull()
-  if (!store) return
-  store.state.rulerTheme = readRulerTheme() ?? undefined
-  store.requestRepaint()
-}
-
 function applyTheme(value: 'dark' | 'light', setting: AppTheme): void {
   if (!IS_BROWSER || !('document' in globalThis)) return
   document.documentElement.dataset.theme = value
   document.documentElement.dataset.themeSetting = setting
   document.documentElement.style.colorScheme = value
-  updateCanvasTheme()
 }
 
 export function useAppTheme() {
   watch([resolvedAppTheme, theme], ([value, setting]) => applyTheme(value, setting), {
     immediate: true
   })
-
-  // Editors may mount after the theme was applied; push the canvas (ruler)
-  // theme whenever the active editor changes so rulers always match.
-  const activeStoreRef = useActiveEditorStoreRef()
-  watch([activeStoreRef, resolvedAppTheme], () => updateCanvasTheme(), { flush: 'post' })
 
   const isLight = computed(() => resolvedAppTheme.value === 'light')
 

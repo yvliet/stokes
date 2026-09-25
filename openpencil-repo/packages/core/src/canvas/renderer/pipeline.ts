@@ -36,7 +36,7 @@ export function renderFromEditorState(
   textEditor: unknown,
   viewportWidth: number,
   viewportHeight: number,
-  showRulers = true,
+  showRulers = false,
   dpr = 1,
   layer: RenderLayer = 'full',
   interactive = false

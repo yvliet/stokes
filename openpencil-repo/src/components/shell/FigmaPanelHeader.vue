@@ -45,7 +45,7 @@ watch(nameInput, (input) => {
   if (input) void rename.focusInput(input)
 })
 
-const { menu: t, settings } = useI18n()
+const { settings } = useI18n()
 const { topMenus } = useAppMenu()
 const { toggleSidebar } = useFigmaRail()
 

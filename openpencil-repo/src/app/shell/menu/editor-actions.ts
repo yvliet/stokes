@@ -55,10 +55,6 @@ export function createSharedEditorMenuActions(
     'zoom-out': () => store.applyZoom(100, window.innerWidth / 2, window.innerHeight / 2),
     'view-split-right': () => store.splitPane(store.activePaneId.value, 'horizontal'),
     'view-split-down': () => store.splitPane(store.activePaneId.value, 'vertical'),
-    'view-rulers': () => {
-      store.state.showRulers = !store.state.showRulers
-      store.requestRepaint()
-    },
     'view-multiplayer-cursors': () => {
       store.state.showRemoteCursors = !store.state.showRemoteCursors
       store.requestRepaint()

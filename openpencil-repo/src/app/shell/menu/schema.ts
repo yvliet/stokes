@@ -174,7 +174,6 @@ export const APP_MENU_SCHEMA = [
       { id: 'view-split-right', label: 'Split Right' },
       { id: 'view-split-down', label: 'Split Down' },
       { type: 'separator' },
-      { id: 'view-rulers', label: 'Rulers', checkbox: true },
       { id: 'view-multiplayer-cursors', label: 'Multiplayer Cursors', checkbox: true },
       { type: 'separator' },
       {

@@ -13,7 +13,6 @@ const BUDGET_MS = 16.67
 const FAST_MS = 16.7
 const SLOW_MS = 33.3
 const CORNER_RADIUS = 4
-const RULER_SIZE = 20
 const SWATCH_SIZE = 6
 const SWATCH_GAP = 3
 const LEGEND_ITEM_GAP = 10
@@ -89,8 +88,8 @@ export class HudRenderer {
     this.hudFont = new this.ck.Font(typeface, 10)
   }
 
-  draw(canvas: Canvas, stats: FrameStats, phases: Map<string, number>, showRulers: boolean): void {
-    const rulerOffset = showRulers ? RULER_SIZE : 0
+  draw(canvas: Canvas, stats: FrameStats, phases: Map<string, number>, _showRulers?: boolean): void {
+    const rulerOffset = 0
     const hasGraph = stats.getBufferCount() > 0
 
     const phaseNames = [
@@ -101,7 +100,6 @@ export class HudRenderer {
       'render:sectionTitles',
       'render:componentLabels',
       'render:selection',
-      'render:rulers',
       'render:flush'
     ]
     const visiblePhases = phaseNames.filter((n) => (phases.get(n) ?? 0) > 0.01)

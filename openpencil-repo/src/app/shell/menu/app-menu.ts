@@ -107,7 +107,6 @@ export function useAppMenu() {
     language: 'language',
     preferences: 'preferences',
     settings: 'settings',
-    'view-rulers': 'rulers',
     'view-multiplayer-cursors': 'multiplayerCursors',
     'snap-geometry': 'snapToGeometry',
     'snap-objects': 'snapToObjects',
@@ -178,8 +177,6 @@ export function useAppMenu() {
         return store.state.autosaveEnabled
       case 'profiler':
         return store.renderer?.profiler.hudVisible ?? false
-      case 'view-rulers':
-        return store.state.showRulers
       case 'view-multiplayer-cursors':
         return store.state.showRemoteCursors
       case 'snap-geometry':
@@ -207,10 +204,6 @@ export function useAppMenu() {
         }
       case 'profiler':
         return () => store.toggleProfiler()
-      case 'view-rulers':
-        return (value: boolean) => {
-          if (store.state.showRulers !== value) itemAction(item)?.()
-        }
       case 'view-multiplayer-cursors':
         return (value: boolean) => {
           if (store.state.showRemoteCursors !== value) itemAction(item)?.()

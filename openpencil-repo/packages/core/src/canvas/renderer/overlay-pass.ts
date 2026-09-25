@@ -65,12 +65,9 @@ export function drawOverlayPass(
 export function drawChromePass(
   r: SkiaRenderer,
   canvas: Canvas,
-  graph: SceneGraph,
-  selectedIds: Set<string>,
-  overlays: RenderOverlays
+  _graph: SceneGraph,
+  _selectedIds: Set<string>,
+  _overlays: RenderOverlays
 ): void {
-  r.profiler.beginPhase('render:rulers')
-  if (r.showRulers) r.drawRulers(canvas, graph, selectedIds, overlays.guides)
-  r.profiler.endPhase('render:rulers')
-  r.profiler.drawHUD(canvas, r.showRulers)
+  r.profiler.drawHUD(canvas, false)
 }

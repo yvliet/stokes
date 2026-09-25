@@ -9,7 +9,6 @@ export interface AppRuntimeConfig {
   navigationBenchmark: boolean
   recentFiles: boolean
   showChrome: boolean
-  showRulers: boolean
   sceneRenderer: SceneRendererMode
   sceneRendererOverride: boolean
   collaborationTransport: CollaborationTransportMode
@@ -29,7 +28,6 @@ export function parseAppRuntimeConfig(
     navigationBenchmark: params.has('navigation-benchmark'),
     recentFiles: params.has('recent-files'),
     showChrome: !params.has('no-chrome'),
-    showRulers: !params.has('no-rulers'),
     sceneRenderer,
     sceneRendererOverride: renderer === 'tiled' || renderer === 'retained',
     collaborationTransport: params.get('collabTransport') === 'test' ? 'test' : 'default',

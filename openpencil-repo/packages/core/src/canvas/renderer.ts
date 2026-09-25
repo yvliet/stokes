@@ -167,7 +167,7 @@ export class SkiaRenderer {
   dpr = 1
   viewportWidth = 0
   viewportHeight = 0
-  showRulers = true
+  showRulers = false
   pageColor = CANVAS_BG_COLOR
   rulerTheme: RulerTheme | null = null
   pageId: string | null = null
