@@ -69,7 +69,7 @@ This project strictly adheres to the official IBM Bob 2.0 Hackathon regulations.
 Full verification captures and role verifications are documented in [docs/compliance/COMPLIANCE.md](docs/compliance/COMPLIANCE.md).
 
 - **Built with IBM Bob 2.0 during Hackathon**: Stokes CLI, 4 autonomous subagents, Tree-sitter AST reachability engine, 10,000-case float fuzzer, Criterion micro-benchmark parser, and 111-test suite.
-- **Disclosed Baseline Templates**: Dirichlet benchmark patient (`dirichlet/`) and demo web UI template (`stokes/web/`).
+- **Disclosed Baseline Templates & Canvas Fork**: Dirichlet benchmark patient (`dirichlet/`), demo web UI template, and Stokes Studio canvas (`stokes/web/openpencil-repo/`, adapted from a stripped fork of OpenPencil without Figma/media overhead for storage pipeline DAG routing).
 
 ## License
 
