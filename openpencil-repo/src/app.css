@@ -82,7 +82,7 @@
   --color-code-punctuation: #888888;
   --color-checkerboard: #3a3a3a;
   --color-ruler-bg: rgb(42, 42, 42);
-  --color-ruler-tick: rgb(102, 102, 102);
+  --color-ruler-tick: #3a3a3a;
   --color-ruler-text: rgb(160, 160, 160);
   --color-ruler-label: rgb(255, 255, 255);
 }
@@ -123,7 +123,7 @@ html[data-theme='light'] {
   --color-checkerboard: #d1d5db;
   --color-checkerboard-muted: #e5e7eb;
   --color-ruler-bg: rgb(250, 250, 251);
-  --color-ruler-tick: rgb(163, 171, 182);
+  --color-ruler-tick: #d8dce3;
   --color-ruler-text: rgb(90, 99, 112);
   --color-ruler-label: rgb(255, 255, 255);
 }

@@ -13,11 +13,8 @@ import {
   RULER_BADGE_RADIUS,
   RULER_BADGE_EXCLUSION,
   RULER_TEXT_BASELINE,
-  RULER_MAJOR_TICK,
-  RULER_MINOR_TICK,
   RULER_HIGHLIGHT_ALPHA,
-  RULER_TARGET_PIXEL_SPACING,
-  RULER_MAJOR_TOLERANCE
+  RULER_TARGET_PIXEL_SPACING
 } from '#core/constants'
 
 import type { SkiaRenderer } from './renderer'
@@ -118,7 +115,7 @@ function drawVerticalRulerTicks(
         canvas.save()
         canvas.translate(R * RULER_TEXT_BASELINE, sy - 2)
         canvas.rotate(-90, 0, 0)
-        canvas.drawText(rulerLabel(wy), 0, 3, r.rulerTextPaint, font)
+        canvas.drawText(rulerLabel(wy), 0, 0, r.rulerTextPaint, font)
         canvas.restore()
       }
     }

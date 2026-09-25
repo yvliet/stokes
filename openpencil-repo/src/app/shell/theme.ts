@@ -29,7 +29,7 @@ function readRulerTheme(): RulerTheme | null {
   if (!bg && !tick && !text) return null
   return {
     background: parseColor(bg || 'rgb(42, 42, 42)'),
-    tick: parseColor(tick || 'rgb(102, 102, 102)'),
+    tick: parseColor(tick || '#3a3a3a'),
     text: parseColor(text || 'rgb(160, 160, 160)'),
     label: parseColor(label || 'rgb(255, 255, 255)')
   }

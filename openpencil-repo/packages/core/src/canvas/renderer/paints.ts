@@ -1,12 +1,16 @@
 import type { SkiaRenderer } from '#core/canvas/renderer'
 import {
+  COMPONENT_LABEL_FONT_SIZE,
   DEFAULT_FONT_SIZE,
+  LABEL_FONT_SIZE,
   PARENT_OUTLINE_ALPHA,
   PARENT_OUTLINE_DASH,
   PEN_PATH_STROKE_WIDTH,
   RULER_BG_COLOR,
   RULER_TEXT_COLOR,
   RULER_TICK_COLOR,
+  SECTION_TITLE_FONT_SIZE,
+  SIZE_FONT_SIZE,
   SNAP_COLOR
 } from '#core/constants'
 
@@ -53,6 +57,10 @@ export function initializeRendererPaints(r: SkiaRenderer): void {
   r.opacityPaint = new ck.Paint()
   r.effectLayerPaint = new ck.Paint()
   r.textFont = new ck.Font(null, DEFAULT_FONT_SIZE)
+  r.labelFont = new ck.Font(null, LABEL_FONT_SIZE)
+  r.sizeFont = new ck.Font(null, SIZE_FONT_SIZE)
+  r.sectionTitleFont = new ck.Font(null, SECTION_TITLE_FONT_SIZE)
+  r.componentLabelFont = new ck.Font(null, COMPONENT_LABEL_FONT_SIZE)
 
   const bg = RULER_BG_COLOR
   r.rulerBgPaint = new ck.Paint()

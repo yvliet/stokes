@@ -217,7 +217,14 @@ export class FontManager {
 
   async fetchBundledFont(url: string): Promise<ArrayBuffer | null> {
     if (IS_BROWSER) {
-      const response = await fetch(url)
+      const base = 'env' in import.meta ? (import.meta.env.BASE_URL ?? '/') : '/'
+      const prefix = base === '/' ? '' : base.replace(/\/$/, '')
+      const resolvedURL = url.startsWith('/') ? `${prefix}${url}` : `${prefix}/${url}`
+      const response = await fetch(resolvedURL)
+      if (!response.ok) {
+        console.warn(`Failed to fetch bundled font at ${resolvedURL}: ${response.status}`)
+        return null
+      }
       return response.arrayBuffer()
     }
     const { readFile } = await import(/* @vite-ignore */ 'node:fs/promises')

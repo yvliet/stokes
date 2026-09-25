@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import process from 'node:process'
 
-import { AUTOMATION_HTTP_PORT } from '../packages/core/src/constants'
+const AUTOMATION_HTTP_PORT = 19890
 
 import { devAutomationRoute } from '../src/app/automation/bridge/portless-route'
 import { automationPlugin } from '../src/app/automation/bridge/vite-plugin'
