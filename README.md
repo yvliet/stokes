@@ -59,6 +59,18 @@ Risk > 1.0   →  FATAL CONTRACT DRIFT
 - **Dual-Zone Memory**: MAX_ACTIVE_FEATURES = 200 (Zone 0: slots 0–127 CORE RESERVED, Zone 1: slots 128–199 DYNAMIC ADAPTIVE)
 - **Event Bus**: `asyncio.Queue(maxsize=1024)`, 16.6 ms render tick
 
+## Hackathon Compliance & Attribution
+
+This project strictly adheres to the official IBM Bob 2.0 Hackathon regulations.
+
+> *"Yes, you can use pre-prepared synthetic sample code and demo UI templates as long as they are clearly disclosed in your repository and all the core Bob analysis and project logic are built during the hackathon."*  
+> - **Hamza | lablab.ai** (Discord message ID: `1553083130045268114`, September 25, 2026 at 23:37 WIB)
+
+Full verification captures and role verifications are documented in [docs/compliance/COMPLIANCE.md](docs/compliance/COMPLIANCE.md).
+
+- **Built with IBM Bob 2.0 during Hackathon**: Stokes CLI, 4 autonomous subagents, Tree-sitter AST reachability engine, 10,000-case float fuzzer, Criterion micro-benchmark parser, and 111-test suite.
+- **Disclosed Baseline Templates**: Dirichlet benchmark patient (`dirichlet/`) and demo web UI template (`stokes/web/`).
+
 ## License
 
-MIT — Copyright © yvliet
+MIT - Copyright (c) 2026 yvliet
