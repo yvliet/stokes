@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="none">
+  <style>
+    :root { color: #09090b; }
+    @media (prefers-color-scheme: dark) {
+      :root { color: #ffffff; }
+    }
+  </style>
+  <path d="M92 108H307V216H200V806H307V914H92V108ZM930 108H715V216H822V806H715V914H930V108Z" fill="currentColor"/>
+</svg>

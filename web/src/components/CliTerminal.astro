@@ -1,0 +1,292 @@
+---
+---
+
+<section id="terminal" class="px-6 py-16">
+  <div class="max-w-5xl mx-auto space-y-6">
+    
+    <!-- Section Header -->
+    <div class="text-left space-y-2">
+      <p class="text-sm text-muted-foreground font-mono">terminal</p>
+      <h2 class="text-3xl font-extralight tracking-tight sm:text-4xl text-foreground">
+        one command, three compilers.
+      </h2>
+      <p class="text-base text-muted-foreground font-light max-w-2xl">
+        Stokes scans your SQL schemas, Python pipelines, and Rust services in a single pass. It finds where they disagree and tells you exactly what broke.
+      </p>
+    </div>
+
+    <!-- Terminal Window Container (macOS terminal styling) -->
+    <div class="rounded-xl border border-border/50 bg-card/40 stokes-card overflow-hidden backdrop-blur-sm">
+      
+      <!-- Window Titlebar with Command Tabs -->
+      <div class="flex flex-wrap items-center justify-between border-b border-border/40 bg-muted/30 px-4 py-2.5 gap-2">
+        <!-- Window Traffic Dots -->
+        <div class="flex items-center gap-1.5 shrink-0">
+          <span class="h-2.5 w-2.5 rounded-full bg-red-500/50"></span>
+          <span class="h-2.5 w-2.5 rounded-full bg-yellow-500/50"></span>
+          <span class="h-2.5 w-2.5 rounded-full bg-green-500/50"></span>
+          <span class="text-xs text-muted-foreground/60 font-mono ml-2 hidden sm:inline">terminal</span>
+        </div>
+
+        <!-- Command Switcher Tabs -->
+        <div class="flex items-center gap-1 font-mono text-xs overflow-x-auto">
+          <button 
+            type="button" 
+            class="tab-btn px-3 py-1 rounded-md transition-all font-medium cursor-pointer bg-foreground/10 text-foreground"
+            data-target="tab-scan"
+          >
+            stokes scan
+          </button>
+          <button 
+            type="button" 
+            class="tab-btn px-3 py-1 rounded-md transition-all font-medium cursor-pointer text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+            data-target="tab-audit"
+          >
+            stokes audit
+          </button>
+          <button 
+            type="button" 
+            class="tab-btn px-3 py-1 rounded-md transition-all font-medium cursor-pointer text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+            data-target="tab-bench"
+          >
+            stokes bench
+          </button>
+          <button 
+            type="button" 
+            class="tab-btn px-3 py-1 rounded-md transition-all font-medium cursor-pointer text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+            data-target="tab-cert"
+          >
+            stokes cert
+          </button>
+        </div>
+      </div>
+
+      <!-- Terminal Body Content -->
+      <div class="p-4 sm:p-6 font-mono text-xs sm:text-[13px] leading-relaxed bg-background/90 min-h-[300px]">
+        
+        <!-- ================= TAB 1: SCAN ================= -->
+        <div id="tab-scan" class="tab-content space-y-3">
+          <div class="flex items-center gap-2 text-foreground font-medium pb-2 border-b border-border/30">
+            <span class="text-emerald-500 select-none">$</span>
+            <span>stokes scan --contracts</span>
+            <span class="text-muted-foreground/40 ml-auto text-xs hidden sm:inline">AST Discovery · 38ms</span>
+          </div>
+
+          <div class="space-y-1.5 text-muted-foreground">
+            <div class="flex items-center gap-2">
+              <span class="text-emerald-500 font-bold">✓</span>
+              <span class="text-foreground/80">[stokes-sql]</span>
+              <span>ClickHouse AST parsed: 200 partition columns locked in migrations/001_bot_signals.sql</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-emerald-500 font-bold">✓</span>
+              <span class="text-foreground/80">[stokes-python]</span>
+              <span>Catalog sync verified: 200 telemetry signals matched in services/feature-pipeline/</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-emerald-500 font-bold">✓</span>
+              <span class="text-foreground/80">[stokes-rust]</span>
+              <span>Buffer allocation bounds verified: fixed stack buffer [Feature; 200]</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-blue-500 font-bold">ℹ</span>
+              <span class="text-foreground/80">[stokes-verify]</span>
+              <span>Data flow verified: ClickHouse → Python ETL → Rust L7 Proxy</span>
+            </div>
+          </div>
+
+          <div class="mt-4 rounded border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2">
+              <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+              <span class="text-foreground font-medium">3/3 service boundaries checked</span>
+            </div>
+            <span class="text-emerald-600 dark:text-emerald-400 font-semibold font-mono">0 drift detected</span>
+          </div>
+        </div>
+
+        <!-- ================= TAB 2: AUDIT ================= -->
+        <div id="tab-audit" class="tab-content hidden space-y-3">
+          <div class="flex items-center gap-2 text-foreground font-medium pb-2 border-b border-border/30">
+            <span class="text-emerald-500 select-none">$</span>
+            <span>stokes audit --diff clickhouse/events_r0 crates/dirichlet-proxy</span>
+            <span class="text-muted-foreground/40 ml-auto text-xs hidden sm:inline">Cross-boundary diff · 84ms</span>
+          </div>
+
+          <div class="space-y-1.5 text-muted-foreground">
+            <div class="flex items-center gap-2">
+              <span class="text-amber-500 font-bold">▲</span>
+              <span class="text-amber-600 dark:text-amber-400 font-medium">[stokes-sql]</span>
+              <span class="text-foreground">Unqualified reflection query matched 280 columns in shard replica events_r0</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-rose-500 font-bold">✗</span>
+              <span class="text-rose-600 dark:text-rose-400 font-medium">[stokes-rust]</span>
+              <span class="text-rose-600 dark:text-rose-400">TryFromSliceError panic: input length 280 exceeds buffer [Feature; 200]</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-emerald-500 font-bold">✓</span>
+              <span class="text-foreground/80">[stokes-verify]</span>
+              <span>Generating dual-zone partition patch (0 B heap reallocation)</span>
+            </div>
+          </div>
+
+          <!-- Interactive Patch Proposal -->
+          <div class="mt-3 rounded border border-amber-500/30 bg-amber-500/5 p-3 space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-medium text-amber-600 dark:text-amber-400">Suggested fix: crates/dirichlet-proxy/src/buffer.rs</span>
+              <span class="text-[11px] text-muted-foreground font-mono">7.66 ns hot path</span>
+            </div>
+            <div class="text-xs text-muted-foreground font-sans font-light">
+              Pin 128 core rules in Zone 0 (never evicted). Let 72 adaptive features float in Zone 1. Safely drop 80 overflow columns without panic.
+            </div>
+            <div class="flex items-center gap-2 pt-1 font-sans">
+              <span class="text-xs px-2.5 py-1 rounded bg-foreground text-background font-medium">
+                Auto-Patch Ready
+              </span>
+              <span class="text-xs text-emerald-600 dark:text-emerald-400 font-mono">
+                ~90s fix vs ~4h manual investigation
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= TAB 3: BENCH ================= -->
+        <div id="tab-bench" class="tab-content hidden space-y-3">
+          <div class="flex items-center gap-2 text-foreground font-medium pb-2 border-b border-border/30">
+            <span class="text-emerald-500 select-none">$</span>
+            <span>stokes bench --criterion --target hot-path</span>
+            <span class="text-muted-foreground/40 ml-auto text-xs hidden sm:inline">Criterion Micro-benchmarks</span>
+          </div>
+
+          <div class="space-y-1.5 text-muted-foreground">
+            <div>Gnuplot not found, using plotters backend</div>
+            <div class="text-foreground font-medium pt-1">Benchmarking in-place partial selection (select_nth_unstable_by):</div>
+            <div class="pl-4 text-emerald-600 dark:text-emerald-400">
+              time:   [7.6582 ns <span class="font-bold">7.6614 ns</span> 7.6651 ns]
+            </div>
+            <div class="pl-4 text-muted-foreground">
+              alloc:  <span class="text-emerald-600 dark:text-emerald-400 font-bold">0 Bytes</span> heap reallocation (fits in 25 L1 cache lines)
+            </div>
+            <div class="pl-4 text-muted-foreground">
+              thrpt:  130,523,412 features/sec
+            </div>
+
+            <div class="text-foreground font-medium pt-2">Benchmarking naive heap vector (Vec::with_capacity):</div>
+            <div class="pl-4 text-amber-600 dark:text-amber-400">
+              time:   [29.712 ns <span class="font-bold">29.743 ns</span> 29.781 ns] (+288% latency overhead)
+            </div>
+            <div class="pl-4 text-amber-600 dark:text-amber-400">
+              alloc:  8.2 KB heap reallocation per packet
+            </div>
+          </div>
+
+          <div class="mt-4 rounded border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 flex items-center justify-between text-xs">
+            <span class="text-foreground font-medium">In-place selection is 3.88x faster than heap vectors</span>
+            <span class="text-emerald-600 dark:text-emerald-400 font-bold font-mono">0 B Alloc Verified</span>
+          </div>
+        </div>
+
+        <!-- ================= TAB 4: CERT ================= -->
+        <div id="tab-cert" class="tab-content hidden space-y-3">
+          <div class="flex items-center gap-2 text-foreground font-medium pb-2 border-b border-border/30">
+            <span class="text-emerald-500 select-none">$</span>
+            <span>stokes cert --verify-ci</span>
+            <span class="text-muted-foreground/40 ml-auto text-xs hidden sm:inline">Cryptographic CI Gate</span>
+          </div>
+
+          <div class="space-y-1.5 text-muted-foreground">
+            <div>Reading lockfile: stokes.lock</div>
+            <div class="flex items-center gap-2">
+              <span class="text-emerald-500 font-bold">✓</span>
+              <span>clickhouse/migrations/001_bot_signals.sql == sha256:8eb837c6...</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-emerald-500 font-bold">✓</span>
+              <span>services/feature-pipeline/extractor.py   == sha256:4c129ab0...</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-emerald-500 font-bold">✓</span>
+              <span>crates/dirichlet-proxy/src/buffer.rs     == sha256:b9f271d4...</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-emerald-500 font-bold">✓</span>
+              <span>Property fuzzing battery: 10,000 randomized cases passed (1.34s)</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-emerald-500 font-bold">✓</span>
+              <span>Conformance report written: CONFORMANCE.md</span>
+            </div>
+          </div>
+
+          <div class="mt-4 rounded border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2">
+              <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+              <span class="text-foreground font-medium">4/4 boundary checks passed</span>
+            </div>
+            <span class="text-emerald-600 dark:text-emerald-400 font-bold font-mono">EXIT CODE: 0</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Terminal Status Footer -->
+      <div class="border-t border-border/40 bg-muted/20 px-4 py-2 flex items-center justify-between text-[11px] text-muted-foreground font-mono">
+        <div class="flex items-center gap-2">
+          <span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+          <span>all checks passing</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span>7.66 ns</span>
+          <span>•</span>
+          <span>0 B Heap</span>
+          <span>•</span>
+          <span>SHA-256</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<script>
+  // Tab switching logic for terminal with global trigger support
+  function switchTerminalTab(targetId: string | null) {
+    if (!targetId) return;
+    const tabButtons = document.querySelectorAll<HTMLButtonElement>('.tab-btn');
+    const tabContents = document.querySelectorAll<HTMLElement>('.tab-content');
+
+    tabButtons.forEach(btn => {
+      if (btn.getAttribute('data-target') === targetId) {
+        btn.classList.remove('text-muted-foreground');
+        btn.classList.add('bg-foreground/10', 'text-foreground');
+      } else {
+        btn.classList.remove('bg-foreground/10', 'text-foreground');
+        btn.classList.add('text-muted-foreground');
+      }
+    });
+
+    tabContents.forEach(content => {
+      if (content.id === targetId) {
+        content.classList.remove('hidden');
+      } else {
+        content.classList.add('hidden');
+      }
+    });
+  }
+
+  // Bind tab buttons
+  document.querySelectorAll<HTMLButtonElement>('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      switchTerminalTab(btn.getAttribute('data-target'));
+    });
+  });
+
+  // Bind external triggers (e.g. from footer links)
+  document.querySelectorAll<HTMLElement>('[data-terminal-tab]').forEach(trigger => {
+    trigger.addEventListener('click', () => {
+      const tabId = trigger.getAttribute('data-terminal-tab');
+      switchTerminalTab(tabId);
+    });
+  });
+</script>

@@ -1,4 +1,4 @@
-﻿# Python bytecode & cache
+# Python bytecode & cache
 __pycache__/
 *.py[cod]
 *$py.class
@@ -21,3 +21,15 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+# Web dependencies and build outputs
+node_modules/
+web/node_modules/
+.astro/
+web/.astro/
+web/dist/
+web/openpencil-repo/node_modules/
+web/openpencil-repo/**/node_modules/
+web/openpencil-repo/dist/
+web/openpencil-repo/**/dist/
+*.log
