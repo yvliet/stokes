@@ -60,7 +60,7 @@
 }
 
 :root {
-  /* inference.sh light theme tokens */
+  /* Stokes light theme tokens */
   --background: 0 0% 98%;
   --foreground: 0 0% 5.9%;
   --card: 0 0% 98%;
@@ -80,7 +80,7 @@
 }
 
 .dark {
-  /* inference.sh dark theme tokens */
+  /* Stokes dark theme tokens */
   --background: 0 0% 5.9%;
   --foreground: 0 0% 96%;
   --card: 0 0% 5.9%;
