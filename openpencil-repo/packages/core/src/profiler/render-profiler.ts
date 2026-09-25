@@ -159,9 +159,9 @@ export class RenderProfiler {
     this.hud.setTypeface(typeface)
   }
 
-  drawHUD(canvas: Canvas, showRulers: boolean): void {
+  drawHUD(canvas: Canvas): void {
     if (!this.hudVisible) return
-    this.hud.draw(canvas, this.stats, this.phases, showRulers)
+    this.hud.draw(canvas, this.stats, this.phases)
   }
 
   destroy(): void {

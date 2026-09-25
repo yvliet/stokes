@@ -99,7 +99,6 @@ test.describe('Render performance', () => {
         renderer.zoom = store.state.zoom
         renderer.viewportWidth = 1280
         renderer.viewportHeight = 800
-        renderer.showRulers = false
         renderer.pageColor = store.state.pageColor
         renderer.pageId = store.state.currentPageId
       }
@@ -220,7 +219,6 @@ test.describe('Render performance', () => {
           renderer.zoom = 1
           renderer.viewportWidth = 1280
           renderer.viewportHeight = 800
-          renderer.showRulers = false
           renderer.pageColor = store.state.pageColor
           renderer.pageId = pageId
         }

@@ -36,7 +36,6 @@ export function renderFromEditorState(
   textEditor: unknown,
   viewportWidth: number,
   viewportHeight: number,
-  showRulers = false,
   dpr = 1,
   layer: RenderLayer = 'full',
   interactive = false
@@ -47,9 +46,7 @@ export function renderFromEditorState(
   r.zoom = state.zoom
   r.viewportWidth = viewportWidth
   r.viewportHeight = viewportHeight
-  r.showRulers = showRulers
   r.pageColor = state.pageColor
-  r.rulerTheme = state.rulerTheme ?? null
   r.pageId = state.currentPageId
   r.navigationPhase = state.navigation.phase
   r.navigationGeneration = state.navigation.generation

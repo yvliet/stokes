@@ -22,7 +22,6 @@ export async function readScenePixels(page: Page, points: readonly Vector[]): Pr
       store.textEditor,
       renderer.viewportWidth,
       renderer.viewportHeight,
-      false,
       'scene',
       true
     )

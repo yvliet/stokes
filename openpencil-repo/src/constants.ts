@@ -44,9 +44,7 @@ export {
   COMPONENT_LABEL_FONT_SIZE,
   COMPONENT_LABEL_GAP,
   COMPONENT_LABEL_ICON_SIZE,
-  COMPONENT_LABEL_ICON_GAP,
-  RULER_TARGET_PIXEL_SPACING,
-  RULER_MAJOR_TOLERANCE
+  COMPONENT_LABEL_ICON_GAP
 } from '@open-pencil/core/constants'
 
 import type { Color } from '@open-pencil/scene-graph/primitives'

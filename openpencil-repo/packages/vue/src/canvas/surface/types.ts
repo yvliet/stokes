@@ -19,12 +19,6 @@ export interface UseCanvasOptions {
    */
   sceneRenderer?: 'retained' | 'tiled'
   /**
-   * Forces ruler visibility on or off for this canvas.
-   *
-   * When omitted, the composable falls back to viewport and URL-param logic.
-   */
-  showRulers?: boolean
-  /**
    * Keeps the drawing buffer after presenting frames.
    *
    * Useful for screenshot or pixel-readback workflows, but may increase memory

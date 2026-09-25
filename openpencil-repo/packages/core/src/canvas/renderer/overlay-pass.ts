@@ -69,5 +69,5 @@ export function drawChromePass(
   _selectedIds: Set<string>,
   _overlays: RenderOverlays
 ): void {
-  r.profiler.drawHUD(canvas, false)
+  r.profiler.drawHUD(canvas)
 }

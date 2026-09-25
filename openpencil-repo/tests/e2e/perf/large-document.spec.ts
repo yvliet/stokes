@@ -61,7 +61,6 @@ test.describe.serial('large-document performance', () => {
         renderer.zoom = store.state.zoom
         renderer.viewportWidth = 1280
         renderer.viewportHeight = 800
-        renderer.showRulers = false
         renderer.pageColor = store.state.pageColor
         renderer.pageId = store.state.currentPageId
         renderer.render(graph, store.state.selectedIds, {}, store.state.sceneVersion)

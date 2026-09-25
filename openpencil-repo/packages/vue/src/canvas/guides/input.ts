@@ -1,7 +1,6 @@
 import type { Ref } from 'vue'
 
 import { computeGuideRedline, hitTestGuides } from '@open-pencil/core/canvas'
-import { RULER_SIZE } from '@open-pencil/core/constants'
 import type { Editor } from '@open-pencil/core/editor'
 
 import { isPastPointerDragThreshold } from '#vue/shared/input/drag-threshold'
@@ -63,23 +62,13 @@ export function createGuideInput({
     return axis === 'x' ? 'ew-resize' : 'ns-resize'
   }
 
-  function rulerAxis(_sx: number, _sy: number): DragGuide['axis'] | null {
-    return null
-  }
-
   function updateHover(sx: number, sy: number): string | null {
-    const axis = rulerAxis(sx, sy)
-    if (axis) {
-      editor.setHoveredGuide(null)
-      return cursor(axis)
-    }
     const hit = hitTest(sx, sy)
     editor.setHoveredGuide(hit ? { ownerId: hit.ownerId, guideId: hit.guideId } : null)
     return hit ? cursor(hit.axis) : null
   }
 
   function tryStartExisting(sx: number, sy: number, duplicate = false): boolean {
-    if (rulerAxis(sx, sy)) return false
     const hit = hitTest(sx, sy)
     if (!hit) return false
     editor.setSelectedGuide({ ownerId: hit.ownerId, guideId: hit.guideId })
@@ -101,10 +90,6 @@ export function createGuideInput({
       duplicate
     })
     return true
-  }
-
-  function tryStartFromRuler(_sx: number, _sy: number, _cx: number, _cy: number): boolean {
-    return false
   }
 
   function handleMove(
@@ -151,12 +136,7 @@ export function createGuideInput({
 
   function finish(drag: DragGuide): void {
     if (drag.dragStarted) {
-      if (drag.currentScreenX < RULER_SIZE || drag.currentScreenY < RULER_SIZE) {
-        if (!drag.duplicate && drag.guideId && drag.originalOwnerId) {
-          editor.removeGuide(drag.originalOwnerId, drag.guideId)
-          editor.setSelectedGuide(null)
-        }
-      } else if (drag.duplicate && drag.guideId && drag.originalOwnerId) {
+      if (drag.duplicate && drag.guideId && drag.originalOwnerId) {
         const source = editor.graph
           .getNode(drag.originalOwnerId)
           ?.guides.find((guide) => guide.id === drag.guideId)
@@ -195,7 +175,6 @@ export function createGuideInput({
 
   return {
     tryStartExisting,
-    tryStartFromRuler,
     updateHover,
     handleMove,
     finish,

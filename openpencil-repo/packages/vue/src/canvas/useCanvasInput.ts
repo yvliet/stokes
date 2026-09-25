@@ -231,10 +231,6 @@ export function useCanvasInput(
       e.preventDefault()
       return
     }
-    if (e.button === 0 && guideInput.tryStartFromRuler(sx, sy, cx, cy)) {
-      e.preventDefault()
-      return
-    }
     editor.setSelectedGuide(null)
 
     const selectedIdsBeforeMouseDown = new Set(editor.state.selectedIds)

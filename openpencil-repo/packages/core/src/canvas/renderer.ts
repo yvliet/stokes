@@ -35,7 +35,7 @@ import * as RendererState from './renderer/state'
 import * as RenderText from './text'
 import { createGlyphSilhouetteCache } from './text/derived'
 import { TextPreparationCache } from './text/preparation-cache'
-export type { MeasurementMode, RenderOverlays, RulerTheme } from './renderer/types'
+export type { MeasurementMode, RenderOverlays } from './renderer/types'
 import type {
   Image as CKImage,
   Path,
@@ -68,7 +68,7 @@ export interface PendingFontNode {
 
 import { EffectRasterCache } from './renderer/effect-raster-cache'
 import { TiledSceneController } from './renderer/tiles'
-import type { RenderOverlays, RulerTheme } from './renderer/types'
+import type { RenderOverlays } from './renderer/types'
 
 export class SkiaRenderer {
   ck: CanvasKit
@@ -149,12 +149,6 @@ export class SkiaRenderer {
   readonly tiledScene = new TiledSceneController()
   readonly profiler: RenderProfiler
 
-  declare rulerBgPaint: Paint
-  declare rulerTickPaint: Paint
-  declare rulerTextPaint: Paint
-  declare rulerHlPaint: Paint
-  declare rulerBadgePaint: Paint
-  declare rulerLabelPaint: Paint
   declare penPathPaint: Paint
   declare penLiveStrokePaint: Paint
   declare penHandlePaint: Paint
@@ -167,9 +161,7 @@ export class SkiaRenderer {
   dpr = 1
   viewportWidth = 0
   viewportHeight = 0
-  showRulers = false
   pageColor = CANVAS_BG_COLOR
-  rulerTheme: RulerTheme | null = null
   pageId: string | null = null
 
   boundEffectLayersToViewport = false
@@ -267,12 +259,6 @@ export class SkiaRenderer {
     canvas: Canvas,
     graph: SceneGraph,
     cursors?: RenderOverlays['remoteCursors']
-  ) => void
-  declare drawRulers: (
-    canvas: Canvas,
-    graph: SceneGraph,
-    selectedIds: Set<string>,
-    guides?: RenderOverlays['guides']
   ) => void
   declare drawSectionTitles: (canvas: Canvas, graph: SceneGraph, overlays?: RenderOverlays) => void
   declare drawComponentLabels: (
@@ -585,7 +571,6 @@ export class SkiaRenderer {
     textEditor: unknown,
     viewportWidth: number,
     viewportHeight: number,
-    showRulers = true,
     layer: RenderPipeline.RenderLayer = 'full',
     interactive = false
   ): void {
@@ -597,7 +582,6 @@ export class SkiaRenderer {
       textEditor,
       viewportWidth,
       viewportHeight,
-      showRulers,
       dpr,
       layer,
       interactive

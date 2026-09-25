@@ -26,15 +26,13 @@ export function createCanvasSurfaceManager({
   canvasRef,
   options,
   getCanvasKit,
-  isDestroyed,
-  shouldShowRulers
+  isDestroyed
 }: {
   editor: Editor
   canvasRef: { value: HTMLCanvasElement | null }
   options: UseCanvasOptions | undefined
   getCanvasKit: () => CanvasKit | null
   isDestroyed: () => boolean
-  shouldShowRulers: () => boolean
 }) {
   const state: SurfaceManagerState = { renderer: null, glContext: null, presentation: null }
   let sceneBackingRenderTimer: ReturnType<typeof setTimeout> | null = null
@@ -111,7 +109,6 @@ export function createCanvasSurfaceManager({
       editor.textEditor,
       canvasRef.value?.clientWidth ?? 0,
       canvasRef.value?.clientHeight ?? 0,
-      shouldShowRulers(),
       options?.layer ?? 'full',
       editor.isInteractiveEditing()
     )

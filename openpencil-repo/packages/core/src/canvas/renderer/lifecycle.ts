@@ -54,12 +54,6 @@ export function destroyRenderer(r: SkiaRenderer): void {
   r.fontProvider = null
   r.fontsLoaded = false
   fontManager.detachProvider(fontProvider)
-  r.rulerBgPaint.delete()
-  r.rulerTickPaint.delete()
-  r.rulerTextPaint.delete()
-  r.rulerHlPaint.delete()
-  r.rulerBadgePaint.delete()
-  r.rulerLabelPaint.delete()
   r.penPathPaint.delete()
   r.penLiveStrokePaint.delete()
   r.penHandlePaint.delete()

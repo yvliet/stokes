@@ -31,7 +31,6 @@ async function openEditor(page: Page): Promise<CanvasHelper> {
       store.textEditor,
       window.innerWidth,
       window.innerHeight,
-      false,
       'full'
     )
   })
@@ -162,7 +161,6 @@ test('international text is correct on its first visible paint', async ({ page }
       store.textEditor,
       window.innerWidth,
       window.innerHeight,
-      false,
       'full'
     )
     const pageNode = store.graph.getNode(pageId)
@@ -281,7 +279,6 @@ test('typed and tool-created text repaint with the same resolved fallbacks', asy
       store.textEditor,
       window.innerWidth,
       window.innerHeight,
-      false,
       'full'
     )
   })
@@ -339,7 +336,6 @@ test('typed and tool-created text repaint with the same resolved fallbacks', asy
       store.textEditor,
       window.innerWidth,
       window.innerHeight,
-      false,
       'full'
     )
 

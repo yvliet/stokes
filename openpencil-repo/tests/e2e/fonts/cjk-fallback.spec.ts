@@ -138,7 +138,6 @@ test('CJK text waits for fallback fonts and repaints after they load', async ({ 
           store.textEditor,
           800,
           600,
-          false,
           'full'
         )
       })

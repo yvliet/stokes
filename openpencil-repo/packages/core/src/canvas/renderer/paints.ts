@@ -6,9 +6,6 @@ import {
   PARENT_OUTLINE_ALPHA,
   PARENT_OUTLINE_DASH,
   PEN_PATH_STROKE_WIDTH,
-  RULER_BG_COLOR,
-  RULER_TEXT_COLOR,
-  RULER_TICK_COLOR,
   SECTION_TITLE_FONT_SIZE,
   SIZE_FONT_SIZE,
   SNAP_COLOR
@@ -61,32 +58,6 @@ export function initializeRendererPaints(r: SkiaRenderer): void {
   r.sizeFont = new ck.Font(null, SIZE_FONT_SIZE)
   r.sectionTitleFont = new ck.Font(null, SECTION_TITLE_FONT_SIZE)
   r.componentLabelFont = new ck.Font(null, COMPONENT_LABEL_FONT_SIZE)
-
-  const bg = RULER_BG_COLOR
-  r.rulerBgPaint = new ck.Paint()
-  r.rulerBgPaint.setColor(ck.Color4f(bg.r, bg.g, bg.b, 1))
-
-  r.rulerTickPaint = new ck.Paint()
-  r.rulerTickPaint.setColor(
-    ck.Color4f(RULER_TICK_COLOR.r, RULER_TICK_COLOR.g, RULER_TICK_COLOR.b, 1)
-  )
-  r.rulerTickPaint.setStrokeWidth(1)
-  r.rulerTickPaint.setAntiAlias(true)
-
-  const tc = RULER_TEXT_COLOR
-  r.rulerTextPaint = new ck.Paint()
-  r.rulerTextPaint.setColor(ck.Color4f(tc.r, tc.g, tc.b, 1))
-  r.rulerTextPaint.setAntiAlias(true)
-
-  r.rulerHlPaint = new ck.Paint()
-  r.rulerHlPaint.setAntiAlias(true)
-
-  r.rulerBadgePaint = new ck.Paint()
-  r.rulerBadgePaint.setAntiAlias(true)
-
-  r.rulerLabelPaint = new ck.Paint()
-  r.rulerLabelPaint.setColor(ck.Color4f(1, 1, 1, 1))
-  r.rulerLabelPaint.setAntiAlias(true)
 
   r.penPathPaint = new ck.Paint()
   r.penPathPaint.setStyle(ck.PaintStyle.Stroke)

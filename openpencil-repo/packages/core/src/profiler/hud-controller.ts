@@ -15,12 +15,12 @@ export class HudController {
     this.hud?.setTypeface(typeface)
   }
 
-  draw(canvas: Canvas, stats: FrameStats, phases: PhaseTimer, showRulers: boolean): void {
+  draw(canvas: Canvas, stats: FrameStats, phases: PhaseTimer): void {
     if (!this.hud) {
       this.hud = new HudRenderer(this.ck)
       if (this.typeface) this.hud.setTypeface(this.typeface)
     }
-    this.hud.draw(canvas, stats, phases.averages, showRulers)
+    this.hud.draw(canvas, stats, phases.averages)
   }
 
   destroy(): void {

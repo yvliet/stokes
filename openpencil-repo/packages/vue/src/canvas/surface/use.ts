@@ -7,7 +7,7 @@ import {
   createCanvasSurfaceManager,
   useCanvasSurfaceLifecycle
 } from '#vue/canvas/surface/lifecycle'
-import { createCanvasHitTests, createRulerVisibility } from '#vue/canvas/surface/overlays'
+import { createCanvasHitTests } from '#vue/canvas/surface/overlays'
 import type { UseCanvasOptions } from '#vue/canvas/surface/types'
 
 export type { UseCanvasOptions } from '#vue/canvas/surface/types'
@@ -27,15 +27,13 @@ export function useCanvas(
   let ck: CanvasKit | null = null
   const lifecycle: { destroyed: boolean } = { destroyed: false }
   const isDestroyed = () => lifecycle.destroyed
-  const shouldShowRulers = createRulerVisibility(options)
 
   const surface = createCanvasSurfaceManager({
     editor,
     canvasRef,
     options,
     getCanvasKit: () => ck,
-    isDestroyed,
-    shouldShowRulers
+    isDestroyed
   })
 
   useCanvasSurfaceLifecycle({

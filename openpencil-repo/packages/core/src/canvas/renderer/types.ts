@@ -6,13 +6,6 @@ import type { GuideOverlayState } from '#core/canvas/guides/types'
 import type { RotationPreview } from '#core/geometry'
 import type { TextEditor } from '#core/text/editor'
 
-export interface RulerTheme {
-  background: Color
-  tick: Color
-  text: Color
-  label: Color
-}
-
 export type MeasurementMode = 'off' | 'shallow' | 'deep'
 
 export interface RenderOverlays {

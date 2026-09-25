@@ -6,14 +6,13 @@ describe('app runtime configuration', () => {
   test('parses supported development and presentation flags once', () => {
     expect(
       parseAppRuntimeConfig(
-        '?test&navigation-benchmark&recent-files&no-chrome&no-rulers&renderer=tiled&collabTransport=test&collabRelay=ws%3A%2F%2Flocalhost%3A4000'
+        '?test&navigation-benchmark&recent-files&no-chrome&renderer=tiled&collabTransport=test&collabRelay=ws%3A%2F%2Flocalhost%3A4000'
       )
     ).toEqual({
       test: true,
       navigationBenchmark: true,
       recentFiles: true,
       showChrome: false,
-      showRulers: false,
       sceneRenderer: 'tiled',
       sceneRendererOverride: true,
       collaborationTransport: 'test',
@@ -37,7 +36,6 @@ describe('app runtime configuration', () => {
       navigationBenchmark: false,
       recentFiles: false,
       showChrome: true,
-      showRulers: true,
       sceneRenderer: 'retained',
       sceneRendererOverride: false,
       collaborationTransport: 'default',

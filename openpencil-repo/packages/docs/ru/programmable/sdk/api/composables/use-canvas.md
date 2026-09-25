@@ -41,7 +41,7 @@ const canvasRef = ref<HTMLCanvasElement | null>(null)
 const editor = useEditor()
 
 useCanvas(canvasRef, editor, {
-  showRulers: true,
+  preserveDrawingBuffer: true,
   onReady: () => {
     console.log('Renderer ready')
   },
@@ -54,14 +54,6 @@ useCanvas(canvasRef, editor, {
 ```
 
 ## Практические примеры
-
-### Отключить линейки для встроенного превью
-
-```ts
-useCanvas(canvasRef, editor, {
-  showRulers: false,
-})
-```
 
 ### Сохранить drawing buffer для снимков экрана
 
@@ -87,7 +79,6 @@ useCanvas(canvasRef, editor, {
 
 ```ts
 interface UseCanvasOptions {
-  showRulers?: boolean
   preserveDrawingBuffer?: boolean
   onReady?: () => void
 }

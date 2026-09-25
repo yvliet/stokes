@@ -88,8 +88,7 @@ export class HudRenderer {
     this.hudFont = new this.ck.Font(typeface, 10)
   }
 
-  draw(canvas: Canvas, stats: FrameStats, phases: Map<string, number>, _showRulers?: boolean): void {
-    const rulerOffset = 0
+  draw(canvas: Canvas, stats: FrameStats, phases: Map<string, number>): void {
     const hasGraph = stats.getBufferCount() > 0
 
     const phaseNames = [
@@ -110,8 +109,8 @@ export class HudRenderer {
     const graphSection = hasGraph ? GRAPH_HEIGHT + PADDING + LINE_HEIGHT : 0
     const contentHeight = statsHeight + PADDING * 2 + graphSection
 
-    const bgX = rulerOffset + PADDING
-    const bgY = rulerOffset + PADDING
+    const bgX = PADDING
+    const bgY = PADDING
 
     const bgRect = this.ck.LTRBRect(bgX, bgY, bgX + PANEL_WIDTH, bgY + contentHeight)
     canvas.drawRRect(this.ck.RRectXY(bgRect, CORNER_RADIUS, CORNER_RADIUS), this.bgPaint)

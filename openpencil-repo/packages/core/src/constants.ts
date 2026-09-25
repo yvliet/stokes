@@ -48,18 +48,6 @@ export function getDefaultCanvasBgColor(): Color {
 
 export const SNAP_THRESHOLD_SCREEN_PX = 5
 
-export const RULER_SIZE = 20
-export const RULER_BG_COLOR = { r: 42 / 255, g: 42 / 255, b: 42 / 255, a: 1 } satisfies Color // #2a2a2a
-export const RULER_TICK_COLOR = { r: 110 / 255, g: 110 / 255, b: 110 / 255, a: 1 } satisfies Color // #6e6e6e
-export const RULER_TEXT_COLOR = { r: 160 / 255, g: 160 / 255, b: 160 / 255, a: 1 } satisfies Color // #a0a0a0
-export const RULER_BADGE_HEIGHT = 14
-export const RULER_BADGE_PADDING = 3
-export const RULER_BADGE_RADIUS = 2
-export const RULER_BADGE_EXCLUSION = 30
-export const RULER_TEXT_BASELINE = 0.65
-export const RULER_MAJOR_TICK = 0.5
-export const RULER_MINOR_TICK = 0.25
-export const RULER_HIGHLIGHT_ALPHA = 0.3
 
 export const PEN_HANDLE_RADIUS = 2.5
 export const PEN_VERTEX_RADIUS = 3
@@ -122,9 +110,6 @@ export const COMPONENT_LABEL_FONT_SIZE = 11
 export const COMPONENT_LABEL_GAP = 6
 export const COMPONENT_LABEL_ICON_SIZE = 10
 export const COMPONENT_LABEL_ICON_GAP = 4
-
-export const RULER_TARGET_PIXEL_SPACING = 100
-export const RULER_MAJOR_TOLERANCE = 0.01
 
 export const FLASH_COLOR = SELECTION_COLOR
 export const FLASH_ATTACK_MS = 200

@@ -14,7 +14,7 @@ import type { SnapGuide } from '@open-pencil/scene-graph/snap'
 import type { UndoManager } from '@open-pencil/scene-graph/undo'
 
 import type { GuideOverlayState } from '#core/canvas/guides/types'
-import type { RulerTheme, SkiaRenderer } from '#core/canvas/renderer'
+import type { SkiaRenderer } from '#core/canvas/renderer'
 import type { MeasurementMode, RenderOverlays } from '#core/canvas/renderer/types'
 import type { SnappingPreferences } from '#core/editor/preferences'
 import type { RotationPreview } from '#core/geometry'
@@ -45,7 +45,6 @@ export interface EditorSharedState {
     selection?: string[]
   }>
   documentName: string
-  rulerTheme?: RulerTheme
   sceneVersion: number
 }
 
