@@ -1,0 +1,1 @@
+var e=`openpencil`,t=`abcdefghijklmnopqrstuvwxyz0123456789`,n=`https://app.openpencil.dev`,r=[{r:.96,g:.26,b:.21,a:1},{r:.13,g:.59,b:.95,a:1},{r:.3,g:.69,b:.31,a:1},{r:1,g:.76,b:.03,a:1},{r:.61,g:.15,b:.69,a:1},{r:1,g:.34,b:.13,a:1},{r:0,g:.74,b:.83,a:1},{r:.91,g:.12,b:.39,a:1}],i=6e4;export{n as a,e as i,r as n,t as r,i as t};
