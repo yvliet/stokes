@@ -1,0 +1,122 @@
+<script setup lang="ts">
+import { SplitterGroup, SplitterPanel, SplitterResizeHandle } from 'reka-ui'
+import { tv } from 'tailwind-variants'
+
+import { formatShortcut, useI18n, useViewportKind } from '@open-pencil/vue'
+
+import { useEditorStore } from '@/app/editor/active-store'
+import { appRuntimeConfig } from '@/app/runtime/config'
+import { useFigmaRail } from '@/app/shell/figma-rail'
+import { loadEditorLayout, saveEditorLayout } from '@/app/shell/layout-storage'
+import { appMenuShortcut } from '@/app/shell/menu/shortcut'
+import { resolvedAppTheme } from '@/app/shell/theme'
+import { activeTab } from '@/app/tabs'
+import BrandMark from '@/components/brand/BrandMark.vue'
+import CanvasSplitRoot from '@/components/canvas/CanvasSplitRoot.vue'
+import EditorCanvas from '@/components/EditorCanvas.vue'
+import LayersPanel from '@/components/LayersPanel.vue'
+import PropertiesPanel from '@/components/PropertiesPanel.vue'
+import FigmaNavRail from '@/components/shell/FigmaNavRail.vue'
+import Toolbar from '@/components/Toolbar/Toolbar.vue'
+import IconButton from '@/components/ui/button/IconButton.vue'
+import splitterTheme from '@/theme/splitter'
+
+const showChrome = appRuntimeConfig.showChrome
+const store = useEditorStore()
+const { editor } = useI18n()
+const { isMobile } = useViewportKind()
+const { isLeftSidebarCollapsed } = useFigmaRail()
+const initialEditorLayout = loadEditorLayout()
+const horizontalSplitterStyles = tv(splitterTheme)({ direction: 'horizontal' })
+</script>
+
+<template>
+  <div
+    v-if="!isMobile && showChrome && store.state.showUI"
+    class="flex flex-1 overflow-hidden"
+  >
+    <!-- Figma Left Vertical Dock Rail -->
+    <FigmaNavRail />
+
+    <SplitterGroup
+      :key="activeTab?.id + (isLeftSidebarCollapsed ? '-col' : '-exp')"
+      direction="horizontal"
+      class="flex-1 overflow-hidden"
+      @layout="saveEditorLayout"
+    >
+      <SplitterPanel
+        v-if="!isLeftSidebarCollapsed"
+        id="layers"
+        :default-size="initialEditorLayout[0]"
+        :min-size="12"
+        :max-size="32"
+        class="flex"
+      >
+        <LayersPanel />
+      </SplitterPanel>
+      <SplitterResizeHandle
+        v-if="!isLeftSidebarCollapsed"
+        data-test-id="left-splitter-handle"
+        :class="horizontalSplitterStyles.handle()"
+      >
+        <div :class="horizontalSplitterStyles.divider()" />
+      </SplitterResizeHandle>
+      <SplitterPanel
+        id="canvas"
+        :default-size="isLeftSidebarCollapsed ? initialEditorLayout[0] + initialEditorLayout[1] : initialEditorLayout[1]"
+        :min-size="30"
+        class="flex"
+      >
+        <div class="relative flex min-w-0 flex-1">
+          <CanvasSplitRoot />
+          <Toolbar />
+        </div>
+      </SplitterPanel>
+      <SplitterResizeHandle :class="horizontalSplitterStyles.handle()">
+        <div :class="horizontalSplitterStyles.divider()" />
+      </SplitterResizeHandle>
+      <SplitterPanel
+        id="properties"
+        :default-size="initialEditorLayout[2]"
+        :min-size="10"
+        :max-size="30"
+        class="flex flex-col"
+      >
+        <PropertiesPanel />
+      </SplitterPanel>
+    </SplitterGroup>
+  </div>
+
+  <div
+    v-else-if="showChrome"
+    :key="'collapsed-' + activeTab?.id"
+    class="flex flex-1 overflow-hidden"
+  >
+    <div class="relative flex min-w-0 flex-1">
+      <EditorCanvas />
+      <div
+        v-if="!isMobile"
+        class="absolute top-7 left-7 z-10 flex items-center gap-2 rounded-lg border border-border bg-panel px-2 py-1 shadow-sm"
+      >
+        <BrandMark variant="app-icon" :appearance="resolvedAppTheme" class="size-6" />
+        <span data-test-id="editor-document-name" class="text-xs text-surface">{{
+          store.state.documentName
+        }}</span>
+        <IconButton
+          :label="editor.showUI({ shortcut: formatShortcut(appMenuShortcut('toggle-ui')) ?? '' })"
+          data-test-id="editor-show-ui"
+          class="ml-1"
+          @click="store.state.showUI = true"
+        >
+          <icon-lucide-sidebar class="size-3.5" />
+        </IconButton>
+      </div>
+    </div>
+  </div>
+
+  <div v-else :key="'bare-' + activeTab?.id" class="flex flex-1 overflow-hidden">
+    <div class="relative flex min-w-0 flex-1">
+      <EditorCanvas />
+    </div>
+  </div>
+</template>

@@ -7,5 +7,14 @@ export default defineConfig({
   integrations: [react()],
   vite: {
     plugins: [tailwindcss()],
+    server: {
+      proxy: {
+        '^/studio/(?!assets/canvaskit\\.wasm)': {
+          target: 'http://localhost:1420',
+          changeOrigin: true,
+          ws: true,
+        },
+      },
+    },
   },
 });
