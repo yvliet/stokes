@@ -1,0 +1,487 @@
+---
+---
+
+<!-- Showcase Section: Stokes Systems Invariant Architecture (Continuous layout with alternating visual rhythm) -->
+<section class="px-6 py-12">
+  <div class="max-w-6xl mx-auto space-y-24 sm:space-y-32">
+    
+    <!-- ==================== SHOWCASE 1: CONTRACTS / POLYGLOT BOUNDARIES ==================== -->
+    <div id="contracts" class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center">
+      <div>
+        <p class="text-sm text-muted-foreground mb-3">contracts</p>
+        <h2 class="text-3xl font-extralight tracking-tight sm:text-4xl mb-5">
+          any compiler. one invariant contract. declarative boundary policies across sql, python, rust, and protobuf.
+        </h2>
+        <a href="/contracts" class="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1">
+          explore contracts <span>→</span>
+        </a>
+      </div>
+
+      <!-- Card 1: Polyglot Boundary Grid Window -->
+      <div class="rounded-xl border border-border/40 bg-card/30 overflow-hidden">
+        <div class="p-4 space-y-3">
+          <div class="flex flex-col rounded-lg border border-border/60 bg-background/80 overflow-hidden text-left">
+            <!-- Window Titlebar -->
+            <div class="flex items-center gap-2 px-3 py-2 border-b border-border/40">
+              <div class="flex gap-1">
+                <span class="h-2 w-2 rounded-full bg-red-500/40"></span>
+                <span class="h-2 w-2 rounded-full bg-yellow-500/40"></span>
+                <span class="h-2 w-2 rounded-full bg-green-500/40"></span>
+              </div>
+              <span class="text-xs text-muted-foreground font-mono">stokes scan --contracts</span>
+            </div>
+
+            <!-- Card Content -->
+            <div class="p-3 space-y-3">
+              <!-- Filter Tabs -->
+              <div class="flex gap-2">
+                <span class="px-2 py-0.5 text-xs rounded bg-foreground/10 text-foreground font-medium">all</span>
+                <span class="px-2 py-0.5 text-xs rounded text-muted-foreground/60">clickhouse</span>
+                <span class="px-2 py-0.5 text-xs rounded text-muted-foreground/60">python</span>
+                <span class="px-2 py-0.5 text-xs rounded text-muted-foreground/60">rust</span>
+                <span class="px-2 py-0.5 text-xs rounded text-muted-foreground/60">protobuf</span>
+              </div>
+
+              <!-- 6 Tiles Grid -->
+              <div class="grid grid-cols-2 gap-2">
+                <!-- Tile 1 -->
+                <div class="flex items-center gap-2 rounded border border-border/40 bg-card/30 p-2">
+                  <div class="h-5 w-5 rounded bg-brand-pink/15 text-brand-pink flex items-center justify-center font-mono text-[10px] shrink-0 font-medium">S</div>
+                  <div class="min-w-0 flex-1">
+                    <div class="text-xs font-medium truncate">migrations.sql</div>
+                    <div class="text-xs text-muted-foreground/50">clickhouse</div>
+                  </div>
+                  <span class="text-xs text-muted-foreground/40 font-mono">200 cols</span>
+                </div>
+
+                <!-- Tile 2 -->
+                <div class="flex items-center gap-2 rounded border border-border/40 bg-card/30 p-2">
+                  <div class="h-5 w-5 rounded bg-brand-purple/15 text-brand-purple flex items-center justify-center font-mono text-[10px] shrink-0 font-medium">P</div>
+                  <div class="min-w-0 flex-1">
+                    <div class="text-xs font-medium truncate">pipeline.py</div>
+                    <div class="text-xs text-muted-foreground/50">etl service</div>
+                  </div>
+                  <span class="text-xs text-muted-foreground/40 font-mono">sync loop</span>
+                </div>
+
+                <!-- Tile 3 -->
+                <div class="flex items-center gap-2 rounded border border-border/40 bg-card/30 p-2">
+                  <div class="h-5 w-5 rounded bg-emerald-500/15 text-emerald-600 flex items-center justify-center font-mono text-[10px] shrink-0 font-medium">R</div>
+                  <div class="min-w-0 flex-1">
+                    <div class="text-xs font-medium truncate">proxy/buffer.rs</div>
+                    <div class="text-xs text-muted-foreground/50">l7 engine</div>
+                  </div>
+                  <span class="text-xs text-muted-foreground/40 font-mono">[200]</span>
+                </div>
+
+                <!-- Tile 4 -->
+                <div class="flex items-center gap-2 rounded border border-border/40 bg-card/30 p-2">
+                  <div class="h-5 w-5 rounded bg-blue-500/15 text-blue-600 flex items-center justify-center font-mono text-[10px] shrink-0 font-medium">B</div>
+                  <div class="min-w-0 flex-1">
+                    <div class="text-xs font-medium truncate">events.proto</div>
+                    <div class="text-xs text-muted-foreground/50">quicksilver</div>
+                  </div>
+                  <span class="text-xs text-muted-foreground/40 font-mono">200 fields</span>
+                </div>
+
+                <!-- Tile 5 -->
+                <div class="flex items-center gap-2 rounded border border-border/40 bg-card/30 p-2">
+                  <div class="h-5 w-5 rounded bg-amber-500/15 text-amber-600 flex items-center justify-center font-mono text-[10px] shrink-0 font-medium">▲</div>
+                  <div class="min-w-0 flex-1">
+                    <div class="text-xs font-medium truncate">replica_r0.sql</div>
+                    <div class="text-xs text-muted-foreground/50">shard drift</div>
+                  </div>
+                  <span class="text-xs text-amber-600 dark:text-amber-400 font-mono">280 cols</span>
+                </div>
+
+                <!-- Tile 6 -->
+                <div class="flex items-center gap-2 rounded border border-border/40 bg-card/30 p-2">
+                  <div class="h-5 w-5 rounded bg-neutral-500/15 text-neutral-600 dark:text-neutral-300 flex items-center justify-center font-mono text-[10px] shrink-0 font-medium">C</div>
+                  <div class="min-w-0 flex-1">
+                    <div class="text-xs font-medium truncate">AGENTS.md</div>
+                    <div class="text-xs text-muted-foreground/50">contract policy</div>
+                  </div>
+                  <span class="text-xs text-emerald-600 font-mono">locked</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Pill Strip -->
+          <div class="flex items-center gap-2 rounded border border-brand-pink/20 bg-brand-pink/5 px-3 py-2">
+            <span class="inline-block h-1.5 w-1.5 rounded-full bg-green-500"></span>
+            <span class="text-xs font-mono text-foreground">stokes scan: 5/6 contracts synchronized</span>
+            <span class="text-xs text-muted-foreground ml-auto">1 drift</span>
+            <span class="text-xs text-brand-pink font-medium">drift flagged in replica_r0.sql</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SHOWCASE 2: SUBAGENTS / SPECIALIZED SWARM ==================== -->
+    <div id="subagents" class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center">
+      <div class="lg:order-2">
+        <p class="text-sm text-muted-foreground mb-3">subagents</p>
+        <h2 class="text-3xl font-extralight tracking-tight sm:text-4xl mb-5">
+          parallel multi-agent verification. specialized workers traverse compiler asts and live schema reflection concurrently.
+        </h2>
+        <a href="/subagents" class="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1">
+          explore subagents <span>→</span>
+        </a>
+      </div>
+
+      <!-- Card 2: Subagent Swarm Status Window -->
+      <div class="rounded-xl border border-border/40 bg-card/30 overflow-hidden lg:order-1">
+        <div class="p-4">
+          <div class="flex flex-col rounded-lg border border-border/60 bg-background/80 overflow-hidden text-left">
+            <!-- Window Titlebar -->
+            <div class="flex items-center gap-2 px-3 py-2 border-b border-border/40">
+              <div class="flex gap-1">
+                <span class="h-2 w-2 rounded-full bg-red-500/40"></span>
+                <span class="h-2 w-2 rounded-full bg-yellow-500/40"></span>
+                <span class="h-2 w-2 rounded-full bg-green-500/40"></span>
+              </div>
+              <span class="text-xs text-muted-foreground font-mono">stokes subagents --status</span>
+            </div>
+
+            <!-- Card Content -->
+            <div class="p-3 space-y-2">
+              <!-- Search bar -->
+              <div class="flex items-center gap-2 rounded border border-border/40 bg-card/20 px-2.5 py-1.5">
+                <span class="text-xs text-muted-foreground/40 font-mono">query subagent swarm [4 active]...</span>
+              </div>
+
+              <!-- List of Subagents -->
+              <div class="space-y-1.5">
+                <!-- Subagent 1: SQL -->
+                <div class="flex items-start gap-3 rounded border border-border/40 bg-card/20 p-2.5">
+                  <div class="mt-0.5 h-7 w-7 rounded bg-foreground/5 flex items-center justify-center text-muted-foreground/70 shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" class="w-4 h-4 shrink-0" fill="currentColor">
+                      <path d="M200,48H136V16a8,8,0,0,0-16,0V48H56A32,32,0,0,0,24,80V192a32,32,0,0,0,32,32H200a32,32,0,0,0,32-32V80A32,32,0,0,0,200,48Zm16,144a16,16,0,0,1-16,16H56a16,16,0,0,1-16-16V80A16,16,0,0,1,56,64H200a16,16,0,0,1,16,16Zm-52-56H92a28,28,0,0,0,0,56h72a28,28,0,0,0,0-56Zm-24,16v24H116V152ZM80,164a12,12,0,0,1,12-12h8v24H92A12,12,0,0,1,80,164Zm84,12h-8V152h8a12,12,0,0,1,0,24ZM72,108a12,12,0,1,1,12,12A12,12,0,0,1,72,108Zm88,0a12,12,0,1,1,12,12A12,12,0,0,1,160,108Z"/>
+                    </svg>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-1">
+                      <span class="text-xs font-mono font-medium text-foreground">stokes-sql/ast-walker</span>
+                      <span class="text-xs text-muted-foreground/40 ml-auto font-mono">v2.4</span>
+                    </div>
+                    <div class="text-xs text-muted-foreground/60 mt-0.5">ClickHouse AST parsed: 200 canonical partition columns locked</div>
+                  </div>
+                </div>
+
+                <!-- Subagent 2: Python -->
+                <div class="flex items-start gap-3 rounded border border-border/40 bg-card/20 p-2.5">
+                  <div class="mt-0.5 h-7 w-7 rounded bg-foreground/5 flex items-center justify-center text-muted-foreground/70 shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" class="w-4 h-4 shrink-0" fill="currentColor">
+                      <path d="M200,48H136V16a8,8,0,0,0-16,0V48H56A32,32,0,0,0,24,80V192a32,32,0,0,0,32,32H200a32,32,0,0,0,32-32V80A32,32,0,0,0,200,48Zm16,144a16,16,0,0,1-16,16H56a16,16,0,0,1-16-16V80A16,16,0,0,1,56,64H200a16,16,0,0,1,16,16Zm-52-56H92a28,28,0,0,0,0,56h72a28,28,0,0,0,0-56Zm-24,16v24H116V152ZM80,164a12,12,0,0,1,12-12h8v24H92A12,12,0,0,1,80,164Zm84,12h-8V152h8a12,12,0,0,1,0,24ZM72,108a12,12,0,1,1,12,12A12,12,0,0,1,72,108Zm88,0a12,12,0,1,1,12,12A12,12,0,0,1,160,108Z"/>
+                    </svg>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-1">
+                      <span class="text-xs font-mono font-medium text-foreground">stokes-python/etl-inspector</span>
+                      <span class="text-xs text-muted-foreground/40 ml-auto font-mono">v2.1</span>
+                    </div>
+                    <div class="text-xs text-muted-foreground/60 mt-0.5">Catalog batching matches 200 partition slots without loss</div>
+                  </div>
+                </div>
+
+                <!-- Subagent 3: Rust -->
+                <div class="flex items-start gap-3 rounded border border-border/40 bg-card/20 p-2.5">
+                  <div class="mt-0.5 h-7 w-7 rounded bg-foreground/5 flex items-center justify-center text-muted-foreground/70 shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" class="w-4 h-4 shrink-0" fill="currentColor">
+                      <path d="M200,48H136V16a8,8,0,0,0-16,0V48H56A32,32,0,0,0,24,80V192a32,32,0,0,0,32,32H200a32,32,0,0,0,32-32V80A32,32,0,0,0,200,48Zm16,144a16,16,0,0,1-16,16H56a16,16,0,0,1-16-16V80A16,16,0,0,1,56,64H200a16,16,0,0,1,16,16Zm-52-56H92a28,28,0,0,0,0,56h72a28,28,0,0,0,0-56Zm-24,16v24H116V152ZM80,164a12,12,0,0,1,12-12h8v24H92A12,12,0,0,1,80,164Zm84,12h-8V152h8a12,12,0,0,1,0,24ZM72,108a12,12,0,1,1,12,12A12,12,0,0,1,72,108Zm88,0a12,12,0,1,1,12,12A12,12,0,0,1,160,108Z"/>
+                    </svg>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-1">
+                      <span class="text-xs font-mono font-medium text-foreground">stokes-rust/memory-guard</span>
+                      <span class="text-xs text-muted-foreground/40 ml-auto font-mono">v1.9</span>
+                    </div>
+                    <div class="text-xs text-muted-foreground/60 mt-0.5">Fixed stack buffer [Feature; 200] validated against heap overflow</div>
+                  </div>
+                </div>
+
+                <!-- Subagent 4: Drift Warning -->
+                <div class="flex items-start gap-3 rounded border border-amber-500/30 bg-amber-500/5 p-2.5">
+                  <div class="mt-0.5 h-7 w-7 rounded bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" class="w-4 h-4 shrink-0" fill="currentColor">
+                      <path d="M200,48H136V16a8,8,0,0,0-16,0V48H56A32,32,0,0,0,24,80V192a32,32,0,0,0,32,32H200a32,32,0,0,0,32-32V80A32,32,0,0,0,200,48Zm16,144a16,16,0,0,1-16,16H56a16,16,0,0,1-16-16V80A16,16,0,0,1,56,64H200a16,16,0,0,1,16,16Zm-52-56H92a28,28,0,0,0,0,56h72a28,28,0,0,0,0-56Zm-24,16v24H116V152ZM80,164a12,12,0,0,1,12-12h8v24H92A12,12,0,0,1,80,164Zm84,12h-8V152h8a12,12,0,0,1,0,24ZM72,108a12,12,0,1,1,12,12A12,12,0,0,1,72,108Zm88,0a12,12,0,1,1,12,12A12,12,0,0,1,160,108Z"/>
+                    </svg>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-1">
+                      <span class="text-xs font-mono font-medium text-amber-700 dark:text-amber-300">stokes-verify/drift-detector</span>
+                      <span class="text-xs text-amber-600 ml-auto font-mono font-semibold">ALERT</span>
+                    </div>
+                    <div class="text-xs text-amber-700/70 dark:text-amber-400/70 mt-0.5">Shard replica events_r0 projects 280 cols (+80 shadow fields)</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SHOWCASE 3: CLI / DETERMINISTIC REMEDIATION ==================== -->
+    <div id="cli" class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center">
+      <div>
+        <p class="text-sm text-muted-foreground mb-3">cli</p>
+        <h2 class="text-3xl font-extralight tracking-tight sm:text-4xl mb-5">
+          from drift detection to zero-allocation patch in ninety seconds. deterministic terminal tooling, human-in-the-loop.
+        </h2>
+        <a href="/cli" class="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1">
+          explore cli <span>→</span>
+        </a>
+      </div>
+
+      <!-- Card 3: Developer CLI Terminal Session Window -->
+      <div class="rounded-xl border border-border/40 bg-card/30 overflow-hidden">
+        <div class="p-4">
+          <div class="flex flex-col rounded-lg border border-border/60 bg-background/80 overflow-hidden text-left">
+            <!-- Window Titlebar -->
+            <div class="flex items-center gap-2 px-3 py-2 border-b border-border/40">
+              <div class="flex gap-1">
+                <span class="h-2 w-2 rounded-full bg-red-500/40"></span>
+                <span class="h-2 w-2 rounded-full bg-yellow-500/40"></span>
+                <span class="h-2 w-2 rounded-full bg-green-500/40"></span>
+              </div>
+              <span class="text-xs text-muted-foreground font-mono">stokes audit --diff (terminal)</span>
+            </div>
+
+            <!-- Terminal Session Content -->
+            <div class="p-3 space-y-3 font-mono text-xs">
+              <!-- Command Prompt -->
+              <div class="flex items-center gap-2 text-foreground font-medium border-b border-border/30 pb-2">
+                <span class="text-green-600 dark:text-green-400 select-none">$</span>
+                <span>stokes audit --diff clickhouse/events_r0 crates/dirichlet-proxy</span>
+              </div>
+
+              <!-- Execution Trace -->
+              <div class="space-y-1.5 text-muted-foreground">
+                <div class="flex items-center gap-2">
+                  <span class="text-green-600 dark:text-green-400">✓</span>
+                  <span class="text-foreground/70">[stokes-sql]</span>
+                  <span>ClickHouse AST parsed: 280 columns detected in events_r0</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-rose-600 dark:text-rose-400">✗</span>
+                  <span class="text-rose-600 dark:text-rose-400">[stokes-rust]</span>
+                  <span class="text-rose-600 dark:text-rose-400">Buffer overflow risk: fixed stack buffer [Feature; 200]</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-green-600 dark:text-green-400">✓</span>
+                  <span class="text-foreground/70">[stokes-verify]</span>
+                  <span>Dual-Zone partition synthesized (0 B heap reallocation)</span>
+                </div>
+              </div>
+
+              <!-- Patch Approval Box (Clean terminal interactive prompt) -->
+              <div class="rounded border border-amber-500/30 bg-amber-500/5 p-3 space-y-2">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-medium text-amber-600 dark:text-amber-400">Patch Proposal: crates/dirichlet-proxy/src/buffer.rs</span>
+                  <span class="text-[11px] text-muted-foreground font-mono">7.66 ns hot path</span>
+                </div>
+                <div class="text-xs text-muted-foreground font-sans font-light">
+                  Lock 128 core features in Zone 0, partition 72 in Zone 1, shed 80 shadow replica fields.
+                </div>
+                <div class="flex items-center gap-2 pt-1 font-sans">
+                  <span class="text-xs px-2.5 py-1 rounded bg-foreground text-background font-medium cursor-pointer hover:bg-foreground/90 transition-all">
+                    Apply patch (y)
+                  </span>
+                  <span class="text-xs px-2.5 py-1 rounded border border-border/60 hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer transition-all">
+                    Inspect diff (d)
+                  </span>
+                  <span class="text-xs text-muted-foreground/60 ml-auto font-mono">stokes MTTR: 90s</span>
+                </div>
+              </div>
+
+              <!-- Active terminal prompt -->
+              <div class="flex items-center gap-2 text-muted-foreground/60 pt-1">
+                <span class="text-green-600 dark:text-green-400 select-none">$</span>
+                <span>stokes verify --strict _</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SHOWCASE 4: BENCHMARKS / CRITERION METRICS ==================== -->
+    <div id="benchmarks" class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center">
+      <div class="lg:order-2">
+        <p class="text-sm text-muted-foreground mb-3">benchmarks</p>
+        <h2 class="text-3xl font-extralight tracking-tight sm:text-4xl mb-5">
+          criterion micro-benchmarks. in-place partial selection, hardware cache lines, zero heap reallocations. 7.66 ns hot path.
+        </h2>
+        <a href="/benchmarks" class="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1">
+          explore benchmarks <span>→</span>
+        </a>
+      </div>
+
+      <!-- Card 4: Criterion Performance Widget Window -->
+      <div class="rounded-xl border border-border/40 bg-card/30 overflow-hidden lg:order-1">
+        <div class="p-4">
+          <div class="flex flex-col rounded-lg border border-border/60 bg-background/80 overflow-hidden text-left">
+            <!-- Window Titlebar -->
+            <div class="flex items-center gap-2 px-3 py-2 border-b border-border/40">
+              <div class="flex gap-1">
+                <span class="h-2 w-2 rounded-full bg-red-500/40"></span>
+                <span class="h-2 w-2 rounded-full bg-yellow-500/40"></span>
+                <span class="h-2 w-2 rounded-full bg-green-500/40"></span>
+              </div>
+              <span class="text-xs text-muted-foreground font-mono">stokes bench --criterion</span>
+            </div>
+
+            <!-- Card Content -->
+            <div class="p-3 space-y-3">
+              <div class="space-y-2">
+                <!-- CLI command header -->
+                <div class="flex items-center justify-between text-xs font-mono border-b border-border/30 pb-2">
+                  <div class="flex items-center gap-2">
+                    <span class="text-green-600 dark:text-green-400 select-none">$</span>
+                    <span class="text-foreground">stokes bench --target hot-path</span>
+                  </div>
+                  <span class="text-muted-foreground/50 text-[11px]">10k iterations · criterion</span>
+                </div>
+
+                <!-- Bar Chart Box -->
+                <div class="rounded border border-border/40 bg-card/20 p-2.5">
+                  <div class="text-xs font-medium mb-2 text-foreground font-sans">P99 hot-path latency (nanoseconds)</div>
+                  <div class="flex items-end gap-2 h-16 pt-2">
+                    <div class="flex-1 flex flex-col items-center gap-1">
+                      <div class="w-full bg-green-500/80 rounded-sm" style="height:25%"></div>
+                      <span class="text-[11px] text-muted-foreground font-mono">7.66ns</span>
+                    </div>
+                    <div class="flex-1 flex flex-col items-center gap-1">
+                      <div class="w-full bg-brand-purple/60 rounded-sm" style="height:65%"></div>
+                      <span class="text-[11px] text-muted-foreground font-mono">29.7ns</span>
+                    </div>
+                    <div class="flex-1 flex flex-col items-center gap-1">
+                      <div class="w-full bg-blue-500/60 rounded-sm" style="height:85%"></div>
+                      <span class="text-[11px] text-muted-foreground font-mono">42.1ns</span>
+                    </div>
+                    <div class="flex-1 flex flex-col items-center gap-1">
+                      <div class="w-full bg-amber-500/60 rounded-sm" style="height:100%"></div>
+                      <span class="text-[11px] text-muted-foreground font-mono">68.5ns</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Comparison Table -->
+                <div class="rounded border border-border/40 bg-card/20 overflow-hidden font-mono text-xs">
+                  <div class="grid grid-cols-3 border-b border-border/30 bg-muted/20">
+                    <div class="px-2.5 py-1.5 font-medium text-muted-foreground">strategy</div>
+                    <div class="px-2.5 py-1.5 font-medium text-muted-foreground">latency</div>
+                    <div class="px-2.5 py-1.5 font-medium text-muted-foreground">heap alloc</div>
+                  </div>
+                  <div class="grid grid-cols-3 border-b border-border/20">
+                    <div class="px-2.5 py-1.5 font-medium text-foreground">stokes dual-zone</div>
+                    <div class="px-2.5 py-1.5 text-green-600 font-semibold">7.66 ns</div>
+                    <div class="px-2.5 py-1.5 text-green-600">0 Bytes</div>
+                  </div>
+                  <div class="grid grid-cols-3 border-b border-border/20">
+                    <div class="px-2.5 py-1.5 text-muted-foreground">heap vector</div>
+                    <div class="px-2.5 py-1.5 text-muted-foreground">29.74 ns</div>
+                    <div class="px-2.5 py-1.5 text-muted-foreground">8.2 KB</div>
+                  </div>
+                  <div class="grid grid-cols-3">
+                    <div class="px-2.5 py-1.5 text-muted-foreground">std quicksort</div>
+                    <div class="px-2.5 py-1.5 text-muted-foreground">42.10 ns</div>
+                    <div class="px-2.5 py-1.5 text-muted-foreground">0 Bytes</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== SHOWCASE 5: CONFORMANCE / CRYPTOGRAPHIC CERT ==================== -->
+    <div id="conformance" class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center">
+      <div>
+        <p class="text-sm text-muted-foreground mb-3">conformance</p>
+        <h2 class="text-3xl font-extralight tracking-tight sm:text-4xl mb-5">
+          your team's active boundary lockfile. sha-256 digests, property fuzz proofs, non-bypassable ci gate.
+        </h2>
+        <a href="/conformance" class="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1">
+          explore conformance <span>→</span>
+        </a>
+      </div>
+
+      <!-- Card 5: Cryptographic Conformance Matrix Window -->
+      <div class="rounded-xl border border-border/40 bg-card/30 overflow-hidden">
+        <div class="p-4 space-y-3">
+          <div class="flex flex-col rounded-lg border border-border/60 bg-background/80 overflow-hidden text-left">
+            <!-- Window Titlebar -->
+            <div class="flex items-center gap-2 px-3 py-2 border-b border-border/40">
+              <div class="flex gap-1">
+                <span class="h-2 w-2 rounded-full bg-red-500/40"></span>
+                <span class="h-2 w-2 rounded-full bg-yellow-500/40"></span>
+                <span class="h-2 w-2 rounded-full bg-green-500/40"></span>
+              </div>
+              <span class="text-xs text-muted-foreground font-mono">stokes.lock (machine) / CONFORMANCE.md (audit)</span>
+            </div>
+
+            <!-- Card Content -->
+            <div class="p-3 space-y-2">
+              <div class="flex items-center justify-between p-2 rounded border border-border/40 bg-card/20 text-xs">
+                <div class="flex items-center gap-2">
+                  <span class="h-2 w-2 rounded-full bg-green-500"></span>
+                  <span class="font-medium text-foreground">ClickHouse Schema Digest</span>
+                </div>
+                <span class="font-mono text-muted-foreground text-[11px]">sha256:8eb837c6...</span>
+              </div>
+
+              <div class="flex items-center justify-between p-2 rounded border border-border/40 bg-card/20 text-xs">
+                <div class="flex items-center gap-2">
+                  <span class="h-2 w-2 rounded-full bg-green-500"></span>
+                  <span class="font-medium text-foreground">Python ETL Loop Contract</span>
+                </div>
+                <span class="font-mono text-green-600 text-[11px]">200 items synchronized</span>
+              </div>
+
+              <div class="flex items-center justify-between p-2 rounded border border-border/40 bg-card/20 text-xs">
+                <div class="flex items-center gap-2">
+                  <span class="h-2 w-2 rounded-full bg-green-500"></span>
+                  <span class="font-medium text-foreground">Rust Fixed Stack Buffer</span>
+                </div>
+                <span class="font-mono text-green-600 text-[11px]">Dual-Zone [Feature; 200]</span>
+              </div>
+
+              <div class="flex items-center justify-between p-2 rounded border border-border/40 bg-card/20 text-xs">
+                <div class="flex items-center gap-2">
+                  <span class="h-2 w-2 rounded-full bg-green-500"></span>
+                  <span class="font-medium text-foreground">Property Fuzzing Battery</span>
+                </div>
+                <span class="font-mono text-muted-foreground text-[11px]">10,000 cases (1.34s)</span>
+              </div>
+
+              <div class="flex items-center justify-between p-2 rounded border border-border/40 bg-card/20 text-xs">
+                <div class="flex items-center gap-2">
+                  <span class="h-2 w-2 rounded-full bg-green-500"></span>
+                  <span class="font-medium text-foreground">Heap Allocation Overhead</span>
+                </div>
+                <span class="font-mono text-green-600 text-[11px]">0 B realloc (in-place)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Pill Strip: Active CI Gate Status -->
+          <div class="flex items-center gap-2 rounded border border-green-500/20 bg-green-500/5 px-3 py-2">
+            <span class="inline-block h-1.5 w-1.5 rounded-full bg-green-500"></span>
+            <span class="text-xs font-mono text-foreground">stokes verify --strict</span>
+            <span class="text-xs text-muted-foreground ml-auto">5/5 PASS · exit 0</span>
+            <span class="text-xs text-green-600 font-medium font-mono">ci gate passed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>

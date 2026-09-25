@@ -1,0 +1,88 @@
+---
+import { ThemeToggle } from './ThemeToggle';
+---
+
+<header class="w-full border-b border-border/40 bg-background/80 backdrop-blur-md transition-colors sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative flex h-16 items-center justify-between">
+    
+    <!-- Brand Logo & Name -->
+    <a href="/" class="flex items-center space-x-2.5 shrink-0 text-foreground no-underline group z-10">
+      <svg width="18" height="18" viewBox="0 0 16 16" class="shrink-0 text-foreground" style="display: block;">
+        <!-- Row 0 -->
+        <rect x="0" y="0" width="4" height="4" fill="currentColor" fill-opacity="0.12" />
+        <rect x="4" y="0" width="4" height="4" fill="currentColor" fill-opacity="0.25" />
+        <rect x="8" y="0" width="4" height="4" fill="currentColor" fill-opacity="0.40" />
+        <rect x="12" y="0" width="4" height="4" fill="currentColor" fill-opacity="0.55" />
+        <!-- Row 1 -->
+        <rect x="0" y="4" width="4" height="4" fill="currentColor" fill-opacity="0.25" />
+        <rect x="4" y="4" width="4" height="4" fill="currentColor" fill-opacity="0.40" />
+        <rect x="8" y="4" width="4" height="4" fill="currentColor" fill-opacity="0.55" />
+        <rect x="12" y="4" width="4" height="4" fill="currentColor" fill-opacity="0.70" />
+        <!-- Row 2 -->
+        <rect x="0" y="8" width="4" height="4" fill="currentColor" fill-opacity="0.40" />
+        <rect x="4" y="8" width="4" height="4" fill="currentColor" fill-opacity="0.55" />
+        <rect x="8" y="8" width="4" height="4" fill="currentColor" fill-opacity="0.70" />
+        <rect x="12" y="8" width="4" height="4" fill="currentColor" fill-opacity="0.85" />
+        <!-- Row 3 -->
+        <rect x="0" y="12" width="4" height="4" fill="currentColor" fill-opacity="0.55" />
+        <rect x="4" y="12" width="4" height="4" fill="currentColor" fill-opacity="0.70" />
+        <rect x="8" y="12" width="4" height="4" fill="currentColor" fill-opacity="0.85" />
+        <rect x="12" y="12" width="4" height="4" fill="currentColor" fill-opacity="1.00" />
+      </svg>
+      <span class="font-mystandard text-[18px] font-normal tracking-normal text-foreground">stokes</span>
+    </a>
+
+    <!-- Center Nav Links (Mathematically centered across the entire navbar) -->
+    <nav class="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center justify-center">
+      <ul class="flex list-none items-center justify-center gap-1">
+        <li>
+          <a 
+            href="/" 
+            class="inline-flex h-9 w-max items-center justify-center rounded-md px-3.5 py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+          >
+            landing
+          </a>
+        </li>
+        <li>
+          <a 
+            href="/studio" 
+            class="inline-flex h-9 w-max items-center justify-center rounded-md px-3.5 py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+          >
+            studio
+          </a>
+        </li>
+        <li>
+          <a 
+            href="/docs" 
+            class="inline-flex h-9 w-max items-center justify-center rounded-md px-3.5 py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+          >
+            docs
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Right Actions (Theme toggle + github + install) -->
+    <div class="flex items-center gap-2 z-10">
+      <ThemeToggle client:load />
+
+      <div class="hidden sm:flex items-center gap-2">
+        <a 
+          href="https://github.com/yvliet/stokes" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          class="inline-flex items-center justify-center text-sm font-medium h-8 px-3 rounded-md hover:bg-accent hover:text-accent-foreground text-foreground transition-colors"
+        >
+          github
+        </a>
+        <a 
+          href="#terminal" 
+          class="inline-flex items-center justify-center text-sm font-medium h-8 px-3.5 rounded-full bg-foreground text-background hover:bg-foreground/90 transition-all cursor-pointer"
+        >
+          install
+        </a>
+      </div>
+    </div>
+
+  </div>
+</header>

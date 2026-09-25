@@ -1,0 +1,52 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "stokes | cross-boundary invariant verification",
+  description = "Eliminate multi-tier runtime panics across SQL, Python, and Rust before code commits. Built on IBM Bob 2.0."
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- External Fonts (inference.sh typography stack) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Mona Sans, DM Mono, and Sentient (inference.sh typography stack) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mona+Sans:wght@200;300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" />
+    <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=sentient@300,400,500,700&display=swap" />
+
+    <!-- Strict Light-First Default Theme Initializer -->
+    <script is:inline>
+      (function() {
+        try {
+          const stored = localStorage.getItem('stokes_theme');
+          // Strict light-first: only go dark if the user explicitly toggled it to 'dark'
+          if (stored === 'dark') {
+            document.documentElement.classList.add('dark');
+            document.documentElement.setAttribute('data-theme', 'dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.setAttribute('data-theme', 'light');
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen bg-background text-foreground antialiased selection:bg-neutral-200 dark:selection:bg-neutral-700 selection:text-foreground">
+    <slot />
+  </body>
+</html>

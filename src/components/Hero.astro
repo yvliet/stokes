@@ -1,0 +1,100 @@
+---
+import { PixelPrism } from './PixelPrism';
+import IntegrationsMarquee from './IntegrationsMarquee.astro';
+---
+
+<section class="pt-24 sm:pt-28 pb-12 px-6 text-center relative">
+  <div class="container mx-auto max-w-7xl">
+    
+    <!-- Centered Logo (exact inference.sh logo placement) -->
+    <div class="mb-8 flex justify-center animate-fade-in">
+      <div class="flex items-center justify-center">
+        <PixelPrism client:load />
+      </div>
+    </div>
+
+    <!-- Monumental Headline (exact inference.sh text-6xl md:text-8xl mb-6 leading-none tracking-tight) -->
+    <h1 class="text-6xl md:text-8xl mb-6 leading-none tracking-tight text-foreground max-w-6xl mx-auto lowercase">
+      systems that cannot crash.
+    </h1>
+
+    <!-- Subtitle -->
+    <p class="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-8 font-light leading-relaxed">
+      catch cross-language bugs that single compilers miss.
+    </p>
+
+    <!-- Instant Copyable Install Command -->
+    <div class="flex flex-col items-center justify-center gap-2.5 mb-10">
+      <div class="inline-flex items-center gap-3 rounded-full border border-border/80 bg-card/60 px-4 py-2 font-mono text-xs sm:text-sm text-foreground shadow-sm hover:border-foreground/30 transition-colors">
+        <span class="text-emerald-500 font-semibold select-none">$</span>
+        <code id="install-cmd" class="select-all font-mono">curl -fsSL https://stokes.dev/install.sh | sh</code>
+        <button 
+          id="copy-btn"
+          type="button"
+          class="ml-1 inline-flex items-center justify-center rounded p-1.5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+          aria-label="Copy install command"
+        >
+          <svg id="copy-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+          </svg>
+          <svg id="check-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden text-emerald-500">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </button>
+      </div>
+      <p class="text-[11px] text-muted-foreground/60 font-mono">
+        requires IBM Bob 2.0 · macOS · Linux · Windows (WSL)
+      </p>
+    </div>
+
+    <!-- Dual Pill CTAs (exact inference.sh styling and concise labels) -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+      <a 
+        href="#terminal" 
+        class="group/button inline-flex shrink-0 items-center justify-center border border-transparent font-medium whitespace-nowrap outline-none select-none h-12 px-8 text-lg bg-foreground text-background hover:bg-foreground/90 transition-all rounded-full cursor-pointer"
+      >
+        explore cli
+      </a>
+      <a 
+        href="/studio" 
+        class="group/button inline-flex shrink-0 items-center justify-center border border-transparent font-medium whitespace-nowrap outline-none select-none h-12 px-8 text-lg ring-2 ring-foreground/20 bg-foreground/[0.05] text-foreground hover:bg-foreground/[0.12] hover:ring-foreground/40 transition-all rounded-full cursor-pointer"
+      >
+        outage tour
+      </a>
+    </div>
+
+    <!-- Integrations Marquee -->
+    <div class="mt-6">
+      <p class="text-[11px] font-sans font-medium tracking-[0.2em] uppercase text-muted-foreground/60 mb-6 select-none">
+        works with
+      </p>
+      <IntegrationsMarquee />
+    </div>
+  </div>
+</section>
+
+<script>
+  const copyBtn = document.getElementById('copy-btn');
+  const copyIcon = document.getElementById('copy-icon');
+  const checkIcon = document.getElementById('check-icon');
+  const installCmd = document.getElementById('install-cmd');
+
+  if (copyBtn && installCmd) {
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(installCmd.innerText);
+        if (copyIcon && checkIcon) {
+          copyIcon.classList.add('hidden');
+          checkIcon.classList.remove('hidden');
+          setTimeout(() => {
+            copyIcon.classList.remove('hidden');
+            checkIcon.classList.add('hidden');
+          }, 2000);
+        }
+      } catch (err) {
+        console.error('Failed to copy command:', err);
+      }
+    });
+  }
+</script>
