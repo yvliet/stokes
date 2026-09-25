@@ -7,7 +7,6 @@ import './app.css'
 import { preloadFonts } from '@/app/editor/fonts'
 import { observeBootErrors } from '@/app/shell/support/boot'
 import { reportBootFailure } from '@/app/shell/support/gate'
-import { IS_TAURI } from '@/constants'
 
 import App from './App.vue'
 import router from './router'
@@ -32,10 +31,18 @@ export async function boot(): Promise<void> {
     return
   }
 
-  if (!IS_TAURI) {
-    void import('virtual:pwa-register').then(({ registerSW }) => {
-      registerSW({ immediate: true })
-      return undefined
+  if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+    void navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (const registration of registrations) {
+        void registration.unregister()
+      }
     })
+    if ('caches' in window) {
+      void caches.keys().then((keys) => {
+        for (const key of keys) {
+          void caches.delete(key)
+        }
+      })
+    }
   }
 }

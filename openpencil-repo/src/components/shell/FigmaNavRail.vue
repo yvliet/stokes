@@ -8,7 +8,7 @@ const { isLeftSidebarCollapsed, toggleSidebar } = useFigmaRail()
 
 <template>
   <nav
-    class="flex w-12 shrink-0 flex-col items-center justify-between border-r border-border bg-[#242424] py-2 select-none z-20 box-border"
+    class="flex w-12 shrink-0 flex-col items-center justify-between border-r border-border bg-[#2a2a2a] py-2 select-none z-20 box-border"
     aria-label="Navigation Rail"
   >
     <!-- Top Brand Logo & Navigation Items -->
