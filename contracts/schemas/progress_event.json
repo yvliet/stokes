@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SubagentProgressEvent",
+  "description": "Structured progress event emitted by IBM Bob 2.0 subagents over the IPC wire protocol.",
+  "type": "object",
+  "required": [
+    "event_id",
+    "timestamp_ns",
+    "subagent_id",
+    "phase",
+    "target_file",
+    "line_offset",
+    "ast_node_type",
+    "status_message",
+    "severity"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique UUID v4 identifier for this event."
+    },
+    "timestamp_ns": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Monotonic nanosecond timestamp from time.monotonic_ns()."
+    },
+    "subagent_id": {
+      "type": "string",
+      "enum": ["stokes-sql", "stokes-proto", "stokes-python", "stokes-rust", "stokes-verify"],
+      "description": "Identifier of the emitting subagent worker."
+    },
+    "phase": {
+      "type": "string",
+      "enum": [
+        "INITIALIZING",
+        "BOUNDARY_DISCOVERY",
+        "AST_PARSING",
+        "CROSS_BOUNDARY_LINKING",
+        "STAGING_REFLECTION",
+        "INVARIANT_EVALUATION",
+        "PROPERTY_FUZZING",
+        "SANDBOX_EXECUTION",
+        "CANARY_SIMULATION",
+        "CERTIFICATE_GENERATION",
+        "HALTED_ON_VIOLATION",
+        "COMPLETED"
+      ],
+      "description": "Current execution phase of the subagent."
+    },
+    "target_file": {
+      "type": "string",
+      "description": "Relative path to the file currently being analyzed."
+    },
+    "line_offset": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "1-based line number of the AST node being analyzed."
+    },
+    "column_offset": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "0-based column offset of the AST node."
+    },
+    "ast_node_type": {
+      "type": "string",
+      "description": "Tree-sitter node type identifier (e.g. call_expression, select_statement)."
+    },
+    "ast_symbol_name": {
+      "type": ["string", "null"],
+      "description": "Resolved symbol name if available (function name, field name, etc.)."
+    },
+    "status_message": {
+      "type": "string",
+      "description": "Human-readable status message from the subagent."
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["DEBUG", "INFO", "WARNING", "CONTRACT_VIOLATION", "FATAL"],
+      "description": "Severity classification of this event."
+    }
+  },
+  "additionalProperties": false
+}

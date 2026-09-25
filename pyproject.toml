@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stokes"
+version = "0.2.0"
+description = "Autonomous cross-boundary systems invariant verification engine built on IBM Bob 2.0"
+authors = [{ name = "yvliet" }]
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+keywords = ["systems", "verification", "ast", "linting", "cross-boundary", "ibm-bob"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+]
+tree-sitter = [
+    "tree-sitter>=0.22",
+]
+
+[project.scripts]
+stokes = "stokes.cli.main:entry_point"
+
+[tool.setuptools.packages]
+find = { where = ["."], include = ["stokes*"] }
+
+[tool.setuptools.package-dir]
+"stokes" = "."
+"stokes.cli" = "cli"
+"stokes.subagents" = "subagents"
+"stokes.subagents.ast_engine" = "subagents/ast_engine"
+"stokes.harness" = "harness"
+"stokes.tests" = "tests"
+"stokes.contracts" = "contracts"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.setuptools.package-data]
+"stokes" = [
+    "contracts/schemas/*.json",
+    "contracts/ast_queries/*.scm",
+]

@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ContractViolationDiagnostic",
+  "description": "Structured contract violation diagnostic emitted when a cross-boundary invariant is breached.",
+  "type": "object",
+  "required": [
+    "diagnostic_id",
+    "subagent_id",
+    "invariant_id",
+    "target_file",
+    "span",
+    "ast_context",
+    "root_cause",
+    "synthesized_remediation"
+  ],
+  "properties": {
+    "diagnostic_id": {
+      "type": "string",
+      "description": "Unique diagnostic identifier (e.g. DIAG-20260925-001)."
+    },
+    "subagent_id": {
+      "type": "string",
+      "enum": ["stokes-sql", "stokes-proto", "stokes-python", "stokes-rust", "stokes-verify"],
+      "description": "Identifier of the subagent that detected the violation."
+    },
+    "invariant_id": {
+      "type": "string",
+      "enum": [
+        "INVARIANT_1_INFALLIBLE_INTAKE",
+        "INVARIANT_2_CATALOG_QUALIFICATION",
+        "INVARIANT_3_THREAD_ISOLATION",
+        "INVARIANT_4_PROTOBUF_CARDINALITY_BOUND"
+      ],
+      "description": "The invariant rule that was violated."
+    },
+    "lint_rule": {
+      "type": "string",
+      "enum": ["LINT-001", "LINT-002", "LINT-003", "LINT-004", "LINT-005"],
+      "description": "The diagnostic rule identifier."
+    },
+    "target_file": {
+      "type": "string",
+      "description": "Relative path to the file containing the violation."
+    },
+    "span": {
+      "type": "object",
+      "required": ["start_line", "start_col", "end_line", "end_col"],
+      "properties": {
+        "start_line": { "type": "integer", "minimum": 1 },
+        "start_col": { "type": "integer", "minimum": 0 },
+        "end_line": { "type": "integer", "minimum": 1 },
+        "end_col": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "ast_context": {
+      "type": "object",
+      "properties": {
+        "node_type": {
+          "type": "string",
+          "description": "Tree-sitter node type of the violating AST node."
+        },
+        "surrounding_snippet": {
+          "type": "string",
+          "description": "Source code snippet surrounding the violation."
+        },
+        "tainted_identifiers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of tainted identifier names propagating the violation."
+        }
+      }
+    },
+    "root_cause": {
+      "type": "string",
+      "description": "Technical explanation of the root cause of the contract violation."
+    },
+    "cardinality_risk_ratio": {
+      "type": "number",
+      "description": "C_upstream / B_downstream risk ratio. Values > 1.0 indicate fatal drift."
+    },
+    "synthesized_remediation": {
+      "type": "object",
+      "required": ["unified_diff", "explanation"],
+      "properties": {
+        "unified_diff": {
+          "type": "string",
+          "description": "Unified diff patch resolving the violation."
+        },
+        "suggested_ast_replacement": {
+          "type": ["string", "null"],
+          "description": "Suggested AST-level code replacement."
+        },
+        "explanation": {
+          "type": "string",
+          "description": "Human-readable explanation of the remediation."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
