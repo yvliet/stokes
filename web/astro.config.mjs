@@ -9,7 +9,7 @@ export default defineConfig({
     plugins: [tailwindcss()],
     server: {
       proxy: {
-        '^/studio/(?!assets/canvaskit\\.wasm)': {
+        '^/studio/(?!(?:assets/)?canvaskit\\.wasm)': {
           target: 'http://localhost:1420',
           changeOrigin: true,
           ws: true,
