@@ -66,9 +66,9 @@ This project strictly adheres to the official IBM Bob 2.0 Hackathon regulations.
 > *"Yes, you can use pre-prepared synthetic sample code and demo UI templates as long as they are clearly disclosed in your repository and all the core Bob analysis and project logic are built during the hackathon."*  
 > - **Hamza | lablab.ai** (Discord message ID: `1553083130045268114`, September 25, 2026 at 23:37 WIB)
 
-Full verification captures and role verifications are documented in [docs/compliance/COMPLIANCE.md](docs/compliance/COMPLIANCE.md).
+Full verification captures and role verifications are documented in [docs/compliance/COMPLIANCE.md](docs/compliance/COMPLIANCE.md). Exported task session screenshots, task IDs, and ongoing milestone checkpoints are documented in [bob_sessions/](bob_sessions/README.md).
 
-- **Built with IBM Bob 2.0 during Hackathon**: Stokes CLI, 4 autonomous subagents, Tree-sitter AST reachability engine, 10,000-case float fuzzer, Criterion micro-benchmark parser, and 111-test suite.
+- **Active Build with IBM Bob 2.0 (WIP)**: Core AST reachability engine, subagents, and test batteries constructed during the hackathon build window. Active Bob token consumption checkpoints logged in [bob_sessions/](bob_sessions/README.md) (35.064 Bobcoins burned to date across 5 intermediate task sessions; project is currently in active development).
 - **Disclosed Baseline Templates & Canvas Fork**: Dirichlet benchmark patient (`dirichlet/`), demo web UI template, and Stokes Studio canvas (`stokes/web/openpencil-repo/`, adapted from a stripped fork of OpenPencil without Figma/media overhead for storage pipeline DAG routing).
 
 ## License

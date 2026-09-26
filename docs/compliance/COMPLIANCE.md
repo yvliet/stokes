@@ -42,3 +42,15 @@ In compliance with organizer guidance, the following baseline templates were pre
 1. **Dirichlet Testbed (`dirichlet/`)**: Synthetic production-grade patient modeling the Cloudflare November 18, 2025 outage cascade (ClickHouse DDL, Python feature extractor, and Rust fixed-capacity L7 edge proxy).
 2. **Web UI Presentation Shell (`stokes/web/`)**: Staged Astro frontend layout and visual presentation template.
 3. **Stokes Studio Spatial Canvas (`stokes/web/openpencil-repo/`)**: Architectural fork of the OpenPencil 2D spatial canvas engine (MIT License). Legacy Figma import/export, media handling, and generic UI design overhead were stripped out to establish a clean-slate, low-latency spatial canvas engineered exclusively for storage pipeline DAG routing and cross-boundary invariant visualization.
+
+---
+
+## 3. IBM Bob Task Session Summaries & Active Audit Logs (WIP)
+
+Stokes is actively under construction within the hackathon build window. Per hackathon guidelines, active IBM Bob development sessions and token consumption logs are recorded in [`bob_sessions/`](../../bob_sessions/README.md) as intermediate checkpoints.
+
+- **Status**: Work-in-Progress (WIP - Active Development)
+- **Intermediate Sessions**: 5 audited task sessions captured to date
+- **Bobcoins Burned to Date**: 35.064 / 40.000 Bobcoins (ongoing token exhaustion in progress)
+- **Detailed Audit Ledger & Screenshots**: See [`bob_sessions/README.md`](../../bob_sessions/README.md)
+
