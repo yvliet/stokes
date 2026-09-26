@@ -316,11 +316,20 @@ async def cmd_audit(args: argparse.Namespace) -> int:
                 "- Upstream ClickHouse reflection emits 280 rows without database qualification predicate\n"
                 "Task: Implement zero-allocation Dual-Zone memory degradation in crates/dirichlet-proxy using select_nth_unstable_by."
             )
-            bob_result = dispatch_bob_remediation(abs_path, remediation_prompt, timeout_seconds=45)
+            bob_result = dispatch_bob_remediation(abs_path, remediation_prompt, timeout_seconds=90)
             if bob_result.success:
                 print(
                     f"  {FG_EMERALD}✔{RESET} {BOLD}IBM Bob 2.0 autonomous remediation completed successfully.{RESET}"
                 )
+                summary_lines = [
+                    line.strip()
+                    for line in bob_result.stdout.splitlines()
+                    if any(k in line for k in ("Task Summary", "Total Cost", "Total Duration", "Task ID", "Tool:"))
+                ]
+                if summary_lines:
+                    print(f"  {DIM}Bob Session Telemetry:{RESET}")
+                    for sl in summary_lines:
+                        print(f"    {DIM}·{RESET} {sl}")
             else:
                 print(
                     f"  {FG_AMBER}▲{RESET} {DIM}Bob dispatch status:{RESET} "

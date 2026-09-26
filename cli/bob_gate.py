@@ -84,6 +84,8 @@ def get_bob_version(executable_path: str) -> str | None:
             stdin=subprocess.DEVNULL,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=5,
             env=env,
             check=False,
@@ -189,7 +191,7 @@ def print_bob_gate_card(status: BobGateStatus) -> None:
 def dispatch_bob_remediation(
     workspace_path: str,
     prompt: str,
-    timeout_seconds: int = 45,
+    timeout_seconds: int = 90,
 ) -> BobDispatchResult:
     """
     Dispatch autonomous task to IBM Bob CLI via headless execution.
@@ -224,6 +226,8 @@ def dispatch_bob_remediation(
             stdin=subprocess.DEVNULL,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=timeout_seconds,
             env=env,
             check=False,
