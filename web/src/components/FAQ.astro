@@ -2,19 +2,23 @@
 const faqs = [
   {
     q: "what is stokes?",
-    a: "Stokes is a CLI tool that checks whether your SQL schemas, Python ETL pipelines, and Rust services actually agree with each other. Think of it as a linter, but instead of checking one language at a time, it reads all three and flags the places where they silently disagree."
+    a: "Stokes is an integrated storage pipeline studio and cross-compiler verification system. It lets you visually redesign schemas, caches, and queues on a continuous canvas while Bob synthesizes the production code across SQL, Python, and Rust, paired with a deterministic CLI that verifies memory bounds and cross-language invariants in CI."
+  },
+  {
+    q: "is stokes just a linter or does it write code?",
+    a: "Stokes is an active visual studio and code synthesis engine, not a passive linter. Single-language linters (like sqlfluff or mypy) only inspect syntax within their own silo. When you add a ClickHouse column, introduce a KV cache, or rewire an ETL stage in Stokes Studio, Bob automatically writes and synchronizes your SQL migrations, Python data contracts, and Rust fixed-capacity buffers. The CLI then provides deterministic verification in CI so uncommitted mismatches never reach production."
   },
   {
     q: "what is stokes studio?",
-    a: "Stokes Studio is an interactive visual modeler for storage pipelines. It lets you visually map ClickHouse DDL schemas, Python ETL pipelines, Quicksilver KV meshes, and Rust reverse proxies onto a continuous 2D canvas, computing cross-boundary cardinality risk ratios in real-time."
+    a: "Stokes Studio is an interactive visual modeler and architecture canvas for storage pipelines. It lets you visually map ClickHouse DDL schemas, Python ETL pipelines, Quicksilver KV meshes, and Rust reverse proxies onto a continuous 2D canvas, computing cross-boundary cardinality risk ratios and synthesizing synchronized code in real time."
   },
   {
     q: "how does stokes prevent cloudflare-style outages?",
-    a: "The Cloudflare Nov 18, 2025 outage happened because sqlfluff, mypy, and rustc all passed individually, but nobody checked that a schema change pushed 280 features into a buffer sized for 200. Stokes catches exactly that kind of mismatch: it reads the SQL schema, the Python config, and the Rust buffer declaration together, and fails the build if the numbers don't line up."
+    a: "The Cloudflare Nov 18, 2025 outage happened because sqlfluff, mypy, and rustc all passed individually, but nobody checked that a schema change pushed 280 features into a buffer sized for 200. Stokes prevents this at both design time and CI: on the studio canvas, it recalculates cardinality risk ratios in real time and automatically bounds Rust dual-zone buffers when schemas expand; in CI, Stokes verify checks cross-language invariants so single-compiler blind spots never reach production."
   },
   {
     q: "why does it run inside ibm bob 2.0?",
-    a: "Stokes uses Bob 2.0's multi-agent architecture to run multiple specialized checkers at the same time (one for SQL, one for Python, one for Rust, one for verification). Bob handles the orchestration, parallel execution, and document understanding so Stokes can focus on the actual boundary checks."
+    a: "Stokes uses Bob 2.0's multi-agent architecture to power both its cross-compiler code synthesis engine and parallel boundary verification. When you make changes on the canvas, Bob synthesizes synchronized code across SQL, Python, and Rust simultaneously, while coordinating parallel subagents for boundary checks, orchestration, and schema conformance."
   },
   {
     q: "what do the benchmark numbers mean?",
@@ -35,8 +39,8 @@ const faqs = [
       <h2 class="text-3xl font-extralight tracking-tight sm:text-4xl text-foreground">
         frequently asked questions
       </h2>
-      <p class="text-sm text-muted-foreground leading-relaxed">
-        common questions about how stokes works, what it checks, and how to run it in ci.
+      <p class="text-sm text-muted-foreground leading-relaxed lowercase">
+        common questions about the studio canvas, automated code synthesis, and ci verification.
       </p>
       <div class="pt-2">
         <a 
