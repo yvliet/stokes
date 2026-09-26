@@ -5,7 +5,7 @@ const faqs = [
     a: "stokes evaluates static cross-boundary contracts across explicit ClickHouse DDL, Protobuf definitions, and Rust type allocations using tree-sitter AST queries and integer capacity bounds. for dynamic python wire sinks where variable references cannot be resolved statically without whole-program pointer analysis, stokes uses declarative pattern contracts (`stokes.yaml`) and synthesizes certified two-tier bounded deserializers (`TieredBuffer`) to handle runtime variance safely."
   },
   {
-    q: "why can't single-language linters (sqlfluff, mypy, clippy) catch this? (the context blindness principle)",
+    q: "why can't single-language linters (sqlfluff, mypy, clippy) catch this?",
     a: "local compilers suffer from Context Blindness: sqlfluff cannot see Rust structs, and rustc cannot see ClickHouse migrations. consider a valid DDL migration adding 2 fraud detection columns: sqlfluff passes (100% valid DDL), mypy passes (valid dictionary), and rustc passes (valid `[Feature; 200]`). each file passes in isolation, but the system panics because N_max (202) > M_downstream (200). the defect exists solely in the cross-compiler cardinality inequality, which only Stokes evaluates."
   },
   {
@@ -27,7 +27,7 @@ const faqs = [
   <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
     <!-- Left Column: Heading & Intro (sticky sidebar scrolling alongside accordion) -->
     <div class="lg:col-span-5 space-y-4 lg:sticky lg:top-20 self-start">
-      <p class="text-sm text-muted-foreground font-mono lowercase">faq</p>
+      <p class="text-sm text-muted-foreground lowercase">faq</p>
       <h2 class="text-3xl font-extralight tracking-tight sm:text-4xl text-foreground lowercase">
         frequently asked questions
       </h2>

@@ -74,52 +74,66 @@ High-throughput packet paths cannot invoke heap allocators (`malloc`, `jemalloc`
 To maintain sub-10ns execution speeds while safely accepting payloads exceeding baseline expectations, the data plane employs a **Two-Tier Bounded Intake Buffer** (`TieredBuffer`):
 
 ```rust
-// crates/dirichlet-proxy/src/intake.rs: Bounded Two-Tier Intake
+// crates/dirichlet-proxy/src/engine/tiered_buffer.rs: Pure Stack Two-Tier Bounded Deserializer
 use std::mem::MaybeUninit;
 
-pub const CANONICAL_CAPACITY: usize = 200;
-pub const MAX_SPILLOVER_CAPACITY: usize = 512;
+pub const DEFAULT_FAST_CAPACITY: usize = 200;
+pub const DEFAULT_SPILL_CAPACITY: usize = 312;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-#[repr(C, align(8))]
-pub struct FeatureDescriptor {
-    pub id: u32,
-    pub priority: u8,
-    pub is_shadow: bool,
-    pub _pad: [u8; 2],
+#[derive(Debug, PartialEq, Eq)]
+pub enum TieredBufferError {
+    CapacityExceeded { received: usize, max_capacity: usize },
 }
 
-pub enum TieredBuffer {
-    /// Hot Path: 0 allocations, 100% stack resident (< 1 ns)
-    Inline([FeatureDescriptor; CANONICAL_CAPACITY], usize),
-    /// Bounded Spillover: Fixed array up to MAX_SPILLOVER (< 10 ns)
-    Spillover([FeatureDescriptor; MAX_SPILLOVER_CAPACITY], usize),
+pub struct TieredBuffer<T: Copy, const N: usize, const SPILL: usize> {
+    inline: [MaybeUninit<T>; N],
+    inline_len: usize,
+    spillover: [MaybeUninit<T>; SPILL],
+    spillover_len: usize,
 }
 
-impl TieredBuffer {
+impl<T: Copy, const N: usize, const SPILL: usize> TieredBuffer<T, N, SPILL> {
     #[inline(always)]
-    pub fn ingest(slice: &[FeatureDescriptor]) -> Self {
-        let len = slice.len();
-        if len <= CANONICAL_CAPACITY {
-            let mut inline = [FeatureDescriptor {
-                id: 0,
-                priority: 0,
-                is_shadow: false,
-                _pad: [0; 2],
-            }; CANONICAL_CAPACITY];
-            inline[..len].copy_from_slice(slice);
-            TieredBuffer::Inline(inline, len)
-        } else {
-            let take = len.min(MAX_SPILLOVER_CAPACITY);
-            let mut spill = [FeatureDescriptor {
-                id: 0,
-                priority: 0,
-                is_shadow: false,
-                _pad: [0; 2],
-            }; MAX_SPILLOVER_CAPACITY];
-            spill[..take].copy_from_slice(&slice[..take]);
-            TieredBuffer::Spillover(spill, take)
+    pub fn new() -> Self {
+        Self {
+            inline: [const { MaybeUninit::uninit() }; N],
+            inline_len: 0,
+            spillover: [const { MaybeUninit::uninit() }; SPILL],
+            spillover_len: 0,
         }
+    }
+
+    #[inline(always)]
+    pub fn ingest_slice(&mut self, source: &[T]) -> Result<usize, TieredBufferError> {
+        let count = source.len();
+        let max_cap = N + SPILL;
+        if count > max_cap {
+            return Err(TieredBufferError::CapacityExceeded {
+                received: count,
+                max_capacity: max_cap,
+            });
+        }
+
+        if count <= N {
+            for (i, &item) in source.iter().enumerate() {
+                self.inline[i].write(item);
+            }
+            self.inline_len = count;
+            self.spillover_len = 0;
+        } else {
+            for (i, &item) in source[..N].iter().enumerate() {
+                self.inline[i].write(item);
+            }
+            self.inline_len = N;
+
+            let overflow = count - N;
+            for (i, &item) in source[N..count].iter().enumerate() {
+                self.spillover[i].write(item);
+            }
+            self.spillover_len = overflow;
+        }
+
+        Ok(count)
     }
 }
 ```

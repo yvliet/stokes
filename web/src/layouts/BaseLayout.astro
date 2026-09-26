@@ -13,7 +13,7 @@ const {
 ---
 
 <!DOCTYPE html>
-<html lang="en" class="overscroll-none">
+<html lang="en" class="dark overscroll-none" data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -29,24 +29,26 @@ const {
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mona+Sans:wght@200;300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
     <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=sentient@300,400,500,700&display=swap" />
 
-    <!-- Strict Light-First Default Theme Initializer -->
+    <!-- Strict Dark-First Default Theme Initializer -->
     <script is:inline>
       (function() {
         try {
           const stored = localStorage.getItem('stokes_theme');
-          // Strict light-first: only go dark if the user explicitly toggled it to 'dark'
-          if (stored === 'dark') {
-            document.documentElement.classList.add('dark');
-            document.documentElement.setAttribute('data-theme', 'dark');
-          } else {
+          if (stored === 'light') {
             document.documentElement.classList.remove('dark');
             document.documentElement.setAttribute('data-theme', 'light');
+          } else {
+            document.documentElement.classList.add('dark');
+            document.documentElement.setAttribute('data-theme', 'dark');
           }
-        } catch (e) {}
+        } catch (e) {
+          document.documentElement.classList.add('dark');
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
       })();
     </script>
   </head>
-  <body class="min-h-screen bg-background text-foreground antialiased selection:bg-neutral-200 dark:selection:bg-neutral-700 selection:text-foreground overscroll-none">
+  <body class="min-h-screen bg-background text-foreground antialiased selection:bg-neutral-700 selection:text-foreground overscroll-none">
     <slot />
   </body>
 </html>
