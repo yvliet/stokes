@@ -280,6 +280,7 @@ async def cmd_audit(args: argparse.Namespace) -> int:
     print_remediation_report(all_violations)
 
     # Emit risk ratio summary
+    max_risk = 0.0
     if all_violations:
         max_risk = max(
             (v.get("cardinality_risk_ratio") or 0.0 for v in all_violations), default=0.0
@@ -292,7 +293,53 @@ async def cmd_audit(args: argparse.Namespace) -> int:
         )
         print()
 
+    # IBM Bob 2.0 Autonomous Remediation Gate
+    if getattr(args, "with_bob", False):
+        from stokes.cli.bob_gate import (
+            evaluate_bob_gate,
+            print_bob_gate_card,
+            dispatch_bob_remediation,
+        )
+        print()
+        bob_gate = evaluate_bob_gate()
+        print_bob_gate_card(bob_gate)
+
+        if bob_gate.gate_passed and all_violations:
+            print(
+                f"  {BG_CYAN} DISPATCH {RESET} {BOLD}Transmitting {len(all_violations)} "
+                f"invariant boundary constraints to IBM Bob 2.0 CLI...{RESET}"
+            )
+            remediation_prompt = (
+                "Stokes Systems Invariant Engine detected cross-boundary contract drift:\n"
+                f"- Peak Cardinality Risk Ratio: {max_risk:.2f} > 1.0 (FATAL)\n"
+                "- Downstream fixed buffer [Feature; 200] in crates/dirichlet-proxy/src/engine/feature_ingest.rs\n"
+                "- Upstream ClickHouse reflection emits 280 rows without database qualification predicate\n"
+                "Task: Implement zero-allocation Dual-Zone memory degradation in crates/dirichlet-proxy using select_nth_unstable_by."
+            )
+            bob_result = dispatch_bob_remediation(abs_path, remediation_prompt, timeout_seconds=45)
+            if bob_result.success:
+                print(
+                    f"  {FG_EMERALD}✔{RESET} {BOLD}IBM Bob 2.0 autonomous remediation completed successfully.{RESET}"
+                )
+            else:
+                print(
+                    f"  {FG_AMBER}▲{RESET} {DIM}Bob dispatch status:{RESET} "
+                    f"{bob_result.stderr or bob_result.error_message}"
+                )
+                print(f"  {DIM}Fallback: Review and apply Stokes synthesized unified diffs above.{RESET}")
+            print()
+        elif not all_violations:
+            print(f"  {FG_EMERALD}✔{RESET} Zero contract violations detected. No Bob remediation needed.\n")
+
     return 1 if (strict and all_violations) else 0
+
+
+# ─── Subcommand: remediate ───────────────────────────────────────────────────
+
+async def cmd_remediate(args: argparse.Namespace) -> int:
+    """stokes remediate [PATH] — evaluate drift and invoke IBM Bob 2.0 CLI to apply fixes."""
+    args.with_bob = True
+    return await cmd_audit(args)
 
 
 # ─── Subcommand: stage-check ─────────────────────────────────────────────────
@@ -588,9 +635,23 @@ def build_parser() -> argparse.ArgumentParser:
     p_audit.add_argument("path", nargs="?", default="../dirichlet", help="Workspace path")
     p_audit.add_argument("--strict", action="store_true",
                          help="Require contracts.json; exit 1 on any violation")
+    p_audit.add_argument("--with-bob", action="store_true",
+                         help="Dispatch detected drift to IBM Bob 2.0 CLI for autonomous remediation")
     p_audit.add_argument("--non-interactive", action="store_true",
                          help="Run once without interactive prompt")
     p_audit.add_argument("--speed", type=float, default=2.0,
+                         help="Playback speed multiplier (default: 2.0)")
+
+    # remediate
+    p_remed = sub.add_parser(
+        "remediate", help="Evaluate contract drift and invoke IBM Bob 2.0 CLI to apply fixes"
+    )
+    p_remed.add_argument("path", nargs="?", default="../dirichlet", help="Workspace path")
+    p_remed.add_argument("--with-bob", action="store_true", default=True,
+                         help="Dispatch remediation to IBM Bob 2.0 CLI (default: True)")
+    p_remed.add_argument("--strict", action="store_true",
+                         help="Require contracts.json; exit 1 on any violation")
+    p_remed.add_argument("--speed", type=float, default=2.0,
                          help="Playback speed multiplier (default: 2.0)")
 
     # stage-check
@@ -635,6 +696,7 @@ def entry_point() -> None:
     dispatch = {
         "scan": cmd_scan,
         "audit": cmd_audit,
+        "remediate": cmd_remediate,
         "stage-check": cmd_stage_check,
         "verify": cmd_verify,
         "cert": cmd_cert,
