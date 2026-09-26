@@ -12,9 +12,9 @@ import time
 from typing import Any, Callable
 
 
-class BobMultiplexer:
+class AgentMultiplexer:
     """
-    Bounded event bus and render tick coalescer for Stokes IBM Bob 2.0 subagents.
+    Bounded event bus and render tick coalescer for Stokes multi-agent subagents.
 
     Architecture:
     - asyncio.Queue(maxsize=1024) backed event bus with cooperative backpressure
@@ -137,3 +137,8 @@ class BobMultiplexer:
             "current_queue_size": self._queue.qsize(),
             "max_queue_size": self.MAX_QUEUE_SIZE,
         }
+
+
+# Backward compatibility alias for IBM Bob hackathon harnesses
+BobMultiplexer = AgentMultiplexer
+

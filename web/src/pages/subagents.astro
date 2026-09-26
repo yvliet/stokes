@@ -56,7 +56,7 @@ import Footer from '../components/Footer.astro';
                       <span class="h-2.5 w-2.5 rounded-full bg-yellow-500/40"></span>
                       <span class="h-2.5 w-2.5 rounded-full bg-green-500/40"></span>
                     </div>
-                    <span class="text-xs text-muted-foreground font-mono">stokes subagents --parallel (Bob 2.0 coordinator session)</span>
+                    <span class="text-xs text-muted-foreground font-mono">stokes subagents --parallel (universal agent coordinator session)</span>
                   </div>
                   <span class="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium">
                     coordinator healthy • 5 workers active
@@ -162,7 +162,7 @@ import Footer from '../components/Footer.astro';
                   <!-- Live Wire IPC Log Feed -->
                   <div class="p-3.5 rounded-lg border border-border/40 bg-muted/10 font-mono text-[11px] space-y-1.5 text-muted-foreground">
                     <div class="text-foreground font-semibold flex items-center justify-between">
-                      <span>Live Swarm IPC Socket (/tmp/stokes-bob.sock)</span>
+                      <span>Live Swarm IPC Socket (/tmp/stokes-ipc.sock)</span>
                       <span class="text-[10px] font-normal text-muted-foreground">protocol: 4-byte length-prefixed binary framing</span>
                     </div>
                     <p><span class="text-neutral-400">[00:00.012]</span> <span class="text-emerald-500">stokes-sql:</span> schema reflection query matches 280 columns (80 shard replicas in events_r0/r1)</p>
@@ -264,7 +264,7 @@ import Footer from '../components/Footer.astro';
                   <div class="pt-2 border-t border-border/30 text-muted-foreground text-[11px] space-y-1">
                     <div class="flex items-center justify-between">
                       <span class="text-foreground font-medium">IPC Socket Transport:</span>
-                      <span class="text-emerald-500 font-semibold">Unix Domain Socket (/tmp/stokes-bob.sock)</span>
+                      <span class="text-emerald-500 font-semibold">Unix Domain Socket (/tmp/stokes-ipc.sock)</span>
                     </div>
                     <div class="flex items-center justify-between">
                       <span class="text-foreground font-medium">Tick Coalescer Rate:</span>

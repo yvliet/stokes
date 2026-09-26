@@ -19,7 +19,11 @@ from stokes.cli.color_palette import (
 
 # ─── Banner Printer ───────────────────────────────────────────────────────────
 
-def print_banner(subagents: list[dict] | None = None, noise: float = 0.14) -> None:
+def print_banner(
+    subagents: list[dict] | None = None,
+    noise: float = 0.14,
+    orchestrator: str = "Stokes Multi-Agent Engine",
+) -> None:
     """Print the Stokes 3x3 matrix bracket header with runtime info."""
     print()
     if subagents:
@@ -35,7 +39,7 @@ def print_banner(subagents: list[dict] | None = None, noise: float = 0.14) -> No
     ]
     header_texts = [
         f"{BOLD}{FG_WHITE}stokes v0.2.0{RESET} {DIM}· scanning \"dirichlet\"{RESET}",
-        f"{DIM}agent:{RESET} IBM Bob 2.0 {DIM}(multi-agent orchestrator){RESET}",
+        f"{DIM}orchestrator:{RESET} {orchestrator}{RESET}",
         f"{DIM}subagents: {subagents_text}{RESET}",
     ]
     for i in range(3):

@@ -163,7 +163,7 @@ async def cmd_scan(args: argparse.Namespace) -> int:
     print_banner(subagents=subagents)
 
     print(
-        f"  {BG_GRAY} SCAN {RESET} {BOLD}Bob orchestrator scanning workspace: "
+        f"  {BG_GRAY} SCAN {RESET} {BOLD}Stokes orchestrator scanning workspace: "
         f"{abs_path}{RESET}"
     )
     print(
@@ -209,7 +209,7 @@ async def cmd_audit(args: argparse.Namespace) -> int:
     from stokes.subagents.stokes_python import StokesPythonAgent
     from stokes.subagents.stokes_rust import StokesRustAgent
     from stokes.subagents.stokes_proto import StokesProtoAgent
-    from stokes.subagents.bob_multiplexer import BobMultiplexer
+    from stokes.subagents.bob_multiplexer import AgentMultiplexer, BobMultiplexer
 
     path = args.path or "../dirichlet"
     abs_path = str(Path(path).resolve())
@@ -243,7 +243,7 @@ async def cmd_audit(args: argparse.Namespace) -> int:
 
     runtime_names = ", ".join(sa.get("runtime", "?") for sa in subagents[:-1])
     print(
-        f"  {BG_GRAY} AUDIT {RESET} {BOLD}Bob orchestrator dispatched {len(subagents) - 1} "
+        f"  {BG_GRAY} AUDIT {RESET} {BOLD}Stokes orchestrator dispatched {len(subagents) - 1} "
         f"specialized subagents [{runtime_names}]{RESET}"
     )
     print()
@@ -253,7 +253,7 @@ async def cmd_audit(args: argparse.Namespace) -> int:
     print()
 
     # Execute real subagent analysis in parallel via multiplexer
-    mux = BobMultiplexer()
+    mux = AgentMultiplexer()
 
     agent_tasks = []
     if "sql" in stack:
@@ -293,21 +293,60 @@ async def cmd_audit(args: argparse.Namespace) -> int:
         )
         print()
 
-    # IBM Bob 2.0 Autonomous Remediation Gate
+    # ─── Universal AI Agent Remediation Bridge ─────────────────────────────────
+    selected_agent = None
     if getattr(args, "with_bob", False):
-        from stokes.cli.bob_gate import (
-            evaluate_bob_gate,
-            print_bob_gate_card,
-            dispatch_bob_remediation,
-        )
-        print()
-        bob_gate = evaluate_bob_gate()
-        print_bob_gate_card(bob_gate)
+        selected_agent = "bob"
+    elif getattr(args, "agent", None):
+        selected_agent = args.agent
+    elif getattr(args, "export_patch", False):
+        selected_agent = "patch"
+    elif getattr(args, "is_remediate_cmd", False):
+        selected_agent = None  # None triggers registry.auto_detect()
 
-        if bob_gate.gate_passed and all_violations:
+    should_dispatch = (
+        selected_agent is not None
+        or getattr(args, "is_remediate_cmd", False)
+        or getattr(args, "export_patch", False)
+    )
+
+    if should_dispatch:
+        from stokes.cli.agent_bridge import default_registry
+        from stokes.subagents.contract_synthesizer import ContractSynthesizer
+        from stokes.subagents.boundary_discovery import scan_workspace
+
+        print()
+        custom_cmd = getattr(args, "agent_cmd", None)
+        if selected_agent:
+            provider = default_registry.get(selected_agent, command_template=custom_cmd)
+        else:
+            provider = default_registry.auto_detect()
+
+        agent_status = provider.evaluate()
+
+        # Display agent status badge
+        if agent_status.gate_passed:
+            badge = f"{BG_EMERALD} READY {RESET}"
+        elif agent_status.is_installed:
+            badge = f"{BG_AMBER} AUTH REQ {RESET}"
+        else:
+            badge = f"{BG_CRIMSON} NOT FOUND {RESET}"
+
+        print(
+            f"  {badge} {BOLD}Agent Remediation Provider:{RESET} "
+            f"{BOLD}{agent_status.display_name}{RESET} "
+            f"{DIM}({agent_status.version or agent_status.cli_path or 'file output'}){RESET}"
+        )
+        if agent_status.auth_info:
+            print(f"    {DIM}auth:{RESET} {agent_status.auth_info}")
+        for r in agent_status.reasons:
+            print(f"    {FG_AMBER}▲{RESET} {DIM}{r}{RESET}")
+        print()
+
+        if agent_status.gate_passed and all_violations:
             print(
                 f"  {BG_CYAN} DISPATCH {RESET} {BOLD}Transmitting {len(all_violations)} "
-                f"invariant boundary constraints to IBM Bob 2.0 CLI...{RESET}"
+                f"invariant boundary constraints to {agent_status.display_name}...{RESET}"
             )
             remediation_prompt = (
                 "Stokes Systems Invariant Engine detected cross-boundary contract drift:\n"
@@ -316,29 +355,42 @@ async def cmd_audit(args: argparse.Namespace) -> int:
                 "- Upstream ClickHouse reflection emits 280 rows without database qualification predicate\n"
                 "Task: Implement zero-allocation Dual-Zone memory degradation in crates/dirichlet-proxy using select_nth_unstable_by."
             )
-            bob_result = dispatch_bob_remediation(abs_path, remediation_prompt, timeout_seconds=90)
-            if bob_result.success:
+            scan_res = await scan_workspace(abs_path)
+            synthesizer = ContractSynthesizer(scan_res)
+            diff_patch = synthesizer.synthesize()
+
+            dispatch_res = provider.dispatch(
+                abs_path,
+                remediation_prompt,
+                diff_patch=diff_patch,
+                timeout_seconds=90,
+            )
+
+            if dispatch_res.success:
                 print(
-                    f"  {FG_EMERALD}✔{RESET} {BOLD}IBM Bob 2.0 autonomous remediation completed successfully.{RESET}"
+                    f"  {FG_EMERALD}✔{RESET} {BOLD}{agent_status.display_name} autonomous remediation completed successfully.{RESET}"
                 )
-                summary_lines = [
-                    line.strip()
-                    for line in bob_result.stdout.splitlines()
-                    if any(k in line for k in ("Task Summary", "Total Cost", "Total Duration", "Task ID", "Tool:"))
-                ]
-                if summary_lines:
-                    print(f"  {DIM}Bob Session Telemetry:{RESET}")
-                    for sl in summary_lines:
-                        print(f"    {DIM}·{RESET} {sl}")
+                if dispatch_res.patch_path:
+                    print(f"    {DIM}patch:{RESET} {FG_CYAN}{dispatch_res.patch_path}{RESET}")
+                if dispatch_res.stdout.strip():
+                    summary_lines = [
+                        line.strip()
+                        for line in dispatch_res.stdout.splitlines()
+                        if any(k in line for k in ("Task Summary", "Total Cost", "Total Duration", "Task ID", "Tool:", "Remediation", "diff", "patch"))
+                    ]
+                    if summary_lines:
+                        print(f"    {DIM}Session Summary:{RESET}")
+                        for sl in summary_lines:
+                            print(f"      {DIM}·{RESET} {sl}")
             else:
                 print(
-                    f"  {FG_AMBER}▲{RESET} {DIM}Bob dispatch status:{RESET} "
-                    f"{bob_result.stderr or bob_result.error_message}"
+                    f"  {FG_AMBER}▲{RESET} {DIM}Dispatch status:{RESET} "
+                    f"{dispatch_res.stderr or dispatch_res.error_message}"
                 )
                 print(f"  {DIM}Fallback: Review and apply Stokes synthesized unified diffs above.{RESET}")
             print()
         elif not all_violations:
-            print(f"  {FG_EMERALD}✔{RESET} Zero contract violations detected. No Bob remediation needed.\n")
+            print(f"  {FG_EMERALD}✔{RESET} Zero contract violations detected. No remediation needed.\n")
 
     return 1 if (strict and all_violations) else 0
 
@@ -346,9 +398,40 @@ async def cmd_audit(args: argparse.Namespace) -> int:
 # ─── Subcommand: remediate ───────────────────────────────────────────────────
 
 async def cmd_remediate(args: argparse.Namespace) -> int:
-    """stokes remediate [PATH] - evaluate drift and invoke IBM Bob 2.0 CLI to apply fixes."""
-    args.with_bob = True
+    """stokes remediate [PATH] - evaluate drift and invoke AI coding agent to apply fixes."""
+    args.is_remediate_cmd = True
     return await cmd_audit(args)
+
+
+# ─── Subcommand: mcp ─────────────────────────────────────────────────────────
+
+async def cmd_mcp(args: argparse.Namespace) -> int:
+    """stokes mcp - launch native Model Context Protocol (MCP) stdio JSON-RPC server."""
+    from stokes.mcp.server import run_mcp_server
+    await run_mcp_server()
+    return 0
+
+
+# ─── Subcommand: patch ───────────────────────────────────────────────────────
+
+async def cmd_patch(args: argparse.Namespace) -> int:
+    """stokes patch [PATH] - synthesize and export unified remediation patch directly to disk."""
+    from stokes.subagents.boundary_discovery import scan_workspace
+    from stokes.subagents.contract_synthesizer import ContractSynthesizer
+    from stokes.cli.agent_bridge import PatchExportProvider
+
+    abs_path = os.path.abspath(args.path or "../dirichlet")
+    scan_res = await scan_workspace(abs_path)
+    synthesizer = ContractSynthesizer(scan_res)
+    diff_str = synthesizer.synthesize()
+    exporter = PatchExportProvider()
+    res = exporter.dispatch(abs_path, "Synthesized remediation patch", diff_patch=diff_str)
+    if res.success:
+        print(f"  {BG_EMERALD} PATCH {RESET} {BOLD}{res.stdout}{RESET}\n")
+        return 0
+    else:
+        print(f"  {BG_CRIMSON} ERROR {RESET} {BOLD}{res.error_message}{RESET}\n")
+        return 1
 
 
 # ─── Subcommand: stage-check ─────────────────────────────────────────────────
@@ -607,7 +690,7 @@ def _write_conformance_md(path: Path, lockfile: dict[str, Any]) -> None:
 ## Attestation
 
 This conformance report was generated by **Stokes v{lockfile['stokes_version']}**,
-an autonomous cross-boundary systems invariant verification engine built on IBM Bob 2.0.
+an autonomous cross-boundary systems invariant verification engine for multi-agent systems.
 
 **Certified by**: yvliet (GitHub: yvliet)  
 **Designation**: Principal Distributed Systems Architect  
@@ -622,8 +705,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="stokes",
         description=(
-            "Stokes - Autonomous Cross-Boundary Systems Invariant Verification Engine\n"
-            "Built on IBM Bob 2.0 | github: yvliet"
+            "Stokes - Autonomous Cross-Boundary Systems Invariant Verification Engine for AI Agents\n"
+            "GitHub: yvliet"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -644,6 +727,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_audit.add_argument("path", nargs="?", default="../dirichlet", help="Workspace path")
     p_audit.add_argument("--strict", action="store_true",
                          help="Require contracts.json; exit 1 on any violation")
+    p_audit.add_argument("--agent", choices=["claude", "bob", "aider", "goose", "openhands", "generic", "patch"],
+                         help="Specific coding agent provider to dispatch remediation to")
+    p_audit.add_argument("--agent-cmd", help="Custom command template for generic agent (e.g. 'my-agent {prompt}')")
+    p_audit.add_argument("--export-patch", action="store_true",
+                         help="Export synthesized unified diff to .stokes/remediation.patch")
     p_audit.add_argument("--with-bob", action="store_true",
                          help="Dispatch detected drift to IBM Bob 2.0 CLI for autonomous remediation")
     p_audit.add_argument("--non-interactive", action="store_true",
@@ -653,15 +741,34 @@ def build_parser() -> argparse.ArgumentParser:
 
     # remediate
     p_remed = sub.add_parser(
-        "remediate", help="Evaluate contract drift and invoke IBM Bob 2.0 CLI to apply fixes"
+        "remediate", help="Evaluate contract drift and invoke AI coding agent to apply fixes"
     )
     p_remed.add_argument("path", nargs="?", default="../dirichlet", help="Workspace path")
-    p_remed.add_argument("--with-bob", action="store_true", default=True,
-                         help="Dispatch remediation to IBM Bob 2.0 CLI (default: True)")
+    p_remed.add_argument("--agent", choices=["claude", "bob", "aider", "goose", "openhands", "generic", "patch"], default=None,
+                         help="Specific coding agent provider (default: auto-detect)")
+    p_remed.add_argument("--agent-cmd", help="Custom command template for generic agent")
+    p_remed.add_argument("--export-patch", action="store_true",
+                         help="Export synthesized unified diff directly to .stokes/remediation.patch")
+    p_remed.add_argument("--with-bob", action="store_true", default=False,
+                         help="Explicitly dispatch remediation to IBM Bob 2.0 CLI")
     p_remed.add_argument("--strict", action="store_true",
                          help="Require contracts.json; exit 1 on any violation")
+    p_remed.add_argument("--non-interactive", action="store_true",
+                         help="Run once without interactive prompt")
     p_remed.add_argument("--speed", type=float, default=2.0,
                          help="Playback speed multiplier (default: 2.0)")
+
+    # mcp
+    sub.add_parser(
+        "mcp", help="Launch native Model Context Protocol (MCP) stdio JSON-RPC server for IDE agents"
+    )
+
+    # patch
+    p_patch = sub.add_parser(
+        "patch", help="Synthesize and export unified remediation patch directly to disk"
+    )
+    p_patch.add_argument("path", nargs="?", default="../dirichlet", help="Workspace path")
+    p_patch.add_argument("--output", default=None, help="Output path for patch file")
 
     # stage-check
     p_stage = sub.add_parser(
@@ -709,6 +816,8 @@ def entry_point() -> None:
         "stage-check": cmd_stage_check,
         "verify": cmd_verify,
         "cert": cmd_cert,
+        "mcp": cmd_mcp,
+        "patch": cmd_patch,
     }
     handler = dispatch.get(args.command)
     if handler is None:

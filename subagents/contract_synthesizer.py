@@ -20,14 +20,16 @@ class ContractSynthesizer:
     to drive invariant evaluation and remediation synthesis.
     """
 
-    def __init__(self, contracts: dict[str, Any]) -> None:
-        self.contracts = contracts
+    def __init__(self, contracts: dict[str, Any] | None = None) -> None:
+        self.contracts = contracts or {}
 
-    def synthesize(self) -> str:
+    def synthesize(self, contracts: dict[str, Any] | None = None) -> str:
         """
         Generate a complete AGENTS.md document from the discovered contracts.
         Returns the full Markdown string.
         """
+        if contracts is not None:
+            self.contracts = contracts
         c = self.contracts
         risk = c.get("cardinality_risk_ratio")
         upstream = c.get("upstream_cardinality", 0)

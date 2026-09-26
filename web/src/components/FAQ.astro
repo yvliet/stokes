@@ -2,11 +2,11 @@
 const faqs = [
   {
     q: "what is stokes?",
-    a: "stokes is an integrated storage pipeline studio and cross-compiler verification system. it lets you visually redesign schemas, caches, and queues on a continuous canvas while Bob synthesizes the production code across SQL, Python, and Rust, paired with a deterministic CLI that verifies memory bounds and cross-language invariants in CI."
+    a: "stokes is an integrated storage pipeline studio and cross-compiler verification system. it lets you visually redesign schemas, caches, and queues on a continuous canvas while orchestrating AI agents across SQL, Python, and Rust, paired with a deterministic CLI that verifies memory bounds and cross-language invariants in CI."
   },
   {
     q: "is stokes just a linter or does it write code?",
-    a: "stokes is an active visual studio and code synthesis engine, not a passive linter. single-language linters (like sqlfluff or mypy) only inspect syntax within their own silo. when you add a ClickHouse column, introduce a KV cache, or rewire an ETL stage in stokes studio, Bob automatically writes and synchronizes your SQL migrations, Python data contracts, and Rust fixed-capacity buffers. the CLI then provides deterministic verification in CI so uncommitted mismatches never reach production."
+    a: "stokes is an active visual studio and code synthesis engine, not a passive linter. single-language linters (like sqlfluff or mypy) only inspect syntax within their own silo. when you add a ClickHouse column, introduce a KV cache, or rewire an ETL stage in stokes studio, stokes synthesizes verified unified diff patches and dispatches them across Claude Code, Bob, Aider, or MCP IDE agents to synchronize your SQL migrations, Python data contracts, and Rust fixed-capacity buffers. the CLI then provides deterministic verification in CI so uncommitted mismatches never reach production."
   },
   {
     q: "what is stokes studio?",
@@ -17,8 +17,8 @@ const faqs = [
     a: "the Cloudflare Nov 18, 2025 outage happened because sqlfluff, mypy, and rustc all passed individually, but nobody checked that a schema change pushed 280 features into a buffer sized for 200. stokes prevents this at both design time and CI: on the studio canvas, it recalculates cardinality risk ratios in real time and automatically bounds Rust dual-zone buffers when schemas expand; in CI, stokes verify checks cross-language invariants so single-compiler blind spots never reach production."
   },
   {
-    q: "why does it run inside ibm bob 2.0?",
-    a: "stokes uses Bob 2.0's multi-agent architecture to power both its cross-compiler code synthesis engine and parallel boundary verification. when you make changes on the canvas, Bob synthesizes synchronized code across SQL, Python, and Rust simultaneously, while coordinating parallel subagents for boundary checks, orchestration, and schema conformance."
+    q: "which ai coding agents does stokes support?",
+    a: "stokes features an agent-agnostic provider bridge and native Model Context Protocol (MCP) server. while built with IBM Bob 2.0 during development, stokes in production supports Claude Code, IBM Bob 2.0, Aider, Goose, OpenHands, generic CLI tools, and direct patch emission. In IDEs like Cursor and Windsurf, stokes runs as an MCP server (via stokes mcp) exposing real-time invariant analysis directly to your assistant."
   },
   {
     q: "what do the benchmark numbers mean?",

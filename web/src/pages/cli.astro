@@ -84,7 +84,7 @@ import Footer from '../components/Footer.astro';
                   </div>
 
                   <div class="space-y-1 pt-1 text-[11px]">
-                    <p class="text-foreground font-medium">Stokes Bob 2.0 Remediation Proposal:</p>
+                    <p class="text-foreground font-medium">Stokes Remediation Proposal (Agent Bridge):</p>
                     <p class="text-muted-foreground">  Architecture: <span class="text-emerald-500 font-semibold">Dual-Zone In-Place Partitioning</span></p>
                     <p class="text-muted-foreground">  Zone 0 (Core): <span class="text-emerald-500 font-semibold">128 slots reserved (priority &gt;= 200, immune to eviction)</span></p>
                     <p class="text-muted-foreground">  Zone 1 (Adaptive): <span class="text-emerald-500 font-semibold">72 slots managed via in-place select_nth_unstable_by</span></p>
@@ -257,10 +257,10 @@ jobs:
                 <span class="text-muted-foreground text-[10px]">DIAGNOSTIC</span>
               </div>
               <p class="text-xs text-muted-foreground leading-relaxed">
-                Spawns the Bob 2.0 multi-agent swarm to perform comprehensive boundary drift analysis and interactively propose zero-allocation fixes.
+                Spawns the multi-agent orchestration swarm to perform comprehensive boundary drift analysis and propose zero-allocation fixes via Claude, Bob, Aider, or patch export.
               </p>
               <div class="text-[11px] font-mono text-muted-foreground/80">
-                flags: <code>--diff</code>, <code>--fix</code>, <code>--interactive</code>
+                flags: <code>--agent &lt;name&gt;</code>, <code>--agent-cmd</code>, <code>--export-patch</code>, <code>--non-interactive</code>
               </div>
             </div>
 

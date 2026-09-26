@@ -260,3 +260,10 @@ class BoundaryDiscovery:
 
         capacities = [b["capacity"] for b in buffers if b["capacity"] >= 8]
         return min(capacities) if capacities else 200
+
+
+async def scan_workspace(workspace: str | Path = ".") -> dict[str, Any]:
+    """Asynchronously scan a workspace and return discovered contracts dictionary."""
+    disc = BoundaryDiscovery(str(workspace))
+    return await disc.scan()
+
