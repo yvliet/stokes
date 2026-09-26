@@ -65,8 +65,8 @@
         </div>
       </div>
 
-      <!-- Terminal Body Content -->
-      <div class="p-4 sm:p-6 font-mono text-xs sm:text-[13px] leading-relaxed bg-background/90 min-h-[300px]">
+      <!-- Terminal Body Content (Fixed Height across all command tabs) -->
+      <div class="p-4 sm:p-6 font-mono text-xs sm:text-[13px] leading-normal tracking-normal bg-background/90 h-[410px] sm:h-[380px] overflow-y-auto">
         
         <!-- ================= TAB 1: SCAN ================= -->
         <div id="tab-scan" class="tab-content space-y-3">
@@ -79,28 +79,36 @@
           <!-- Stokes Header Banner -->
           <div class="space-y-0.5 text-xs text-muted-foreground font-mono">
             <div class="flex items-center gap-3">
-              <span class="text-foreground/50 select-none font-bold">░░▒▒░▒▓▓▒</span>
-              <span><span class="text-foreground font-semibold">stokes v0.2.0</span> <span class="text-muted-foreground/60">:</span> autonomous cross-boundary invariant engine</span>
+              <span class="inline-grid grid-cols-9 w-[9ch] shrink-0 select-none text-center font-normal tracking-[0] leading-none text-foreground/60">
+                <span>░</span><span>░</span><span>▒</span><span>▒</span><span>░</span><span>▒</span><span>▓</span><span>▓</span><span>▒</span>
+              </span>
+              <span class="truncate"><span class="text-foreground font-semibold">stokes v0.2.0</span> <span class="text-muted-foreground/60">:</span> autonomous cross-boundary invariant engine</span>
             </div>
             <div class="flex items-center gap-3">
-              <span class="text-foreground/50 select-none font-bold">░░░▒▒▓▒██</span>
-              <span>runtime: <span class="text-foreground">IBM Bob 2.0</span> (multi-agent orchestrator) · target: dirichlet</span>
+              <span class="inline-grid grid-cols-9 w-[9ch] shrink-0 select-none text-center font-normal tracking-[0] leading-none text-foreground/60">
+                <span>░</span><span>░</span><span>░</span><span>▒</span><span>▒</span><span>▓</span><span>▒</span><span>█</span><span>█</span>
+              </span>
+              <span class="truncate">runtime: <span class="text-foreground">IBM Bob 2.0</span> (multi-agent orchestrator) · target: dirichlet</span>
             </div>
             <div class="flex items-center gap-3">
-              <span class="text-foreground/50 select-none font-bold">▒░▒▒▓▓███</span>
-              <span>subagents: 4 active (stokes-sql, stokes-python, stokes-rust, stokes-verify)</span>
+              <span class="inline-grid grid-cols-9 w-[9ch] shrink-0 select-none text-center font-normal tracking-[0] leading-none text-foreground/60">
+                <span>▒</span><span>░</span><span>▒</span><span>▒</span><span>▓</span><span>▓</span><span>█</span><span>█</span><span>█</span>
+              </span>
+              <span class="truncate">subagents: 4 active (stokes-sql, stokes-python, stokes-rust, stokes-verify)</span>
             </div>
             <div class="flex items-center gap-3">
-              <span class="text-foreground/50 select-none font-bold">▒▒▓▒▓████</span>
-              <span>governance: AGENTS.md · github: yvliet</span>
+              <span class="inline-grid grid-cols-9 w-[9ch] shrink-0 select-none text-center font-normal tracking-[0] leading-none text-foreground/60">
+                <span>▒</span><span>▒</span><span>▓</span><span>▒</span><span>▓</span><span>█</span><span>█</span><span>█</span><span>█</span>
+              </span>
+              <span class="truncate">governance: AGENTS.md · github: yvliet</span>
             </div>
           </div>
 
           <!-- Real Execution & Discovery Log -->
           <div class="space-y-1.5 pt-1.5 text-muted-foreground">
-            <div>
+            <div class="flex items-baseline gap-1.5">
               <span class="px-1.5 py-0.5 rounded bg-muted/80 text-foreground text-[10px] font-bold">SCAN</span>
-              <span class="text-foreground font-medium ml-1.5">Bob orchestrator scanning workspace:</span>
+              <span class="text-foreground font-medium">Bob orchestrator scanning workspace:</span>
               <span class="text-muted-foreground">./dirichlet</span>
             </div>
             <div class="pl-2 text-muted-foreground/80">
