@@ -5,11 +5,11 @@
 
 ## Identity & Governance
 
-- **Project**: Stokes — Autonomous Cross-Boundary Systems Verification Engine
+- **Project**: Stokes - Autonomous Cross-Boundary Systems Verification Engine
 - **Engine**: IBM Bob 2.0 Multi-Agent Orchestrator
 - **Target Patient**: Dirichlet (Edge Proxy & Analytics Testbed)
 - **Maintainer**: yvliet (GitHub: yvliet)
-- **Certification Status**: INVARIANTS ACTIVE — VERIFIED
+- **Certification Status**: INVARIANTS ACTIVE - VERIFIED
 
 ---
 
@@ -61,8 +61,8 @@
 ```
 MAX_ACTIVE_FEATURES = 200 (Fixed, 1,600 Bytes)
 
-Zone 0: Slots 0..127  — CORE RESERVED   (priority >= 200, IMMUNE to eviction)
-Zone 1: Slots 128..199 — DYNAMIC ADAPTIVE (priority 0..199, lowest shed first)
+Zone 0: Slots 0..127  - CORE RESERVED   (priority >= 200, IMMUNE to eviction)
+Zone 1: Slots 128..199 - DYNAMIC ADAPTIVE (priority 0..199, lowest shed first)
 ```
 
 - **FeatureDescriptor**: `#[repr(C, align(8))]`, 8 bytes, `Copy`, zero heap pointers.

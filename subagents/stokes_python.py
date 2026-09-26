@@ -123,7 +123,7 @@ class StokesPythonAgent(ActorBase):
         else:
             await self._phase(
                 "COMPLETED",
-                f"Python audit complete — {len(python_files)} files, no cardinality violations",
+                f"Python audit complete - {len(python_files)} files, no cardinality violations",
             )
 
         for v in violations:

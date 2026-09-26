@@ -26,7 +26,7 @@ stokes scan /path/to/workspace
 # Run a full audit with remediation synthesis
 stokes audit /path/to/workspace
 
-# Verify invariants (CI/CD gate — non-zero exit on failure)
+# Verify invariants (CI/CD gate - non-zero exit on failure)
 stokes verify --strict
 
 # Emit the stokes.lock cryptographic boundary lockfile

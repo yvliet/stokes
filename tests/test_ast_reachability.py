@@ -175,7 +175,7 @@ WHERE table = 'events' AND database = currentDatabase();
         # (note: regex fallback only fires on unqualified patterns)
         matches = self.loader._query_regex(source, "test.sql", "sql")
         # System.columns IS present, regex pattern still matches FROM clause
-        # But the main audit logic checks for scoping — this tests raw match
+        # But the main audit logic checks for scoping - this tests raw match
         assert isinstance(matches, list)
 
     def test_regex_detects_try_into_unwrap(self):

@@ -132,16 +132,16 @@ class ContractSynthesizer:
             for pf in unbounded[:5]:
                 lines.append(
                     f"- `repeated {pf['field_type']} {pf['field_name']}` "
-                    f"in `{pf['file']}:{pf['line']}` — missing `[(stokes.max_items) = N]`"
+                    f"in `{pf['file']}:{pf['line']}` - missing `[(stokes.max_items) = N]`"
                 )
             lines.append("")
 
         lines += [
             f"## Stokes Lock Contract",
             f"",
-            f"`stokes.lock` — machine-authoritative cryptographic boundary lockfile.  ",
-            f"`CONFORMANCE.md` — human-readable PR attestation.  ",
-            f"`stokes verify --strict` — CI/CD gate (non-zero exit blocks merge).",
+            f"`stokes.lock` - machine-authoritative cryptographic boundary lockfile.  ",
+            f"`CONFORMANCE.md` - human-readable PR attestation.  ",
+            f"`stokes verify --strict` - CI/CD gate (non-zero exit blocks merge).",
             f"",
             f"---",
             f"**Certified by**: yvliet (GitHub: yvliet)",

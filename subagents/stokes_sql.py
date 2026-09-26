@@ -142,7 +142,7 @@ class StokesSQLAgent(ActorBase):
         else:
             await self._phase(
                 "COMPLETED",
-                "SQL catalog audit complete — no LINT-001 violations found",
+                "SQL catalog audit complete - no LINT-001 violations found",
                 severity="INFO",
             )
 

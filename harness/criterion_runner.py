@@ -51,11 +51,11 @@ class CriterionRunner:
         Parse Criterion results and return benchmark metrics.
 
         Returns:
-          inplace_ns: float — in-place select_nth latency in nanoseconds
-          heap_ns: float — heap sort latency in nanoseconds
-          speedup: float — heap_ns / inplace_ns ratio
-          source: str — "criterion" | "reference"
-          regression: bool — True if inplace_ns > REFERENCE * threshold
+          inplace_ns: float - in-place select_nth latency in nanoseconds
+          heap_ns: float - heap sort latency in nanoseconds
+          speedup: float - heap_ns / inplace_ns ratio
+          source: str - "criterion" | "reference"
+          regression: bool - True if inplace_ns > REFERENCE * threshold
         """
         inplace_ns = self._parse_criterion_bench("in_place_select_nth")
         heap_ns = self._parse_criterion_bench("heap_allocated_vec")

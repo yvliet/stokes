@@ -55,7 +55,7 @@ class TestSanitizeSignalFloat:
     # ── Security-critical: NaN rejection ─────────────────────────────────────
 
     def test_nan_returns_fail_secure(self):
-        """NaN MUST return fail_secure_default (never 0.0 — security bypass)."""
+        """NaN MUST return fail_secure_default (never 0.0 - security bypass)."""
         result = sanitize_signal_float(float("nan"), FAIL_SECURE)
         assert result == FAIL_SECURE
 
@@ -72,7 +72,7 @@ class TestSanitizeSignalFloat:
         assert result == FAIL_SECURE
 
     def test_nan_never_maps_to_zero(self):
-        """NaN casting to 0 is a security bypass — MUST NOT happen."""
+        """NaN casting to 0 is a security bypass - MUST NOT happen."""
         result = sanitize_signal_float(float("nan"), FAIL_SECURE)
         assert result != 0.0, "SECURITY VIOLATION: NaN mapped to 0.0 (bypass threat detection)"
 

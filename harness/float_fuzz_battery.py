@@ -28,7 +28,7 @@ def sanitize_signal_float(val: float, fail_secure_default: float = 100.0) -> flo
     # Check for subnormal (denormalized) float.
     # Float32 min normal = 2^-126 ≈ 1.1754944e-38.  Values below this in magnitude
     # (excluding zero) are subnormals in float32 representation and trigger CPU
-    # microcode assist traps at 100× penalty — reject them fail-secure.
+    # microcode assist traps at 100× penalty - reject them fail-secure.
     # We use a slightly larger sentinel (1.1754944e-38 + epsilon) to catch the
     # largest f32 subnormal (0x007FFFFF ≈ 1.17549421e-38) which is just below
     # the float32 min-normal boundary.

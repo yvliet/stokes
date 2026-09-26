@@ -46,10 +46,10 @@ class StagingInspector:
     and evaluates the active schema reflection against downstream buffer bounds.
 
     URL schemes:
-      mock://dirichlet           — Dirichlet mock catalog (canonical: 200, drift: 280)
-      mock://dirichlet-clean     — Dirichlet mock with scoped query (200 only)
-      clickhouse://host:port/db  — Real ClickHouse (requires clickhouse-driver)
-      postgresql://...           — Real PostgreSQL (requires psycopg2)
+      mock://dirichlet           - Dirichlet mock catalog (canonical: 200, drift: 280)
+      mock://dirichlet-clean     - Dirichlet mock with scoped query (200 only)
+      clickhouse://host:port/db  - Real ClickHouse (requires clickhouse-driver)
+      postgresql://...           - Real PostgreSQL (requires psycopg2)
     """
 
     DOWNSTREAM_CAPACITY = 200  # [Feature; 200] fixed buffer

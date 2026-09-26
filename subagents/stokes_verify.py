@@ -119,7 +119,7 @@ class StokesVerifyAgent(ActorBase):
         if not violations:
             await self._phase(
                 "COMPLETED",
-                f"READY: Verification passed — {fuzz_results['total']:,} fuzz cases, "
+                f"READY: Verification passed - {fuzz_results['total']:,} fuzz cases, "
                 f"{inplace_ns:.2f} ns boundary benchmark",
             )
 

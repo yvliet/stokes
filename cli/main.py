@@ -1,6 +1,6 @@
 """
 stokes/cli/main.py
-Stokes CLI entrypoint — subcommands: scan, audit, stage-check, verify, cert
+Stokes CLI entrypoint - subcommands: scan, audit, stage-check, verify, cert
 GitHub: yvliet
 """
 
@@ -151,7 +151,7 @@ def resolve_subagents(stack_keys: list[str]) -> list[dict]:
 # ─── Subcommand: scan ─────────────────────────────────────────────────────────
 
 async def cmd_scan(args: argparse.Namespace) -> int:
-    """stokes scan [PATH] — crawl workspace and synthesize contracts.json + AGENTS.md"""
+    """stokes scan [PATH] - crawl workspace and synthesize contracts.json + AGENTS.md"""
     from stokes.subagents.boundary_discovery import BoundaryDiscovery
     from stokes.subagents.contract_synthesizer import ContractSynthesizer
 
@@ -204,7 +204,7 @@ async def cmd_scan(args: argparse.Namespace) -> int:
 # ─── Subcommand: audit ────────────────────────────────────────────────────────
 
 async def cmd_audit(args: argparse.Namespace) -> int:
-    """stokes audit [PATH] — run parallel subagents and evaluate contract compliance."""
+    """stokes audit [PATH] - run parallel subagents and evaluate contract compliance."""
     from stokes.subagents.stokes_sql import StokesSQLAgent
     from stokes.subagents.stokes_python import StokesPythonAgent
     from stokes.subagents.stokes_rust import StokesRustAgent
@@ -346,7 +346,7 @@ async def cmd_audit(args: argparse.Namespace) -> int:
 # ─── Subcommand: remediate ───────────────────────────────────────────────────
 
 async def cmd_remediate(args: argparse.Namespace) -> int:
-    """stokes remediate [PATH] — evaluate drift and invoke IBM Bob 2.0 CLI to apply fixes."""
+    """stokes remediate [PATH] - evaluate drift and invoke IBM Bob 2.0 CLI to apply fixes."""
     args.with_bob = True
     return await cmd_audit(args)
 
@@ -354,7 +354,7 @@ async def cmd_remediate(args: argparse.Namespace) -> int:
 # ─── Subcommand: stage-check ─────────────────────────────────────────────────
 
 async def cmd_stage_check(args: argparse.Namespace) -> int:
-    """stokes stage-check [DATABASE_URL] — evaluate staging catalog against buffer bounds."""
+    """stokes stage-check [DATABASE_URL] - evaluate staging catalog against buffer bounds."""
     from stokes.subagents.staging_inspector import StagingInspector
 
     db_url = args.database_url or "mock://dirichlet"
@@ -402,7 +402,7 @@ async def cmd_stage_check(args: argparse.Namespace) -> int:
 # ─── Subcommand: verify ───────────────────────────────────────────────────────
 
 async def cmd_verify(args: argparse.Namespace) -> int:
-    """stokes verify [--strict] — run property fuzzing, benchmarks, and CI gate."""
+    """stokes verify [--strict] - run property fuzzing, benchmarks, and CI gate."""
     from stokes.harness.float_fuzz_battery import FloatFuzzBattery
     from stokes.harness.criterion_runner import CriterionRunner
     from stokes.harness.sandbox_runner import SandboxRunner
@@ -463,7 +463,7 @@ async def cmd_verify(args: argparse.Namespace) -> int:
 # ─── Subcommand: cert ─────────────────────────────────────────────────────────
 
 async def cmd_cert(args: argparse.Namespace) -> int:
-    """stokes cert [--output FILE] — emit stokes.lock and CONFORMANCE.md."""
+    """stokes cert [--output FILE] - emit stokes.lock and CONFORMANCE.md."""
     from stokes.harness.float_fuzz_battery import FloatFuzzBattery
     from stokes.harness.criterion_runner import CriterionRunner
 
@@ -622,7 +622,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="stokes",
         description=(
-            "Stokes — Autonomous Cross-Boundary Systems Invariant Verification Engine\n"
+            "Stokes - Autonomous Cross-Boundary Systems Invariant Verification Engine\n"
             "Built on IBM Bob 2.0 | github: yvliet"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,

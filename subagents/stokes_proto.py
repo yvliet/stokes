@@ -92,7 +92,7 @@ class StokesProtoAgent(ActorBase):
         else:
             await self._phase(
                 "COMPLETED",
-                f"Protobuf audit complete — {len(proto_files)} files analyzed, no violations",
+                f"Protobuf audit complete - {len(proto_files)} files analyzed, no violations",
             )
 
         for v in violations:

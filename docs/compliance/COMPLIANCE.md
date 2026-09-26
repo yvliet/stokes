@@ -8,7 +8,7 @@ This project strictly adheres to the official IBM Bob 2.0 Hackathon regulations,
 
 During the official hackathon Q&A stage, the lablab.ai organizing team confirmed permissions regarding pre-prepared sample code and UI templates:
 
-> *"Yes, you can use pre-prepared synthetic sample code and demo UI templates as long as they are clearly disclosed in your repository and all the core Bob analysis and project logic are built during the hackathon. For using and animating the IBM Bob mascot, I am checking with the IBM team to confirm their branding permissions—stay tuned for an update on that shortly. for 2 i am confirming sorry for that"*
+> *"Yes, you can use pre-prepared synthetic sample code and demo UI templates as long as they are clearly disclosed in your repository and all the core Bob analysis and project logic are built during the hackathon. For using and animating the IBM Bob mascot, I am checking with the IBM team to confirm their branding permissions - stay tuned for an update on that shortly. for 2 i am confirming sorry for that"*
 
 ### Verification Metadata
 - **Speaker**: Hamza | lablab.ai (`hamzaimran_8`)

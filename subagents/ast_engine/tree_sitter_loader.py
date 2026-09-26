@@ -161,7 +161,7 @@ class TreeSitterLoader:
         # This path is active when tree-sitter Python package is installed.
         # We do a best-effort import here to preserve zero-dependency fallback.
         import tree_sitter
-        # Return empty — actual grammar loading requires compiled .so bindings
+        # Return empty - actual grammar loading requires compiled .so bindings
         # which may not be present; regex fallback provides reliable coverage.
         return self._query_regex(source, file_path, language)
 

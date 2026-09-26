@@ -152,7 +152,7 @@ class StokesRustAgent(ActorBase):
         else:
             await self._phase(
                 "COMPLETED",
-                f"Rust audit complete — {len(rust_files)} files, no memory violations",
+                f"Rust audit complete - {len(rust_files)} files, no memory violations",
             )
 
         for v in violations:
@@ -213,7 +213,7 @@ class StokesRustAgent(ActorBase):
                         "which partitions features in-place with zero heap allocation: "
                         "Zone 0 (slots 0..127, core reserved, priority≥200, immune to eviction) "
                         "and Zone 1 (slots 128..199, dynamic, shed lowest priority first via "
-                        "select_nth_unstable_by — measured at 7.66 ns vs 29.74 ns heap sort)."
+                        "select_nth_unstable_by - measured at 7.66 ns vs 29.74 ns heap sort)."
                     ),
                     risk_ratio=risk,
                     tainted_identifiers=[

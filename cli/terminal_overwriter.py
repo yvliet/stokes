@@ -67,9 +67,9 @@ def render_loader_frame(style_name: str, step: int, subagent_idx: int) -> str:
     Renders a single bracketless 5-cell loader frame (9 characters wide including spaces).
 
     Styles:
-      shade  — 5-block cycling shade glyphs (░ ▒ ▓ █) with canonical palette colors
-      blocks — Solid █ blocks cycling through 4 grayscale palette tones
-      pulse  — Stair-step wave reflecting the banner diagonal art
+      shade  - 5-block cycling shade glyphs (░ ▒ ▓ █) with canonical palette colors
+      blocks - Solid █ blocks cycling through 4 grayscale palette tones
+      pulse  - Stair-step wave reflecting the banner diagonal art
     """
     if style_name == "shade":
         offset = (step + subagent_idx) % 4

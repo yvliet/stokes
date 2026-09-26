@@ -1,7 +1,7 @@
 """
 stokes/cli/color_palette.py
 Unified grayscale palette, ANSI tokens, status badges, and bracketless loader system.
-Adopted from preview_audit_cli.py — all colors and shade glyphs are canonical.
+Adopted from preview_audit_cli.py - all colors and shade glyphs are canonical.
 GitHub: yvliet
 """
 
@@ -59,7 +59,7 @@ FG_WHITE   = "\033[38;5;255m"
 #
 # 4 canonical tone steps shared by the optical square header and bracketless loaders.
 # Each step is a tuple: (single_glyph, double_glyph, ansi_color_code).
-# Glyphs and colors are always paired — they travel together in all renders.
+# Glyphs and colors are always paired - they travel together in all renders.
 #
 # Step 0: Highlight     (bright white,   rgb ~255)
 # Step 1: Light midtone (silver gray,    rgb ~248)
