@@ -176,28 +176,28 @@ def run_subagent_progress(
     num_lines = len(subagents)
     delay = tick_delay / speed
 
-    def _format_line(sa: dict, stage_text: str, tick: int, idx: int) -> str:
-        loader = render_loader_frame(style, tick, idx)
+    def _format_line(sa: dict, stage_text: str, idx: int) -> str:
+        prefix = "└──" if idx == num_lines - 1 else "├──"
         if "FLAGGED" in stage_text or "VIOLATION" in stage_text:
             text = f"{FG_AMBER}{stage_text}{RESET}"
         elif "READY" in stage_text or "COMPLETED" in stage_text:
             text = f"{FG_CYAN}{stage_text}{RESET}"
         else:
             text = f"{DIM}{stage_text}{RESET}"
-        return f"  {loader}  {BOLD}{sa['name']}{RESET} {DIM}›{RESET} {text}"
+        return f"  {prefix} {BOLD}{sa['name']}{RESET} {DIM}›{RESET} {text}"
 
     # Initial render
     initial_lines = []
     for idx, sa in enumerate(subagents):
         stage_text = sa["stages"][0] if stage_provider is None else stage_provider(sa, 0)
-        initial_lines.append(_format_line(sa, stage_text, 0, idx))
+        initial_lines.append(_format_line(sa, stage_text, idx))
         sys.stdout.write(initial_lines[-1] + "\n")
     sys.stdout.flush()
 
     if not is_tty:
         # Non-TTY: just show final states after a brief pause
         time.sleep(0.4 / speed)
-        for sa in subagents:
+        for idx, sa in enumerate(subagents):
             final = sa["stages"][-1]
             if "FLAGGED" in final:
                 indicator = f"{FG_AMBER}{final}{RESET}"
@@ -205,10 +205,8 @@ def run_subagent_progress(
                 indicator = f"{FG_CYAN}{final}{RESET}"
             else:
                 indicator = f"{DIM}{final}{RESET}"
-            print(f"  {PALETTE_STEPS[3][2]}█{RESET} {PALETTE_STEPS[2][2]}█{RESET} "
-                  f"{PALETTE_STEPS[1][2]}█{RESET} {PALETTE_STEPS[0][2]}█{RESET} "
-                  f"{PALETTE_STEPS[1][2]}█{RESET}  "
-                  f"{BOLD}{sa['name']}{RESET} {DIM}›{RESET} {indicator}")
+            prefix = "└──" if idx == num_lines - 1 else "├──"
+            print(f"  {prefix} {BOLD}{sa['name']}{RESET} {DIM}›{RESET} {indicator}")
         return
 
     last_render = time.monotonic()
@@ -227,7 +225,7 @@ def run_subagent_progress(
                 else:
                     stage_idx = min(len(sa["stages"]) - 1, tick // 10)
                     stage_text = sa["stages"][stage_idx]
-                line = _format_line(sa, stage_text, tick, idx)
+                line = _format_line(sa, stage_text, idx)
                 sys.stdout.write(f"\r\033[K{line}\n")
             sys.stdout.flush()
             last_render = now

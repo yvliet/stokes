@@ -20,41 +20,25 @@ from stokes.cli.color_palette import (
 # ─── Banner Printer ───────────────────────────────────────────────────────────
 
 def print_banner(subagents: list[dict] | None = None, noise: float = 0.14) -> None:
-    """Print the Stokes optical-square header with runtime info."""
-    import random
-    from stokes.cli.color_palette import PALETTE_STEPS
-
-    def _pixel_matrix(rows: int, cols: int) -> list[str]:
-        lines = []
-        for r in range(rows):
-            line = ""
-            for c in range(cols):
-                grad = (r / max(1, rows - 1) * 0.40) + (c / max(1, cols - 1) * 0.60)
-                jitter = random.uniform(-noise, noise)
-                val = max(0.0, min(1.0, grad + jitter))
-                idx = min(3, int(val * 4))
-                s_glyph, _, color = PALETTE_STEPS[idx]
-                line += f"{color}{s_glyph}{RESET}"
-            lines.append(line)
-        return lines
-
+    """Print the Stokes 3x3 matrix bracket header with runtime info."""
     print()
     if subagents:
         sa_names = ", ".join(sa["name"].strip() for sa in subagents)
-        subagents_text = f"subagents: {len(subagents)} active ({sa_names})"
-        runtime_summary = ", ".join(sa.get("runtime", "?") for sa in subagents[:-1])
+        subagents_text = f"{len(subagents)} active ({sa_names})"
     else:
-        subagents_text = "subagents: 4 active (stokes-sql, stokes-python, stokes-rust, stokes-verify)"
-        runtime_summary = "polyglot multi-agent runtime"
+        subagents_text = "4 active (stokes-sql, stokes-python, stokes-rust, stokes-verify)"
 
-    matrix = _pixel_matrix(4, 9)
-    header_texts = [
-        f"{BOLD}{FG_WHITE}stokes v0.2.0{RESET} {DIM}:{RESET} autonomous cross-boundary invariant engine",
-        f"{DIM}runtime:{RESET} IBM Bob 2.0 {DIM}(multi-agent orchestrator) · target:{RESET} dirichlet",
-        f"{DIM}{subagents_text}{RESET}",
-        f"{DIM}governance:{RESET} AGENTS.md {DIM}· github:{RESET} yvliet",
+    matrix = [
+        f"{FG_WHITE}⎡{RESET} {DIM}·{RESET}  {FG_WHITE}■{RESET}  {DIM}·{RESET} {FG_WHITE}⎤{RESET}",
+        f"{FG_WHITE}⎢{RESET} {FG_WHITE}■{RESET}  {FG_WHITE}■{RESET}  {DIM}·{RESET} {FG_WHITE}⎥{RESET}",
+        f"{FG_WHITE}⎣{RESET} {DIM}·{RESET}  {DIM}·{RESET}  {FG_WHITE}■{RESET} {FG_WHITE}⎦{RESET}",
     ]
-    for i in range(4):
+    header_texts = [
+        f"{BOLD}{FG_WHITE}stokes v0.2.0{RESET} {DIM}· scanning \"dirichlet\"{RESET}",
+        f"{DIM}agent:{RESET} IBM Bob 2.0 {DIM}(multi-agent orchestrator){RESET}",
+        f"{DIM}subagents: {subagents_text}{RESET}",
+    ]
+    for i in range(3):
         print(f"  {matrix[i]}  {header_texts[i]}")
     print()
 

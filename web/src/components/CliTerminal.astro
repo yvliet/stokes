@@ -76,62 +76,56 @@
             <span class="text-muted-foreground/40 ml-auto text-xs hidden sm:inline">boundary discovery · 38ms</span>
           </div>
 
-          <!-- Stokes Header Banner -->
-          <div class="space-y-0.5 text-xs text-muted-foreground font-mono">
+          <!-- Stokes Header Banner: 3x3 mathematical matrix bracket -->
+          <div class="space-y-0 text-xs text-muted-foreground font-mono leading-snug">
+            <!-- Row 1: ⎡ · ■ · ⎤ -->
             <div class="flex items-center gap-3">
-              <span class="inline-grid grid-cols-9 w-[9ch] shrink-0 select-none text-center font-normal tracking-[0] leading-none text-foreground/60">
-                <span>░</span><span>░</span><span>▒</span><span>▒</span><span>░</span><span>▒</span><span>▓</span><span>▓</span><span>▒</span>
-              </span>
-              <span class="truncate"><span class="text-foreground font-semibold">stokes v0.2.0</span> <span class="text-muted-foreground/60">:</span> autonomous cross-boundary invariant engine</span>
+              <span class="shrink-0 select-none whitespace-pre text-foreground"><span>⎡</span> <span class="text-muted-foreground/40">·</span>  <span class="text-foreground">■</span>  <span class="text-muted-foreground/40">·</span> <span>⎤</span></span>
+              <span class="truncate"><span class="text-foreground font-semibold">stokes v0.2.0</span> <span class="text-muted-foreground/60">·</span> scanning &quot;dirichlet&quot;</span>
             </div>
+            <!-- Row 2: ⎢ ■ ■ · ⎥ -->
             <div class="flex items-center gap-3">
-              <span class="inline-grid grid-cols-9 w-[9ch] shrink-0 select-none text-center font-normal tracking-[0] leading-none text-foreground/60">
-                <span>░</span><span>░</span><span>░</span><span>▒</span><span>▒</span><span>▓</span><span>▒</span><span>█</span><span>█</span>
-              </span>
-              <span class="truncate">runtime: <span class="text-foreground">IBM Bob 2.0</span> (multi-agent orchestrator) · target: dirichlet</span>
+              <span class="shrink-0 select-none whitespace-pre text-foreground"><span>⎢</span> <span class="text-foreground">■</span>  <span class="text-foreground">■</span>  <span class="text-muted-foreground/40">·</span> <span>⎥</span></span>
+              <span class="truncate"><span class="text-muted-foreground">agent:</span> <span class="text-foreground">IBM Bob 2.0</span> <span class="text-muted-foreground">(multi-agent orchestrator)</span></span>
             </div>
+            <!-- Row 3: ⎣ · · ■ ⎦ -->
             <div class="flex items-center gap-3">
-              <span class="inline-grid grid-cols-9 w-[9ch] shrink-0 select-none text-center font-normal tracking-[0] leading-none text-foreground/60">
-                <span>▒</span><span>░</span><span>▒</span><span>▒</span><span>▓</span><span>▓</span><span>█</span><span>█</span><span>█</span>
-              </span>
-              <span class="truncate">subagents: 4 active (stokes-sql, stokes-python, stokes-rust, stokes-verify)</span>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="inline-grid grid-cols-9 w-[9ch] shrink-0 select-none text-center font-normal tracking-[0] leading-none text-foreground/60">
-                <span>▒</span><span>▒</span><span>▓</span><span>▒</span><span>▓</span><span>█</span><span>█</span><span>█</span><span>█</span>
-              </span>
-              <span class="truncate">governance: AGENTS.md · github: yvliet</span>
+              <span class="shrink-0 select-none whitespace-pre text-foreground"><span>⎣</span> <span class="text-muted-foreground/40">·</span>  <span class="text-muted-foreground/40">·</span>  <span class="text-foreground">■</span> <span>⎦</span></span>
+              <span class="truncate"><span class="text-muted-foreground">subagents: 4 active (stokes-sql, stokes-python, stokes-rust, stokes-verify)</span></span>
             </div>
           </div>
 
-          <!-- Real Execution & Discovery Log -->
-          <div class="space-y-1.5 pt-1.5 text-muted-foreground">
+          <!-- Execution Log: orchestrator header + tree-nested subagent threads -->
+          <div class="space-y-1 pt-1 text-muted-foreground font-mono">
             <div class="flex items-baseline gap-1.5">
               <span class="px-1.5 py-0.5 rounded bg-muted/80 text-foreground text-[10px] font-bold">SCAN</span>
               <span class="text-foreground font-medium">Bob orchestrator scanning workspace:</span>
               <span class="text-muted-foreground">./dirichlet</span>
             </div>
-            <div class="pl-2 text-muted-foreground/80">
-              detected stack: <span class="text-foreground">sql, python, rust</span> → 4 subagents dispatched
-            </div>
-
-            <div class="pt-1.5 space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="text-emerald-500 font-bold">✔</span>
-                <span class="text-foreground/90">downstream buffer:</span>
-                <span class="text-emerald-600 dark:text-emerald-400 font-medium">[Feature; 200]</span>
-                <span class="text-muted-foreground/70 text-xs hidden sm:inline">(crates/dirichlet-proxy/src/buffer.rs:42)</span>
+            <div class="space-y-0.5 pl-0">
+              <div class="flex items-center gap-1">
+                <span class="text-muted-foreground/60 select-none">├──</span>
+                <span class="text-foreground font-medium w-[11ch] shrink-0">stokes-sql</span>
+                <span class="text-muted-foreground/60">›</span>
+                <span class="text-muted-foreground truncate">parsing ClickHouse schema AST &amp; column reflection...</span>
               </div>
-              <div class="flex items-center gap-2">
-                <span class="text-emerald-500 font-bold">✔</span>
-                <span class="text-foreground/90">upstream projection:</span>
-                <span class="text-emerald-600 dark:text-emerald-400 font-medium">system.columns</span>
-                <span class="text-muted-foreground/70 text-xs hidden sm:inline">(migrations/001_bot_signals.sql:125)</span>
+              <div class="flex items-center gap-1">
+                <span class="text-muted-foreground/60 select-none">├──</span>
+                <span class="text-foreground font-medium w-[11ch] shrink-0">stokes-python</span>
+                <span class="text-muted-foreground/60">›</span>
+                <span class="text-muted-foreground truncate">analyzing services/feature-pipeline/catalog_sync.py...</span>
               </div>
-              <div class="flex items-center gap-2">
-                <span class="text-emerald-500 font-bold">✔</span>
-                <span class="text-foreground/90">cardinality constants:</span>
-                <span class="text-foreground/80">MAX_CANONICAL = 200, MAX_ACTIVE_FEATURES = 200</span>
+              <div class="flex items-center gap-1">
+                <span class="text-muted-foreground/60 select-none">├──</span>
+                <span class="text-foreground font-medium w-[11ch] shrink-0">stokes-rust</span>
+                <span class="text-muted-foreground/60">›</span>
+                <span class="text-muted-foreground truncate">inspecting crates/dirichlet-proxy/src/lib.rs buffer bounds...</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <span class="text-muted-foreground/60 select-none">└──</span>
+                <span class="text-foreground font-medium w-[11ch] shrink-0">stokes-verify</span>
+                <span class="text-muted-foreground/60">›</span>
+                <span class="text-muted-foreground truncate">preparing Criterion benchmarks &amp; stack bounds...</span>
               </div>
             </div>
           </div>
