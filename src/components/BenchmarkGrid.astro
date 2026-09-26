@@ -10,8 +10,8 @@
       <h2 class="text-3xl font-extralight tracking-tight sm:text-4xl text-foreground lowercase">
         fits entirely in l1 cache.
       </h2>
-      <p class="text-base text-muted-foreground font-light max-w-2xl">
-        The hot path does partial selection in-place on a fixed stack buffer. No heap allocations, no latency spikes, all 200 feature descriptors in 25 cache lines.
+      <p class="text-base text-muted-foreground font-light max-w-2xl lowercase">
+        the hot path does partial selection in-place on a fixed stack buffer. no heap allocations, no latency spikes, all 200 feature descriptors in 25 cache lines.
       </p>
     </div>
 
@@ -22,11 +22,11 @@
       <div class="lg:col-span-7 rounded-xl border border-border/50 bg-card/40 stokes-card backdrop-blur-sm p-5 sm:p-6 flex flex-col justify-between space-y-6">
         <div>
           <div class="flex items-center justify-between text-xs font-mono mb-1">
-            <span class="text-foreground font-medium">Criterion Micro-benchmark: Hot-Path P99 Latency</span>
+            <span class="text-foreground font-medium lowercase">criterion micro-benchmark: hot-path P99 latency</span>
             <span class="text-muted-foreground/50">10k iterations · plotters</span>
           </div>
-          <p class="text-xs text-muted-foreground font-light">
-            Lower is better. Nanoseconds per packet feature partition.
+          <p class="text-xs text-muted-foreground font-light lowercase">
+            lower is better. nanoseconds per packet feature partition.
           </p>
         </div>
 
@@ -79,7 +79,7 @@
 
         <!-- Summary Metric -->
         <div class="pt-4 border-t border-border/30 flex items-center justify-between text-xs font-mono">
-          <span class="text-muted-foreground">Stokes Throughput:</span>
+          <span class="text-muted-foreground lowercase">stokes throughput:</span>
           <span class="text-emerald-500 font-semibold">130.5M features/sec</span>
         </div>
       </div>
@@ -87,9 +87,9 @@
       <!-- Comparison Matrix Card (5 cols) -->
       <div class="lg:col-span-5 rounded-xl border border-border/50 bg-card/40 stokes-card backdrop-blur-sm p-5 sm:p-6 flex flex-col justify-between space-y-4">
         <div>
-          <span class="text-foreground font-medium text-xs font-mono">Resource Profile</span>
-          <p class="text-xs text-muted-foreground font-light mt-1">
-            How the hot path avoids panics when schemas grow.
+          <span class="text-foreground font-medium text-xs font-mono lowercase">resource profile</span>
+          <p class="text-xs text-muted-foreground font-light mt-1 lowercase">
+            how the hot path avoids panics when schemas grow.
           </p>
         </div>
 
@@ -97,38 +97,38 @@
           <div class="p-2.5 rounded-lg border border-border/30 bg-background/50 space-y-1">
             <div class="text-[11px] text-muted-foreground lowercase tracking-wider">memory allocation</div>
             <div class="flex items-center justify-between">
-              <span class="text-foreground">Heap Allocation</span>
-              <span class="text-emerald-500 font-bold">0 Bytes</span>
+              <span class="text-foreground lowercase">heap allocation</span>
+              <span class="text-emerald-500 font-bold lowercase">0 bytes</span>
             </div>
           </div>
 
           <div class="p-2.5 rounded-lg border border-border/30 bg-background/50 space-y-1">
             <div class="text-[11px] text-muted-foreground lowercase tracking-wider">cpu cache footprint</div>
             <div class="flex items-center justify-between">
-              <span class="text-foreground">200 Descriptors</span>
-              <span class="text-emerald-500 font-bold">25 L1 Lines (1,600 B)</span>
+              <span class="text-foreground lowercase">200 descriptors</span>
+              <span class="text-emerald-500 font-bold lowercase">25 L1 lines (1,600 b)</span>
             </div>
           </div>
 
           <div class="p-2.5 rounded-lg border border-border/30 bg-background/50 space-y-1">
             <div class="text-[11px] text-muted-foreground lowercase tracking-wider">algorithmic complexity</div>
             <div class="flex items-center justify-between">
-              <span class="text-foreground">Partial Quickselect</span>
-              <span class="text-foreground font-bold">O(N) Expected</span>
+              <span class="text-foreground lowercase">partial quickselect</span>
+              <span class="text-foreground font-bold lowercase">O(N) expected</span>
             </div>
           </div>
 
           <div class="p-2.5 rounded-lg border border-border/30 bg-background/50 space-y-1">
             <div class="text-[11px] text-muted-foreground lowercase tracking-wider">property fuzzing battery</div>
             <div class="flex items-center justify-between">
-              <span class="text-foreground">Proptest Cases</span>
-              <span class="text-emerald-500 font-bold">10,000 / 10,000 PASS</span>
+              <span class="text-foreground lowercase">proptest cases</span>
+              <span class="text-emerald-500 font-bold lowercase">10,000 / 10,000 pass</span>
             </div>
           </div>
         </div>
 
-        <div class="pt-3 border-t border-border/30 text-[11px] text-muted-foreground font-mono">
-          Tested on AMD EPYC 7763 & Apple M3 Max
+        <div class="pt-3 border-t border-border/30 text-[11px] text-muted-foreground font-mono lowercase">
+          tested on AMD EPYC 7763 & Apple M3 Max
         </div>
       </div>
 

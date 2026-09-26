@@ -7,11 +7,11 @@
     <!-- Section Header -->
     <div class="text-left space-y-2">
       <p class="text-sm text-muted-foreground font-mono">terminal</p>
-      <h2 class="text-3xl font-extralight tracking-tight sm:text-4xl text-foreground">
+      <h2 class="text-3xl font-extralight tracking-tight sm:text-4xl text-foreground lowercase">
         one command, three compilers.
       </h2>
-      <p class="text-base text-muted-foreground font-light max-w-2xl">
-        Stokes scans your SQL schemas, Python pipelines, and Rust services in a single pass. It finds where they disagree and tells you exactly what broke.
+      <p class="text-base text-muted-foreground font-light max-w-2xl lowercase">
+        bob 2.0 coordinates parallel verification across your SQL schemas, Python pipelines, and Rust services in a single pass. it finds where they disagree and tells you exactly what broke.
       </p>
     </div>
 
@@ -69,7 +69,7 @@
           <div class="flex items-center gap-2 text-foreground font-medium pb-2 border-b border-border/30">
             <span class="text-emerald-500 select-none">$</span>
             <span>stokes scan --contracts</span>
-            <span class="text-muted-foreground/40 ml-auto text-xs hidden sm:inline">AST Discovery · 38ms</span>
+            <span class="text-muted-foreground/40 ml-auto text-xs hidden sm:inline">AST discovery · 38ms</span>
           </div>
 
           <div class="space-y-1.5 text-muted-foreground">
@@ -81,17 +81,17 @@
             <div class="flex items-center gap-2">
               <span class="text-emerald-500 font-bold">✓</span>
               <span class="text-foreground/80">[stokes-python]</span>
-              <span>Catalog sync verified: 200 telemetry signals matched in services/feature-pipeline/</span>
+              <span>catalog sync verified: 200 telemetry signals matched in services/feature-pipeline/</span>
             </div>
             <div class="flex items-center gap-2">
               <span class="text-emerald-500 font-bold">✓</span>
               <span class="text-foreground/80">[stokes-rust]</span>
-              <span>Buffer allocation bounds verified: fixed stack buffer [Feature; 200]</span>
+              <span>buffer allocation bounds verified: fixed stack buffer [Feature; 200]</span>
             </div>
             <div class="flex items-center gap-2">
               <span class="text-blue-500 font-bold">ℹ</span>
               <span class="text-foreground/80">[stokes-verify]</span>
-              <span>Data flow verified: ClickHouse → Python ETL → Rust L7 Proxy</span>
+              <span>data flow verified: ClickHouse → Python ETL → Rust L7 proxy</span>
             </div>
           </div>
 
@@ -109,14 +109,14 @@
           <div class="flex items-center gap-2 text-foreground font-medium pb-2 border-b border-border/30">
             <span class="text-emerald-500 select-none">$</span>
             <span>stokes audit --diff clickhouse/events_r0 crates/dirichlet-proxy</span>
-            <span class="text-muted-foreground/40 ml-auto text-xs hidden sm:inline">Cross-boundary diff · 84ms</span>
+            <span class="text-muted-foreground/40 ml-auto text-xs hidden sm:inline">cross-boundary diff · 84ms</span>
           </div>
 
           <div class="space-y-1.5 text-muted-foreground">
             <div class="flex items-center gap-2">
               <span class="text-amber-500 font-bold">▲</span>
               <span class="text-amber-600 dark:text-amber-400 font-medium">[stokes-sql]</span>
-              <span class="text-foreground">Unqualified reflection query matched 280 columns in shard replica events_r0</span>
+              <span class="text-foreground">unqualified reflection query matched 280 columns in shard replica events_r0</span>
             </div>
             <div class="flex items-center gap-2">
               <span class="text-rose-500 font-bold">✗</span>
@@ -125,23 +125,23 @@
             </div>
             <div class="flex items-center gap-2">
               <span class="text-emerald-500 font-bold">✓</span>
-              <span class="text-foreground/80">[stokes-verify]</span>
-              <span>Generating dual-zone partition patch (0 B heap reallocation)</span>
+              <span class="text-foreground/80">[bob-synthesis]</span>
+              <span>generating dual-zone partition patch (0 b heap reallocation)</span>
             </div>
           </div>
 
           <!-- Interactive Patch Proposal -->
           <div class="mt-3 rounded border border-amber-500/30 bg-amber-500/5 p-3 space-y-2">
             <div class="flex items-center justify-between text-xs">
-              <span class="font-medium text-amber-600 dark:text-amber-400">Suggested fix: crates/dirichlet-proxy/src/buffer.rs</span>
+              <span class="font-medium text-amber-600 dark:text-amber-400">suggested fix: crates/dirichlet-proxy/src/buffer.rs</span>
               <span class="text-[11px] text-muted-foreground font-mono">7.66 ns hot path</span>
             </div>
             <div class="text-xs text-muted-foreground font-sans font-light">
-              Pin 128 core rules in Zone 0 (never evicted). Let 72 adaptive features float in Zone 1. Safely drop 80 overflow columns without panic.
+              pin 128 core rules in Zone 0 (never evicted). let 72 adaptive features float in Zone 1. safely drop 80 overflow columns without panic.
             </div>
             <div class="flex items-center gap-2 pt-1 font-sans">
-              <span class="text-xs px-2.5 py-1 rounded bg-foreground text-background font-medium">
-                Auto-Patch Ready
+              <span class="text-xs px-2.5 py-1 rounded bg-foreground text-background font-medium lowercase">
+                apply bob patch
               </span>
               <span class="text-xs text-emerald-600 dark:text-emerald-400 font-mono">
                 ~90s fix vs ~4h manual investigation
@@ -155,23 +155,23 @@
           <div class="flex items-center gap-2 text-foreground font-medium pb-2 border-b border-border/30">
             <span class="text-emerald-500 select-none">$</span>
             <span>stokes bench --criterion --target hot-path</span>
-            <span class="text-muted-foreground/40 ml-auto text-xs hidden sm:inline">Criterion Micro-benchmarks</span>
+            <span class="text-muted-foreground/40 ml-auto text-xs hidden sm:inline">criterion micro-benchmarks</span>
           </div>
 
           <div class="space-y-1.5 text-muted-foreground">
-            <div>Gnuplot not found, using plotters backend</div>
-            <div class="text-foreground font-medium pt-1">Benchmarking in-place partial selection (select_nth_unstable_by):</div>
+            <div>gnuplot not found, using plotters backend</div>
+            <div class="text-foreground font-medium pt-1">benchmarking in-place partial selection (select_nth_unstable_by):</div>
             <div class="pl-4 text-emerald-600 dark:text-emerald-400">
               time:   [7.6582 ns <span class="font-bold">7.6614 ns</span> 7.6651 ns]
             </div>
             <div class="pl-4 text-muted-foreground">
-              alloc:  <span class="text-emerald-600 dark:text-emerald-400 font-bold">0 Bytes</span> heap reallocation (fits in 25 L1 cache lines)
+              alloc:  <span class="text-emerald-600 dark:text-emerald-400 font-bold">0 bytes</span> heap reallocation (fits in 25 L1 cache lines)
             </div>
             <div class="pl-4 text-muted-foreground">
               thrpt:  130,523,412 features/sec
             </div>
 
-            <div class="text-foreground font-medium pt-2">Benchmarking naive heap vector (Vec::with_capacity):</div>
+            <div class="text-foreground font-medium pt-2">benchmarking naive heap vector (Vec::with_capacity):</div>
             <div class="pl-4 text-amber-600 dark:text-amber-400">
               time:   [29.712 ns <span class="font-bold">29.743 ns</span> 29.781 ns] (+288% latency overhead)
             </div>
@@ -181,8 +181,8 @@
           </div>
 
           <div class="mt-4 rounded border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 flex items-center justify-between text-xs">
-            <span class="text-foreground font-medium">In-place selection is 3.88x faster than heap vectors</span>
-            <span class="text-emerald-600 dark:text-emerald-400 font-bold font-mono">0 B Alloc Verified</span>
+            <span class="text-foreground font-medium lowercase">in-place selection is 3.88x faster than heap vectors</span>
+            <span class="text-emerald-600 dark:text-emerald-400 font-bold font-mono lowercase">0 b alloc verified</span>
           </div>
         </div>
 
@@ -191,11 +191,11 @@
           <div class="flex items-center gap-2 text-foreground font-medium pb-2 border-b border-border/30">
             <span class="text-emerald-500 select-none">$</span>
             <span>stokes cert --verify-ci</span>
-            <span class="text-muted-foreground/40 ml-auto text-xs hidden sm:inline">Cryptographic CI Gate</span>
+            <span class="text-muted-foreground/40 ml-auto text-xs hidden sm:inline">cryptographic CI gate</span>
           </div>
 
           <div class="space-y-1.5 text-muted-foreground">
-            <div>Reading lockfile: stokes.lock</div>
+            <div>reading lockfile: stokes.lock</div>
             <div class="flex items-center gap-2">
               <span class="text-emerald-500 font-bold">✓</span>
               <span>clickhouse/migrations/001_bot_signals.sql == sha256:8eb837c6...</span>
@@ -210,11 +210,11 @@
             </div>
             <div class="flex items-center gap-2">
               <span class="text-emerald-500 font-bold">✓</span>
-              <span>Property fuzzing battery: 10,000 randomized cases passed (1.34s)</span>
+              <span>property fuzzing battery: 10,000 randomized cases passed (1.34s)</span>
             </div>
             <div class="flex items-center gap-2">
               <span class="text-emerald-500 font-bold">✓</span>
-              <span>Conformance report written: CONFORMANCE.md</span>
+              <span>conformance report written: CONFORMANCE.md</span>
             </div>
           </div>
 
@@ -223,7 +223,7 @@
               <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
               <span class="text-foreground font-medium">4/4 boundary checks passed</span>
             </div>
-            <span class="text-emerald-600 dark:text-emerald-400 font-bold font-mono">EXIT CODE: 0</span>
+            <span class="text-emerald-600 dark:text-emerald-400 font-bold font-mono lowercase">exit code: 0</span>
           </div>
         </div>
 
@@ -238,7 +238,7 @@
         <div class="flex items-center gap-3">
           <span>7.66 ns</span>
           <span>•</span>
-          <span>0 B Heap</span>
+          <span>0 b heap</span>
           <span>•</span>
           <span>SHA-256</span>
         </div>

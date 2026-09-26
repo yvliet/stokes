@@ -9,8 +9,8 @@
       <h2 class="text-3xl font-extralight tracking-tight sm:text-4xl text-foreground mb-3 lowercase">
         the $5.4m/hr single-compiler blind spot.
       </h2>
-      <p class="text-base sm:text-lg text-muted-foreground font-light leading-relaxed">
-        Based on the Cloudflare November 18, 2025 outage. Three compilers (sqlfluff, mypy, rustc) each passed on their own. But a schema change added 80 extra columns that overflowed a fixed-size buffer downstream, taking the whole fleet offline.
+      <p class="text-base sm:text-lg text-muted-foreground font-light leading-relaxed lowercase">
+        based on the Cloudflare November 18, 2025 outage. three compilers (sqlfluff, mypy, rustc) each passed on their own. but a schema change added 80 extra columns that overflowed a fixed-size buffer downstream, taking the whole fleet offline.
       </p>
     </div>
 
@@ -20,14 +20,14 @@
       <div class="rounded-xl border border-border/50 bg-card/40 stokes-card backdrop-blur-sm p-4 space-y-2.5">
         <div class="flex items-center justify-between text-xs font-mono">
           <span class="text-muted-foreground">T+0m</span>
-          <span class="text-amber-600 dark:text-amber-400 font-medium">LEAK</span>
+          <span class="text-amber-600 dark:text-amber-400 font-medium lowercase">leak</span>
         </div>
-        <div class="text-sm font-medium text-foreground">Schema Reflection</div>
-        <p class="text-xs text-muted-foreground leading-relaxed font-light">
-          Internal replica tables quietly project 280 features instead of the expected 200 into KV metadata.
+        <div class="text-sm font-medium text-foreground lowercase">schema reflection</div>
+        <p class="text-xs text-muted-foreground leading-relaxed font-light lowercase">
+          internal replica tables quietly project 280 features instead of the expected 200 into KV metadata.
         </p>
-        <div class="text-[11px] font-mono text-muted-foreground/60 pt-1 border-t border-border/30">
-          sqlfluff: PASS
+        <div class="text-[11px] font-mono text-muted-foreground/60 pt-1 border-t border-border/30 lowercase">
+          sqlfluff: pass
         </div>
       </div>
 
@@ -35,14 +35,14 @@
       <div class="rounded-xl border border-border/50 bg-card/40 stokes-card backdrop-blur-sm p-4 space-y-2.5">
         <div class="flex items-center justify-between text-xs font-mono">
           <span class="text-muted-foreground">T+90m</span>
-          <span class="text-amber-600 dark:text-amber-400 font-medium">SYNC</span>
+          <span class="text-amber-600 dark:text-amber-400 font-medium lowercase">sync</span>
         </div>
-        <div class="text-sm font-medium text-foreground">KV Replication</div>
-        <p class="text-xs text-muted-foreground leading-relaxed font-light">
-          Automated KV sync pushes dynamic config fleet-wide. Early restarts look like transient jitter.
+        <div class="text-sm font-medium text-foreground lowercase">KV replication</div>
+        <p class="text-xs text-muted-foreground leading-relaxed font-light lowercase">
+          automated KV sync pushes dynamic config fleet-wide. early restarts look like transient jitter.
         </p>
-        <div class="text-[11px] font-mono text-muted-foreground/60 pt-1 border-t border-border/30">
-          mypy: PASS
+        <div class="text-[11px] font-mono text-muted-foreground/60 pt-1 border-t border-border/30 lowercase">
+          mypy: pass
         </div>
       </div>
 
@@ -50,29 +50,29 @@
       <div class="rounded-xl border border-border/50 bg-card/40 stokes-card backdrop-blur-sm p-4 space-y-2.5">
         <div class="flex items-center justify-between text-xs font-mono">
           <span class="text-muted-foreground">T+91m</span>
-          <span class="text-rose-600 dark:text-rose-400 font-medium">PANIC</span>
+          <span class="text-rose-600 dark:text-rose-400 font-medium lowercase">panic</span>
         </div>
         <div class="text-sm font-medium text-rose-600 dark:text-rose-400">TryFromSliceError</div>
-        <p class="text-xs text-muted-foreground leading-relaxed font-light">
-          The proxy's fixed [Feature; 200] buffer gets 280 entries. Worker threads panic, edge traffic drops to zero.
+        <p class="text-xs text-muted-foreground leading-relaxed font-light lowercase">
+          the proxy's fixed [Feature; 200] buffer gets 280 entries. worker threads panic, edge traffic drops to zero.
         </p>
-        <div class="text-[11px] font-mono text-muted-foreground/60 pt-1 border-t border-border/30">
-          rustc: PASS
+        <div class="text-[11px] font-mono text-muted-foreground/60 pt-1 border-t border-border/30 lowercase">
+          rustc: pass
         </div>
       </div>
 
       <!-- Step 4 -->
       <div class="rounded-xl border border-green-500/30 bg-green-500/5 stokes-card backdrop-blur-sm p-4 space-y-2.5">
         <div class="flex items-center justify-between text-xs font-mono">
-          <span class="text-green-600 dark:text-green-400 font-medium">WITH STOKES</span>
-          <span class="text-green-600 dark:text-green-400 font-medium">90s MTTR</span>
+          <span class="text-green-600 dark:text-green-400 font-medium lowercase">with stokes</span>
+          <span class="text-green-600 dark:text-green-400 font-medium lowercase">90s MTTR</span>
         </div>
-        <div class="text-sm font-medium text-green-700 dark:text-green-300">Dual-Zone Shedding</div>
-        <p class="text-xs text-muted-foreground leading-relaxed font-light">
-          Stokes partitions the buffer: 128 core rules stay pinned, 72 adaptive features get Zone 1, 80 extras get safely dropped. No heap allocations.
+        <div class="text-sm font-medium text-green-700 dark:text-green-300 lowercase">dual-zone shedding</div>
+        <p class="text-xs text-muted-foreground leading-relaxed font-light lowercase">
+          bob partitions the buffer and synthesizes the dual-zone guard: 128 core rules stay pinned, 72 adaptive features get Zone 1, 80 extras get safely dropped. no heap allocations.
         </p>
-        <div class="text-[11px] font-mono text-green-600 dark:text-green-400 pt-1 border-t border-green-500/20 font-medium">
-          100% Uptime Guaranteed
+        <div class="text-[11px] font-mono text-green-600 dark:text-green-400 pt-1 border-t border-green-500/20 font-medium lowercase">
+          100% uptime guaranteed
         </div>
       </div>
     </div>
@@ -81,35 +81,35 @@
     <div class="rounded-xl border border-border/50 bg-card/40 stokes-card backdrop-blur-sm p-6 flex flex-wrap items-center justify-around gap-6 text-center">
       <div>
         <div class="text-3xl font-extralight font-mono text-foreground">90s</div>
-        <div class="text-xs text-muted-foreground mt-1">MTTR (from 4h)</div>
+        <div class="text-xs text-muted-foreground mt-1 lowercase">MTTR (from 4h)</div>
       </div>
       <div class="w-px h-8 bg-border/40 hidden sm:block"></div>
       <div>
         <div class="text-3xl font-extralight font-mono text-foreground">7.66 ns</div>
-        <div class="text-xs text-muted-foreground mt-1">In-place selection</div>
+        <div class="text-xs text-muted-foreground mt-1 lowercase">in-place selection</div>
       </div>
       <div class="w-px h-8 bg-border/40 hidden sm:block"></div>
       <div>
         <div class="text-3xl font-extralight font-mono text-foreground">0 Bytes</div>
-        <div class="text-xs text-muted-foreground mt-1">Heap alloc on hot path</div>
+        <div class="text-xs text-muted-foreground mt-1 lowercase">heap alloc on hot path</div>
       </div>
       <div class="w-px h-8 bg-border/40 hidden sm:block"></div>
       <div>
         <div class="text-3xl font-extralight font-mono text-foreground">100%</div>
-        <div class="text-xs text-muted-foreground mt-1">Active core rules</div>
+        <div class="text-xs text-muted-foreground mt-1 lowercase">active core rules</div>
       </div>
     </div>
 
     <!-- Right-aligned Canvas Studio CTA -->
     <div class="flex flex-col sm:flex-row items-end sm:items-center justify-end gap-3 pt-2">
-      <span class="text-xs sm:text-sm text-muted-foreground font-light text-right">
-        visualize the failure cascade and buffer remediation interactively
+      <span class="text-xs sm:text-sm text-muted-foreground font-light text-right lowercase">
+        watch bob isolate the failure cascade and synthesize buffer remediations interactively
       </span>
       <a 
         href="/studio" 
         class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-foreground hover:text-foreground/80 rounded-full px-4 py-1.5 border border-border/60 hover:border-foreground/30 bg-card/40 shadow-sm backdrop-blur-sm transition-all"
       >
-        open canvas studio <span>→</span>
+        <span class="lowercase">open canvas studio</span> <span>→</span>
       </a>
     </div>
   </div>
