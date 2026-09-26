@@ -1,5 +1,6 @@
 import React from 'react';
 import type { TocHeading } from '../../data/docsContent.ts';
+import { ListIcon } from './Icons.tsx';
 
 export interface OnThisPageOutlineProps {
   headings: TocHeading[];
@@ -19,8 +20,9 @@ export const OnThisPageOutline: React.FC<OnThisPageOutlineProps> = React.memo(({
   return (
     <aside className={`flex flex-col text-left select-none ${className}`}>
       {/* Header */}
-      <div className="text-[11px] font-sans font-medium text-muted-foreground uppercase tracking-wider mb-2.5 pb-2 border-b border-border/40">
-        on this page
+      <div className="flex items-center gap-1.5 text-[11px] font-sans font-medium text-muted-foreground mb-2.5 pb-2 border-b border-border/40">
+        <ListIcon size={12} className="shrink-0 text-muted-foreground" />
+        <span>on this page</span>
       </div>
 
       <nav className="flex-1 overflow-y-auto space-y-0.5 pr-2 sidebar-hover-scrollbar">
