@@ -8,10 +8,10 @@ import { DocsShell } from '../components/docs/DocsShell';
   title="docs | technical architecture & invariant reference | stokes"
   description="Technical systems documentation for Stokes: cross-boundary contracts, semantic AST hashing, poly-repo coordination, and untyped seam verification."
 >
-  <div class="flex min-h-screen flex-col bg-background text-foreground transition-colors selection:bg-neutral-200 dark:selection:bg-neutral-800">
+  <div class="flex h-screen flex-col bg-background text-foreground transition-colors selection:bg-neutral-200 dark:selection:bg-neutral-800 overflow-hidden">
     <Navbar />
     
-    <main class="flex-1 w-full">
+    <main class="flex-1 w-full min-h-0 overflow-hidden">
       <DocsShell client:load />
     </main>
   </div>

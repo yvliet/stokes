@@ -81,9 +81,9 @@ export const DocTreeSidebar: React.FC<DocTreeSidebarProps> = React.memo(({
   }, [filteredCategories]);
 
   return (
-    <aside className={`flex flex-col w-full text-left sidebar-container select-none ${className}`}>
+    <aside className={`flex flex-col w-full h-full min-h-0 text-left sidebar-container select-none ${className}`}>
       {/* Search Input Bar */}
-      <div className="pb-4">
+      <div className="pb-4 shrink-0">
         <div className="relative flex items-center w-full">
           <MagnifyingGlassIcon
             size={14}

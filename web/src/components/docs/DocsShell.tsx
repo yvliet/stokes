@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { ListIcon, XIcon } from './Icons.tsx';
 import {
   DOCS_TREE,
@@ -13,6 +13,7 @@ import { OnThisPageOutline } from './OnThisPageOutline.tsx';
 
 export const DocsShell: React.FC = () => {
   const flattened = useMemo(() => flattenDocs(DOCS_TREE), []);
+  const contentContainerRef = useRef<HTMLDivElement>(null);
 
   // Determine initial document from window.location.hash or fallback to first doc
   const [activeDoc, setActiveDoc] = useState<DocItem>(() => {
@@ -39,7 +40,7 @@ export const DocsShell: React.FC = () => {
         const found = findDocBySlug(hash, DOCS_TREE);
         if (found && found.id !== activeDoc.id) {
           setActiveDoc(found);
-          window.scrollTo({ top: 0, behavior: 'instant' });
+          contentContainerRef.current?.scrollTo({ top: 0, behavior: 'instant' });
           return;
         }
 
@@ -61,18 +62,18 @@ export const DocsShell: React.FC = () => {
     setActiveDoc(doc);
     setIsMobileDrawerOpen(false);
     window.location.hash = doc.slug;
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    contentContainerRef.current?.scrollTo({ top: 0, behavior: 'instant' });
   }, []);
 
   // Track active heading during scroll (Scrollspy)
   useEffect(() => {
-    if (headings.length === 0) return;
+    if (headings.length === 0 || !contentContainerRef.current) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         const visibleEntries = entries.filter((e) => e.isIntersecting);
         if (visibleEntries.length > 0) {
-          // Sort by position relative to top of viewport
+          // Sort by position relative to top of container
           visibleEntries.sort(
             (a, b) => a.boundingClientRect.top - b.boundingClientRect.top
           );
@@ -80,7 +81,8 @@ export const DocsShell: React.FC = () => {
         }
       },
       {
-        rootMargin: '-80px 0px -60% 0px',
+        root: contentContainerRef.current,
+        rootMargin: '-40px 0px -60% 0px',
         threshold: [0, 1.0],
       }
     );
@@ -91,7 +93,7 @@ export const DocsShell: React.FC = () => {
     });
 
     return () => observer.disconnect();
-  }, [headings]);
+  }, [headings, activeDoc.id]);
 
   const handleSelectHeading = useCallback((id: string) => {
     setActiveHeadingId(id);
@@ -109,9 +111,9 @@ export const DocsShell: React.FC = () => {
   const nextDoc = currentIndex >= 0 && currentIndex < flattened.length - 1 ? flattened[currentIndex + 1] : null;
 
   return (
-    <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16">
+    <div className="w-full h-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col min-h-0">
       {/* Mobile Navigation Toggle Bar */}
-      <div className="lg:hidden flex items-center justify-between pb-4 mb-6 border-b border-border/40">
+      <div className="lg:hidden flex items-center justify-between py-3 mb-2 border-b border-border/40 shrink-0">
         <button
           type="button"
           onClick={() => setIsMobileDrawerOpen(true)}
@@ -155,10 +157,10 @@ export const DocsShell: React.FC = () => {
         </div>
       )}
 
-      {/* Tri-Column Desktop Layout: Fixed Sidebar (Left), Expanded Reading Canvas (Center), Fixed TOC (Right) */}
-      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 xl:gap-10 items-start">
-        {/* Left Fixed Sidebar */}
-        <div className="hidden lg:block w-64 xl:w-72 shrink-0 sticky top-20 h-[calc(100vh-5.5rem)]">
+      {/* Tri-Column Desktop Layout */}
+      <div className="flex-1 flex flex-col lg:flex-row gap-6 lg:gap-8 xl:gap-10 min-h-0 overflow-hidden">
+        {/* Left Fixed Sidebar - Has its own independent scrollbar */}
+        <div className="hidden lg:flex flex-col w-64 xl:w-72 shrink-0 h-full py-6 pr-2">
           <DocTreeSidebar
             categories={DOCS_TREE}
             activeDocId={activeDoc.id}
@@ -166,25 +168,33 @@ export const DocsShell: React.FC = () => {
           />
         </div>
 
-        {/* Center Main Article */}
-        <div className="flex-1 min-w-0">
-          <DocsReader
-            key={activeDoc.id}
-            doc={activeDoc}
-            prevDoc={prevDoc}
-            nextDoc={nextDoc}
-            onSelectDoc={handleSelectDoc}
-            onHeadingsExtracted={setHeadings}
-          />
-        </div>
+        {/* Center Main Content + Right TOC Rail Container - Unified scrollbar for center and right pane */}
+        <div
+          ref={contentContainerRef}
+          className="flex-1 h-full min-w-0 overflow-y-auto pt-6 pb-20 pr-2 xl:pr-4"
+        >
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 xl:gap-10 items-start max-w-full">
+            {/* Center Main Article */}
+            <div className="flex-1 min-w-0">
+              <DocsReader
+                key={activeDoc.id}
+                doc={activeDoc}
+                prevDoc={prevDoc}
+                nextDoc={nextDoc}
+                onSelectDoc={handleSelectDoc}
+                onHeadingsExtracted={setHeadings}
+              />
+            </div>
 
-        {/* Right Sticky On This Page Rail */}
-        <div className="hidden lg:block w-56 xl:w-64 shrink-0 sticky top-20 max-h-[calc(100vh-5.5rem)]">
-          <OnThisPageOutline
-            headings={headings}
-            activeHeadingId={activeHeadingId}
-            onSelectHeading={handleSelectHeading}
-          />
+            {/* Right Sticky On This Page Rail */}
+            <div className="hidden lg:block w-56 xl:w-64 shrink-0 sticky top-0 max-h-[calc(100vh-6rem)] overflow-y-auto">
+              <OnThisPageOutline
+                headings={headings}
+                activeHeadingId={activeHeadingId}
+                onSelectHeading={handleSelectHeading}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>
