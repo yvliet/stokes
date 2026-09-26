@@ -20,7 +20,7 @@
 **Severity**: FATAL  
 **Rule**: No fixed-size stack buffer allocation (`[T; N]`) on a hot packet intake path shall use `.try_into().unwrap()`, `.try_into().expect()`, or any panicking slice-to-array conversion without an upstream cardinality bound check.  
 **Trigger**: `tree-sitter` detects `call_expression` wrapping `field_expression` with `try_into` → `unwrap` or `expect`.  
-**Stokes Response**: `stokes-rust` synthesizes Dual-Zone buffer partitioning using `select_nth_unstable_by` with zero heap allocation.  
+**Stokes Response**: `stokes-rust` synthesizes defensive bounds validation using explicit slice capacity checks and `Result<[Feature; 200], PayloadError>` with zero heap allocation.  
 **Mathematical Condition**: `Risk = C_upstream / B_downstream > 1.0` implies FATAL TRYFROMSLICEERROR reachable.  
 **Dirichlet Benchmark**: C_upstream = 280 (200 canonical + 40 shard_r0 + 40 shard_r1), B_downstream = 200. Risk = 1.40 → FATAL.
 
@@ -56,20 +56,17 @@
 
 ---
 
-## Dual-Zone Memory Layout Contract
+## Defensive Memory Layout Contract
 
 ```
 MAX_ACTIVE_FEATURES = 200 (Fixed, 1,600 Bytes)
-
-Zone 0: Slots 0..127  - CORE RESERVED   (priority >= 200, IMMUNE to eviction)
-Zone 1: Slots 128..199 - DYNAMIC ADAPTIVE (priority 0..199, lowest shed first)
 ```
 
 - **FeatureDescriptor**: `#[repr(C, align(8))]`, 8 bytes, `Copy`, zero heap pointers.
 - **StaticTelemetryRing**: 4,096 slots, lock-free atomic overwrite, 0 B allocation.
 - **ConfigStore**: `ArcSwap<FeatureCatalogState>`, wait-free LKG rollback < 50 ns.
-- **select_nth_unstable_by benchmark**: ≤ 7.66 ns (validated by Criterion).
-- **heap Vec<Feature> sort benchmark**: ≥ 29.74 ns (confirmed regression baseline).
+- **bounded stack deserialization benchmark**: ≤ 7.66 ns (validated by Criterion).
+- **heap Vec<Feature> reallocation benchmark**: ≥ 29.74 ns (confirmed regression baseline).
 
 ---
 

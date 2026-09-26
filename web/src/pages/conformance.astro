@@ -3,6 +3,29 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Navbar from '../components/Navbar.astro';
 import FinalCTA from '../components/FinalCTA.astro';
 import Footer from '../components/Footer.astro';
+
+const conformanceFaqs = [
+  {
+    q: "what is the difference between stokes.lock and CONFORMANCE.md?",
+    a: "stokes.lock is a machine-authoritative JSON lockfile containing SHA-256 hashes of canonical semantic AST signatures, ingested by `stokes verify --strict` in CI. CONFORMANCE.md is a human-readable markdown audit summary generated for PR reviewers, compliance teams, and post-incident verification."
+  },
+  {
+    q: "how does normalized semantic AST hashing prevent false positives?",
+    a: "stokes parses the syntax tree of your code and hashes only the contract interface: table columns, types, nullability, fixed buffer sizes, and query predicates. comments, whitespace, variable formatting, and internal helper functions are ignored, so running black or rustfmt never invalidates stokes.lock."
+  },
+  {
+    q: "should stokes.lock be committed to version control?",
+    a: "yes. committing stokes.lock guarantees that contract invariants are tracked across git history, preventing silent schema drift between different feature branches and staging environments."
+  },
+  {
+    q: "what happens when a pull request introduces an uncontracted schema change?",
+    a: "stokes verify runs as a required GitHub Actions status check. if an upstream migration adds columns without an authorized lockfile update and buffer re-certification, the check exits with code 1 and blocks merging."
+  },
+  {
+    q: "how does stokes.lock coordinate contracts across separate git repositories (poly-repo)?",
+    a: "in poly-repo setups, the upstream repo (e.g. clickhouse ddl) exports its certified schema digest as a release artifact or registry record. the downstream proxy repo pins that digest inside its local stokes.lock (upstream_schema_digest: sha256:...). during upstream pull request CI, stokes verify evaluates whether proposed DDL changes alter the pinned consumer digest. if an upstream PR expands or alters consumed fields, the upstream check fails before merge, requiring explicit downstream buffer re-certification."
+  }
+];
 ---
 
 <BaseLayout 
@@ -14,29 +37,31 @@ import Footer from '../components/Footer.astro';
 
     <main class="flex-1">
       <!-- Hero Section -->
-      <section class="pt-24 sm:pt-32 pb-16 px-6 text-center">
-        <div class="max-w-4xl mx-auto">
-          <p class="text-sm text-muted-foreground mb-4 lowercase tracking-normal">conformance</p>
-          <h1 class="text-5xl sm:text-6xl font-extralight leading-none tracking-tight mb-6 lowercase">
+      <section class="pt-20 sm:pt-28 pb-14 px-6 text-center">
+        <div class="max-w-4xl mx-auto space-y-4">
+          <p class="text-sm text-muted-foreground font-mono lowercase">conformance</p>
+          <h1 class="text-4xl sm:text-6xl font-extralight tracking-tight text-foreground lowercase">
             verifiable lockfile. cryptographic trust.
           </h1>
-          <p class="text-xl sm:text-2xl text-muted-foreground max-w-3xl mx-auto mb-10 font-light leading-relaxed lowercase">
+          <p class="text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto font-light leading-relaxed lowercase">
             bridge machine-readable schema lockfiles with human-readable audit attestations. immutable sha-256 digests for cross-team compliance.
           </p>
           
           <!-- Action Buttons -->
-          <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+          <div class="flex flex-col sm:flex-row gap-3.5 justify-center items-center pt-4">
             <a 
               href="/cli" 
-              class="group/button inline-flex shrink-0 items-center justify-center border border-transparent font-medium whitespace-nowrap outline-none select-none h-12 px-8 text-base bg-foreground text-background hover:bg-foreground/90 transition-all rounded-full cursor-pointer"
+              class="group/button inline-flex shrink-0 items-center justify-center border border-transparent font-medium whitespace-nowrap outline-none select-none h-11 px-7 text-base bg-foreground text-background hover:bg-foreground/90 transition-all rounded-full cursor-pointer shadow-xs"
             >
-              run verification gate
+              <span class="lowercase">run verification gate</span>
+              <span>→</span>
             </a>
             <a 
               href="/#outage-tour" 
-              class="group/button inline-flex shrink-0 items-center justify-center border border-transparent font-medium whitespace-nowrap outline-none select-none h-12 px-8 text-base ring-2 ring-foreground/20 bg-foreground/[0.05] text-foreground hover:bg-foreground/[0.12] hover:ring-foreground/40 transition-all rounded-full cursor-pointer"
+              class="group/button inline-flex shrink-0 items-center justify-center border border-border bg-card/60 text-foreground hover:bg-muted transition-all select-none h-11 px-7 text-base rounded-full cursor-pointer"
             >
-              explore outage case study <span>→</span>
+              <span class="lowercase">explore outage case study</span>
+              <span class="ml-1 text-muted-foreground">→</span>
             </a>
           </div>
         </div>
@@ -45,121 +70,118 @@ import Footer from '../components/Footer.astro';
       <!-- Centerpiece Showcase Window: Cryptographic Conformance Matrix -->
       <section class="px-6 pb-20">
         <div class="max-w-5xl mx-auto">
-          <div class="rounded-xl border border-border/40 bg-card/30 overflow-hidden shadow-sm">
-            <div class="p-4 sm:p-6 space-y-4">
-              <div class="flex flex-col rounded-lg border border-border/60 bg-background/80 overflow-hidden text-left">
-                <!-- Window Titlebar -->
-                <div class="flex items-center justify-between px-4 py-2.5 border-b border-border/40 bg-muted/20">
-                  <div class="flex items-center gap-2">
-                    <div class="flex gap-1.5">
-                      <span class="h-2.5 w-2.5 rounded-full bg-red-500/40"></span>
-                      <span class="h-2.5 w-2.5 rounded-full bg-yellow-500/40"></span>
-                      <span class="h-2.5 w-2.5 rounded-full bg-green-500/40"></span>
-                    </div>
-                    <span class="text-xs text-muted-foreground font-mono">stokes.lock (machine) / CONFORMANCE.md (audit)</span>
-                  </div>
-                  <span class="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium">
-                    cryptographically sealed
-                  </span>
+          <!-- Single clean window container without outer redundant box -->
+          <div class="rounded-xl border border-border/50 bg-card/40 stokes-card overflow-hidden backdrop-blur-sm text-left">
+            <!-- Window Titlebar -->
+            <div class="flex items-center justify-between px-4 py-2.5 border-b border-border/40 bg-muted/30">
+              <div class="flex items-center gap-2">
+                <div class="flex gap-1.5">
+                  <span class="h-2.5 w-2.5 rounded-full bg-red-500/50"></span>
+                  <span class="h-2.5 w-2.5 rounded-full bg-yellow-500/50"></span>
+                  <span class="h-2.5 w-2.5 rounded-full bg-green-500/50"></span>
                 </div>
+                <span class="text-xs text-muted-foreground font-mono lowercase">stokes.lock (machine) / CONFORMANCE.md (audit)</span>
+              </div>
+              <span class="text-[10px] font-mono lowercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium">
+                digest verified
+              </span>
+            </div>
 
-                <!-- Conformance Matrix Content -->
-                <div class="p-4 sm:p-6 font-mono text-xs leading-relaxed space-y-4 overflow-x-auto">
-                  <div class="flex flex-wrap items-center justify-between gap-2 border-b border-border/40 pb-3">
-                    <span class="text-foreground font-bold">Boundary Conformance Certificate</span>
-                    <span class="text-[11px] text-muted-foreground">SHA-256: <code class="text-foreground">e3b0c44298fc1c14...855</code></span>
-                  </div>
+            <!-- Conformance Matrix Content -->
+            <div class="p-4 sm:p-6 font-mono text-xs leading-relaxed space-y-4 overflow-x-auto">
+              <div class="flex flex-wrap items-center justify-between gap-2 border-b border-border/40 pb-3">
+                <span class="text-foreground font-bold lowercase">boundary conformance certificate</span>
+                <span class="text-[11px] text-muted-foreground lowercase">sha-256: <code class="text-foreground">e3b0c44298fc1c14...855</code></span>
+              </div>
 
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- Left: Verification Checks -->
-                    <div class="space-y-2">
-                      <div class="text-foreground font-semibold text-[11px]">Verification Battery Status</div>
-                      <div class="space-y-1.5 text-[11px]">
-                        <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-                          <span>✓</span>
-                          <span>ClickHouse Schema: 200 canonical features verified</span>
-                        </div>
-                        <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-                          <span>✓</span>
-                          <span>Transitive Qualification: WHERE database = currentDatabase() verified</span>
-                        </div>
-                        <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-                          <span>✓</span>
-                          <span>Rust Proxy: [FeatureDescriptor; 200] stack buffer verified</span>
-                        </div>
-                        <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-                          <span>✓</span>
-                          <span>Dual-Zone Partitioning: Zone 0 (128 slots) + Zone 1 (72 slots)</span>
-                        </div>
-                        <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-                          <span>✓</span>
-                          <span>Hot-path latency: 7.66 ns &lt;= 10.0 ns SLA</span>
-                        </div>
-                        <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-                          <span>✓</span>
-                          <span>Heap allocations: 0 B &lt;= 0 B budget</span>
-                        </div>
-                        <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-                          <span>✓</span>
-                          <span>Property fuzz tests: 10,000 / 10,000 passed in 1.42s</span>
-                        </div>
-                      </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Left: Verification Checks -->
+                <div class="space-y-2">
+                  <div class="text-foreground font-semibold text-[11px] lowercase">verification battery status</div>
+                  <div class="space-y-1.5 text-[11px] lowercase">
+                    <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                      <span>✓</span>
+                      <span>clickhouse schema: 200 canonical features verified</span>
                     </div>
-
-                    <!-- Right: Attestation Metadata -->
-                    <div class="p-3.5 rounded bg-muted/20 border border-border/40 space-y-2 text-[11px]">
-                      <div class="text-foreground font-semibold">Attestation Manifest</div>
-                      <div class="space-y-1 text-muted-foreground">
-                        <div class="flex justify-between">
-                          <span>Target Workspace:</span>
-                          <span class="text-foreground font-medium">dirichlet-proxy</span>
-                        </div>
-                        <div class="flex justify-between">
-                          <span>Engine:</span>
-                          <span class="text-foreground font-medium">Stokes Multi-Agent Engine</span>
-                        </div>
-                        <div class="flex justify-between">
-                          <span>Verification Time:</span>
-                          <span class="text-foreground font-medium">1.42 seconds</span>
-                        </div>
-                        <div class="flex justify-between">
-                          <span>CI Enforcement:</span>
-                          <span class="text-emerald-500 font-medium">Strict Pre-Merge Gate</span>
-                        </div>
-                        <div class="flex justify-between">
-                          <span>Author:</span>
-                          <span class="text-foreground font-medium">yvliet</span>
-                        </div>
-                      </div>
+                    <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                      <span>✓</span>
+                      <span>transitive qualification: WHERE database = currentDatabase() verified</span>
                     </div>
-                  </div>
-
-                  <!-- Lockfile Root Digest Block -->
-                  <div class="p-3 rounded bg-muted/30 border border-border/30 text-[11px] space-y-1">
-                    <span class="text-muted-foreground"># Machine-readable lockfile signature block:</span>
-                    <p class="text-foreground/90 pt-1 font-mono break-all">
-                      <code>"signature": "stokes-sig-v1:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"</code>
-                    </p>
+                    <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                      <span>✓</span>
+                      <span>rust proxy: [FeatureDescriptor; 200] stack buffer verified</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                      <span>✓</span>
+                      <span>dual-zone partitioning: zone 0 (128 slots) + zone 1 (72 slots)</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                      <span>✓</span>
+                      <span>hot-path latency: 7.66 ns &lt;= 10.0 ns SLA</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                      <span>✓</span>
+                      <span>heap allocations: 0 b &lt;= 0 b budget</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                      <span>✓</span>
+                      <span>property fuzz tests: 10,000 / 10,000 passed in 1.42s</span>
+                    </div>
                   </div>
                 </div>
 
+                <!-- Right: Attestation Metadata -->
+                <div class="p-3.5 rounded bg-muted/20 border border-border/40 space-y-2 text-[11px] lowercase">
+                  <div class="text-foreground font-semibold">attestation manifest</div>
+                  <div class="space-y-1 text-muted-foreground">
+                    <div class="flex justify-between">
+                      <span>target workspace:</span>
+                      <span class="text-foreground font-medium">dirichlet-proxy</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span>engine:</span>
+                      <span class="text-foreground font-medium">stokes verification engine</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span>verification time:</span>
+                      <span class="text-foreground font-medium">1.42 seconds</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span>ci enforcement:</span>
+                      <span class="text-emerald-500 font-medium">strict pre-merge gate</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span>author:</span>
+                      <span class="text-foreground font-medium">yvliet</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lockfile Root Digest Block -->
+              <div class="p-3 rounded bg-muted/30 border border-border/30 text-[11px] space-y-1">
+                <span class="text-muted-foreground lowercase"># machine-readable lockfile signature block:</span>
+                <p class="text-foreground/90 pt-1 font-mono break-all lowercase">
+                  <code>"signature": "stokes-sig-v1:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"</code>
+                </p>
               </div>
             </div>
+
           </div>
         </div>
       </section>
 
       <!-- Deep Dive 2-Column Section -->
       <section class="py-20 px-6 border-t border-border/30">
-        <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-start text-left">
           <!-- Left Column: Architecture Explanation -->
           <div class="space-y-6">
-            <p class="text-xs uppercase tracking-widest text-muted-foreground font-mono">tamper-proof boundaries</p>
+            <p class="text-sm text-muted-foreground font-mono lowercase">tamper-proof boundaries</p>
             <h2 class="text-3xl font-extralight tracking-tight sm:text-4xl leading-snug lowercase">
               how cryptographic lockfiles stop drift before deployment.
             </h2>
-            <p class="text-sm text-muted-foreground leading-relaxed">
-              In modern distributed systems, analytical schemas and microservice buffers live in separate repositories. Stokes binds them cryptographically into a two-tier contract system: a machine-authoritative lockfile (`stokes.lock`) for CI enforcement, and a human-readable audit certificate (`CONFORMANCE.md`) for PR reviews.
+            <p class="text-sm text-muted-foreground leading-relaxed lowercase font-light">
+              in modern distributed systems, analytical schemas and microservice buffers live in separate repositories. stokes binds them cryptographically into a two-tier contract system: a machine-authoritative lockfile (stokes.lock) for ci enforcement, and a human-readable audit certificate (CONFORMANCE.md) for pr reviews.
             </p>
 
             <!-- Numbered Steps 01 to 04 -->
@@ -167,61 +189,60 @@ import Footer from '../components/Footer.astro';
               <div class="flex items-start gap-4">
                 <span class="font-mono text-xs text-muted-foreground/80 shrink-0 mt-0.5">01</span>
                 <div>
-                  <h3 class="text-sm font-semibold text-foreground font-sans">Cryptographic Schema Hashing</h3>
-                  <p class="text-xs text-muted-foreground mt-1">Every column definition, analytical data type, and array buffer size is hashed into a canonical SHA-256 root digest.</p>
+                  <h3 class="text-sm font-medium text-foreground lowercase">normalized semantic ast hashing</h3>
+                  <p class="text-xs text-muted-foreground mt-1 lowercase font-light">every column definition, analytical data type, and array buffer size is extracted from the AST and hashed into a canonical root digest. comments, docstrings, and code formatting are discarded to prevent false breaks.</p>
                 </div>
               </div>
 
               <div class="flex items-start gap-4">
                 <span class="font-mono text-xs text-muted-foreground/80 shrink-0 mt-0.5">02</span>
                 <div>
-                  <h3 class="text-sm font-semibold text-foreground font-sans">Machine-Authoritative <code>stokes.lock</code></h3>
-                  <p class="text-xs text-muted-foreground mt-1">Committed directly into git alongside code. Evaluated by <code>stokes verify --strict</code> in CI/CD pipelines to block PRs on uncontracted drift.</p>
+                  <h3 class="text-sm font-medium text-foreground lowercase">machine-authoritative stokes.lock</h3>
+                  <p class="text-xs text-muted-foreground mt-1 lowercase font-light">committed directly into git alongside code. evaluated by stokes verify --strict in ci/cd pipelines to block prs on uncontracted drift.</p>
                 </div>
               </div>
 
               <div class="flex items-start gap-4">
                 <span class="font-mono text-xs text-muted-foreground/80 shrink-0 mt-0.5">03</span>
                 <div>
-                  <h3 class="text-sm font-semibold text-foreground font-sans">Human-Readable <code>CONFORMANCE.md</code></h3>
-                  <p class="text-xs text-muted-foreground mt-1">Self-documenting markdown certificate summarizing capacity margins, benchmark timings (7.66 ns), and fuzz test coverage for PR reviewers.</p>
+                  <h3 class="text-sm font-medium text-foreground lowercase">human-readable CONFORMANCE.md</h3>
+                  <p class="text-xs text-muted-foreground mt-1 lowercase font-light">self-documenting markdown certificate summarizing capacity margins, benchmark timings (7.66 ns), and fuzz test coverage for pr reviewers.</p>
                 </div>
               </div>
 
               <div class="flex items-start gap-4">
                 <span class="font-mono text-xs text-muted-foreground/80 shrink-0 mt-0.5">04</span>
                 <div>
-                  <h3 class="text-sm font-semibold text-foreground font-sans">Deterministic PR Gate</h3>
-                  <p class="text-xs text-muted-foreground mt-1">Any pull request that adds or modifies analytical schema without updating the corresponding proxy buffers is automatically rejected.</p>
+                  <h3 class="text-sm font-medium text-foreground lowercase">deterministic pr gate</h3>
+                  <p class="text-xs text-muted-foreground mt-1 lowercase font-light">any pull request that adds or modifies analytical schema without updating the corresponding proxy buffers is automatically rejected.</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Right Column: stokes.lock JSON Window Card -->
-          <div class="rounded-xl border border-border/40 bg-card/30 overflow-hidden shadow-sm">
-            <div class="p-4">
-              <div class="flex flex-col rounded-lg border border-border/60 bg-background/80 overflow-hidden text-left">
-                <div class="flex items-center gap-2 px-3 py-2 border-b border-border/40 bg-muted/20">
-                  <div class="flex gap-1">
-                    <span class="h-2 w-2 rounded-full bg-red-500/40"></span>
-                    <span class="h-2 w-2 rounded-full bg-yellow-500/40"></span>
-                    <span class="h-2 w-2 rounded-full bg-green-500/40"></span>
-                  </div>
-                  <span class="text-xs text-muted-foreground font-mono">stokes.lock (canonical JSON representation)</span>
-                </div>
+          <!-- Right Column: stokes.lock JSON Window Card (single clean window) -->
+          <div class="rounded-xl border border-border/50 bg-card/40 stokes-card overflow-hidden backdrop-blur-sm text-left">
+            <div class="flex items-center gap-2 px-4 py-2.5 border-b border-border/40 bg-muted/30">
+              <div class="flex gap-1.5">
+                <span class="h-2.5 w-2.5 rounded-full bg-red-500/50"></span>
+                <span class="h-2.5 w-2.5 rounded-full bg-yellow-500/50"></span>
+                <span class="h-2.5 w-2.5 rounded-full bg-green-500/50"></span>
+              </div>
+              <span class="text-xs text-muted-foreground font-mono lowercase">stokes.lock (canonical json representation)</span>
+            </div>
 
-                <div class="p-4 font-mono text-xs leading-relaxed space-y-3">
-                  <pre class="text-foreground/90 whitespace-pre overflow-x-auto text-[11px] leading-5"><code>&#123;
+            <div class="p-4 sm:p-5 font-mono text-xs leading-relaxed space-y-3">
+              <pre class="text-foreground/90 whitespace-pre overflow-x-auto text-[11px] leading-5"><code>&#123;
   "$schema": "https://stokes.dev/schema/v1.json",
   "version": "1.0.0",
   "workspace": "dirichlet-l7-proxy",
   "root_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "verification_mode": "normalized_semantic_ast",
   "invariants": &#123;
     "max_features": 200,
-    "max_heap_bytes": 0,
-    "max_p99_latency_ns": 10.0,
-    "core_reserved_slots": 128
+    "downstream_capacity": 200,
+    "cardinality_risk_ratio": 1.40,
+    "zero_panics_verified": true
   &#125;,
   "targets": [
     &#123;
@@ -237,16 +258,14 @@ import Footer from '../components/Footer.astro';
   ]
 &#125;</code></pre>
 
-                  <div class="pt-2 border-t border-border/30 text-muted-foreground text-[11px] space-y-1">
-                    <div class="flex items-center justify-between">
-                      <span class="text-foreground font-medium">Lockfile Validation Speed:</span>
-                      <span class="text-emerald-500 font-semibold">&lt; 15 ms</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                      <span class="text-foreground font-medium">Digest Algorithm:</span>
-                      <span class="text-emerald-500 font-semibold">Standard SHA-256</span>
-                    </div>
-                  </div>
+              <div class="pt-2 border-t border-border/30 text-muted-foreground text-[11px] space-y-1">
+                <div class="flex items-center justify-between">
+                  <span class="text-foreground font-medium lowercase">lockfile validation speed:</span>
+                  <span class="text-emerald-500 font-semibold lowercase">&lt; 15 ms</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-foreground font-medium lowercase">digest algorithm:</span>
+                  <span class="text-emerald-500 font-semibold lowercase">standard sha-256</span>
                 </div>
               </div>
             </div>
@@ -255,31 +274,62 @@ import Footer from '../components/Footer.astro';
       </section>
 
       <!-- 3-Column Capability Grid -->
-      <section class="max-w-6xl mx-auto px-6 py-20 border-t border-border/30">
-        <div class="grid gap-8 md:grid-cols-3">
-          <article class="rounded-xl border border-border/40 bg-card/20 p-6 space-y-3">
-            <span class="text-[11px] font-mono text-muted-foreground">[SHA-256 DIGEST]</span>
-            <h3 class="text-lg font-semibold text-foreground leading-snug lowercase font-sans">tamper-proof invariants</h3>
-            <p class="text-xs text-muted-foreground leading-relaxed">
-              Cryptographic schema hashing guarantees that any unreviewed field change or buffer size adjustment immediately invalidates the lockfile and triggers verification alerts.
+      <section class="max-w-6xl mx-auto px-6 py-16 border-t border-border/30">
+        <div class="grid gap-6 md:grid-cols-3 text-left">
+          <article class="rounded-xl border border-border/40 bg-card/30 stokes-card p-5 space-y-2.5">
+            <span class="text-[11px] font-mono text-muted-foreground lowercase">[sha-256 digest]</span>
+            <h3 class="text-base font-medium text-foreground lowercase">tamper-proof invariants</h3>
+            <p class="text-xs text-muted-foreground leading-relaxed font-light lowercase">
+              cryptographic schema hashing guarantees that any unreviewed field change or buffer size adjustment immediately invalidates the lockfile.
             </p>
           </article>
 
-          <article class="rounded-xl border border-border/40 bg-card/20 p-6 space-y-3">
-            <span class="text-[11px] font-mono text-muted-foreground">[CI PRE-MERGE GATE]</span>
-            <h3 class="text-lg font-semibold text-foreground leading-snug lowercase font-sans">automated defense</h3>
-            <p class="text-xs text-muted-foreground leading-relaxed">
-              Runs as an automated, non-bypassable GitHub Actions check on every pull request, ensuring production deployments never inherit cross-boundary drift.
+          <article class="rounded-xl border border-border/40 bg-card/30 stokes-card p-5 space-y-2.5">
+            <span class="text-[11px] font-mono text-muted-foreground lowercase">[ci pre-merge gate]</span>
+            <h3 class="text-base font-medium text-foreground lowercase">automated defense</h3>
+            <p class="text-xs text-muted-foreground leading-relaxed font-light lowercase">
+              runs as an automated, non-bypassable github actions check on every pull request, ensuring production deployments never inherit drift.
             </p>
           </article>
 
-          <article class="rounded-xl border border-border/40 bg-card/20 p-6 space-y-3">
-            <span class="text-[11px] font-mono text-muted-foreground">[AUDIT RECEIPT]</span>
-            <h3 class="text-lg font-semibold text-foreground leading-snug lowercase font-sans">enterprise compliance</h3>
-            <p class="text-xs text-muted-foreground leading-relaxed">
-              Produces a self-contained markdown audit manifest (<code>CONFORMANCE.md</code>) complete with timestamp proofs, telemetry metrics, and verifiable SHA-256 signatures.
+          <article class="rounded-xl border border-border/40 bg-card/30 stokes-card p-5 space-y-2.5">
+            <span class="text-[11px] font-mono text-muted-foreground lowercase">[audit receipt]</span>
+            <h3 class="text-base font-medium text-foreground lowercase">audit summary</h3>
+            <p class="text-xs text-muted-foreground leading-relaxed font-light lowercase">
+              produces a self-contained markdown audit manifest (CONFORMANCE.md) detailing schema hashes, benchmark numbers, and test results for pull request review.
             </p>
           </article>
+        </div>
+      </section>
+
+      <!-- Conformance-Specific FAQ Section -->
+      <section class="border-t border-border/30 px-6 py-20">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-start text-left">
+          <div class="lg:col-span-5 space-y-3 lg:sticky lg:top-20 self-start">
+            <p class="text-sm text-muted-foreground font-mono lowercase">conformance faq</p>
+            <h2 class="text-3xl font-extralight tracking-tight sm:text-4xl text-foreground lowercase">
+              lockfile & audit receipt questions
+            </h2>
+            <p class="text-sm text-muted-foreground leading-relaxed lowercase font-light">
+              details on sha-256 digests, tamper resistance, and ci/cd compliance policies.
+            </p>
+          </div>
+
+          <div class="lg:col-span-7 border-t border-border/30">
+            {conformanceFaqs.map((faq) => (
+              <details class="group border-b border-border/30">
+                <summary class="flex items-center justify-between py-4 text-sm font-medium text-foreground hover:text-foreground/80 cursor-pointer list-none select-none transition-colors">
+                  <span class="lowercase">{faq.q}</span>
+                  <span class="text-muted-foreground group-open:rotate-45 transition-transform duration-200 text-base font-mono">
+                    +
+                  </span>
+                </summary>
+                <div class="pb-4 text-xs text-muted-foreground leading-relaxed font-light lowercase">
+                  {faq.a}
+                </div>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
 

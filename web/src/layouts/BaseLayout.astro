@@ -8,12 +8,12 @@ interface Props {
 
 const {
   title = "stokes | cross-boundary invariant verification",
-  description = "Eliminate multi-tier runtime panics across SQL, Python, and Rust before code commits. Autonomous multi-agent invariant verification engine and native MCP server."
+  description = "Eliminate multi-tier runtime panics across SQL, Python, and Rust before code commits. Deterministic cross-boundary static analysis linter and native MCP oracle for AI coding agents."
 } = Astro.props;
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="overscroll-none">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -28,10 +28,6 @@ const {
     <!-- Mona Sans, JetBrains Mono, and Sentient typography stack -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mona+Sans:wght@200;300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
     <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=sentient@300,400,500,700&display=swap" />
-
-    <!-- Idle Prefetch for Stokes Studio & CanvasKit WASM -->
-    <link rel="prefetch" href="/studio/canvaskit.wasm" as="fetch" crossorigin />
-    <link rel="prefetch" href="/studio/" />
 
     <!-- Strict Light-First Default Theme Initializer -->
     <script is:inline>
@@ -50,7 +46,7 @@ const {
       })();
     </script>
   </head>
-  <body class="min-h-screen bg-background text-foreground antialiased selection:bg-neutral-200 dark:selection:bg-neutral-700 selection:text-foreground">
+  <body class="min-h-screen bg-background text-foreground antialiased selection:bg-neutral-200 dark:selection:bg-neutral-700 selection:text-foreground overscroll-none">
     <slot />
   </body>
 </html>

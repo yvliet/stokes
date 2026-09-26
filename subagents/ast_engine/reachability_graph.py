@@ -1,7 +1,7 @@
 """
 stokes/subagents/ast_engine/reachability_graph.py
-Cross-language tainted dataflow evaluator.
-Builds a directed semantic reachability graph G = (V, E) across SQL, Python, Rust, Proto.
+Cross-language interface boundary compatibility and reachability evaluator.
+Builds a directed semantic boundary graph G = (V, E) across SQL, Python, Rust, Proto.
 GitHub: yvliet
 """
 
@@ -47,10 +47,10 @@ class ReachabilityEdge:
 
 class ReachabilityGraph:
     """
-    Cross-language tainted dataflow evaluator.
+    Cross-language interface boundary compatibility and reachability evaluator.
 
-    Models multi-tier architectures as a directed semantic reachability graph.
-    Evaluates the Cardinality Risk Ratio C_upstream / B_downstream at every
+    Models multi-tier architectures as a directed semantic boundary interface graph.
+    Evaluates worst-case cardinality bounds N_max / M_downstream at every
     cross-boundary interface and identifies reachable contract violations.
     """
 

@@ -1,0 +1,372 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import FinalCTA from '../components/FinalCTA.astro';
+import Footer from '../components/Footer.astro';
+
+const analyzerFaqs = [
+  {
+    q: "why run separate language analyzers instead of a single generalist linter?",
+    a: "polyglot architectures span distinct compiler semantics (sql reflection, python dynamic types, rust fixed-size stack arrays, and protobuf schemas). monolingual linters pass individually because none of them see across the boundary. stokes runs domain-isolated analyzers for each language layer, cross-referencing schema definitions and buffer capacities to catch contract mismatches before commits."
+  },
+  {
+    q: "how do the analyzers communicate inside the stokes cli?",
+    a: "analyzers stream progress events into an in-memory queue with cooperative backpressure. an event coalescer throttles terminal updates to a 16.6ms render tick (60 fps), ensuring parallel ast inspection never blocks the cli rendering loop. for external integrations, events encode as 4-byte big-endian length-prefixed frames."
+  },
+  {
+    q: "what happens when an analyzer detects contract drift?",
+    a: "the detecting analyzer emits a typed diagnostic payload containing file paths, line numbers, and root-cause explanations. stokes evaluates remediation strategies across connected layers (such as database qualification for sql, or in-place quickselect for rust edge buffers) and triggers stokes-verify to benchmark the patch."
+  },
+  {
+    q: "how does stokes connect with ai coding agents?",
+    a: "stokes acts as a deterministic verification gate for ai coding assistants. via its model context protocol (mcp) server (stokes mcp) or cli agent bridge (stokes remediate --agent claude|bob|aider), assistants like claude code, cursor, and windsurf can run stokes invariant checks in real-time, receiving machine-readable diagnostics and verified patch diffs."
+  }
+];
+---
+
+<BaseLayout 
+  title="analyzers | parallel cross-boundary verification | stokes"
+  description="parallel language-specific ast analyzers verifying schema contracts and buffer bounds across sql, python, and rust."
+>
+  <div class="flex min-h-screen flex-col bg-background text-foreground transition-colors selection:bg-neutral-200 dark:selection:bg-neutral-800">
+    <Navbar />
+
+    <main class="flex-1">
+      <!-- Hero Section -->
+      <section class="pt-24 sm:pt-32 pb-16 px-6 text-center">
+        <div class="max-w-4xl mx-auto">
+          <p class="text-sm text-muted-foreground font-mono mb-4 lowercase">analyzers</p>
+          <h1 class="text-5xl sm:text-6xl font-extralight leading-none tracking-tight mb-6 lowercase">
+            parallel ast analyzers. cross-boundary verification.
+          </h1>
+          <p class="text-xl sm:text-2xl text-muted-foreground max-w-3xl mx-auto mb-10 font-light leading-relaxed lowercase">
+            five concurrent language analyzers inspecting clickhouse sql, python pipelines, and rust proxy buffers to detect contract drift and generate in-place degradation diffs.
+          </p>
+          
+          <!-- Action Buttons -->
+          <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+            <a 
+              href="/cli" 
+              class="group/button inline-flex shrink-0 items-center justify-center border border-transparent font-medium whitespace-nowrap outline-none select-none h-12 px-8 text-base bg-foreground text-background hover:bg-foreground/90 transition-all rounded-full cursor-pointer lowercase"
+            >
+              run workspace audit
+            </a>
+            <a 
+              href="/benchmarks" 
+              class="group/button inline-flex shrink-0 items-center justify-center border border-transparent font-medium whitespace-nowrap outline-none select-none h-12 px-8 text-base ring-2 ring-foreground/20 bg-foreground/[0.05] text-foreground hover:bg-foreground/[0.12] hover:ring-foreground/40 transition-all rounded-full cursor-pointer lowercase"
+            >
+              view verification benchmarks <span class="ml-2 font-mono">→</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Centerpiece Showcase Window: Multi-Language Analyzer Dashboard -->
+      <section class="px-6 pb-20">
+        <div class="max-w-5xl mx-auto">
+          <div class="rounded-xl border border-border/50 bg-card/40 stokes-card overflow-hidden backdrop-blur-sm text-left">
+            <!-- Window Titlebar -->
+            <div class="flex items-center justify-between px-4 py-2.5 border-b border-border/40 bg-muted/20">
+              <div class="flex items-center gap-2">
+                <div class="flex gap-1.5">
+                  <span class="h-2.5 w-2.5 rounded-full bg-red-500/40"></span>
+                  <span class="h-2.5 w-2.5 rounded-full bg-yellow-500/40"></span>
+                  <span class="h-2.5 w-2.5 rounded-full bg-green-500/40"></span>
+                </div>
+                <span class="text-xs text-muted-foreground font-mono lowercase">stokes audit --parallel (analyzer session)</span>
+              </div>
+              <span class="text-[10px] font-mono lowercase tracking-normal px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium">
+                5 analyzers active · sql · python · rust · proto · verify
+              </span>
+            </div>
+
+            <!-- 5 Analyzer Cards with Clean Technical Icons -->
+            <div class="p-4 sm:p-6 space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                
+                <!-- Worker 1: stokes-sql (Database Icon) -->
+                <div class="p-3 rounded-lg border border-border/40 bg-muted/15 space-y-2">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-foreground shrink-0">
+                        <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                      </svg>
+                      <span class="font-mono text-xs font-semibold text-foreground lowercase">stokes-sql</span>
+                    </div>
+                    <span class="font-mono text-[10px] text-emerald-500 font-medium lowercase">12 ms</span>
+                  </div>
+                  <p class="font-mono text-[11px] text-muted-foreground leading-tight lowercase">clickhouse syntax trees & catalog reflection.</p>
+                  <div class="flex items-center gap-1.5 pt-1 text-[10px] font-mono text-emerald-600 dark:text-emerald-400 lowercase">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                    <span>events_r0 / r1 parsed</span>
+                  </div>
+                </div>
+
+                <!-- Worker 2: stokes-python (Code Bracket Icon) -->
+                <div class="p-3 rounded-lg border border-border/40 bg-muted/15 space-y-2">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-foreground shrink-0">
+                        <polyline points="16 18 22 12 16 6"></polyline>
+                        <polyline points="8 6 2 12 8 18"></polyline>
+                      </svg>
+                      <span class="font-mono text-xs font-semibold text-foreground lowercase">stokes-python</span>
+                    </div>
+                    <span class="font-mono text-[10px] text-emerald-500 font-medium lowercase">18 ms</span>
+                  </div>
+                  <p class="font-mono text-[11px] text-muted-foreground leading-tight lowercase">etl pipeline bounds & dict unpacking loops.</p>
+                  <div class="flex items-center gap-1.5 pt-1 text-[10px] font-mono text-emerald-600 dark:text-emerald-400 lowercase">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                    <span>shadow admission check</span>
+                  </div>
+                </div>
+
+                <!-- Worker 3: stokes-rust (Memory / CPU Icon) -->
+                <div class="p-3 rounded-lg border border-amber-500/40 bg-amber-500/5 space-y-2">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-amber-500 shrink-0">
+                        <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                        <rect x="9" y="9" width="6" height="6"></rect>
+                        <line x1="9" y1="1" x2="9" y2="4"></line>
+                        <line x1="15" y1="1" x2="15" y2="4"></line>
+                        <line x1="9" y1="20" x2="9" y2="23"></line>
+                        <line x1="15" y1="20" x2="15" y2="23"></line>
+                        <line x1="20" y1="9" x2="23" y2="9"></line>
+                        <line x1="20" y1="14" x2="23" y2="14"></line>
+                        <line x1="1" y1="9" x2="4" y2="9"></line>
+                        <line x1="1" y1="14" x2="4" y2="14"></line>
+                      </svg>
+                      <span class="font-mono text-xs font-semibold text-amber-500 lowercase">stokes-rust</span>
+                    </div>
+                    <span class="font-mono text-[10px] text-amber-500 font-medium lowercase">24 ms</span>
+                  </div>
+                  <p class="font-mono text-[11px] text-muted-foreground leading-tight lowercase">fixed buffer capacity & slice conversions.</p>
+                  <div class="flex items-center gap-1.5 pt-1 text-[10px] font-mono text-amber-500 lowercase">
+                    <span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                    <span>drift alert: TryFromSliceError</span>
+                  </div>
+                </div>
+
+                <!-- Worker 4: stokes-proto (Schema Tree Icon) -->
+                <div class="p-3 rounded-lg border border-border/40 bg-muted/15 space-y-2">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-foreground shrink-0">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
+                      </svg>
+                      <span class="font-mono text-xs font-semibold text-foreground lowercase">stokes-proto</span>
+                    </div>
+                    <span class="font-mono text-[10px] text-emerald-500 font-medium lowercase">8 ms</span>
+                  </div>
+                  <p class="font-mono text-[11px] text-muted-foreground leading-tight lowercase">repeated field bounds & schema checker.</p>
+                  <div class="flex items-center gap-1.5 pt-1 text-[10px] font-mono text-emerald-600 dark:text-emerald-400 lowercase">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                    <span>repeated bounds checked</span>
+                  </div>
+                </div>
+
+                <!-- Worker 5: stokes-verify (Check / Verification Icon) -->
+                <div class="p-3 rounded-lg border border-border/40 bg-muted/15 space-y-2">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-foreground shrink-0">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                      </svg>
+                      <span class="font-mono text-xs font-semibold text-foreground lowercase">stokes-verify</span>
+                    </div>
+                    <span class="font-mono text-[10px] text-muted-foreground font-medium lowercase">idle</span>
+                  </div>
+                  <p class="font-mono text-[11px] text-muted-foreground leading-tight lowercase">criterion benchmark & proptest runner.</p>
+                  <div class="flex items-center gap-1.5 pt-1 text-[10px] font-mono text-muted-foreground lowercase">
+                    <span class="h-1.5 w-1.5 rounded-full bg-muted-foreground/50"></span>
+                    <span>waiting on patch trigger</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Live Analyzer Bus Log Feed -->
+              <div class="p-3.5 rounded-lg border border-border/40 bg-muted/10 font-mono text-[11px] space-y-1.5 text-muted-foreground">
+                <div class="text-foreground font-semibold flex items-center justify-between">
+                  <span class="lowercase">analyzer event bus · in-memory queue & wire framing</span>
+                  <span class="text-[10px] font-normal text-muted-foreground lowercase">framing: 4-byte big-endian uint32</span>
+                </div>
+                <p><span class="text-neutral-400">[00:00.012]</span> <span class="text-emerald-500">stokes-sql:</span> schema reflection query matches 280 columns (80 shard replicas in events_r0/r1)</p>
+                <p><span class="text-neutral-400">[00:00.018]</span> <span class="text-emerald-500">stokes-python:</span> detected unbounded shadow column admission in extractor.py (priority = 0)</p>
+                <p><span class="text-neutral-400">[00:00.024]</span> <span class="text-amber-500">stokes-rust:</span> alert: cardinality risk ratio = 1.40 (280 features &gt; [Feature; 200] stack capacity)</p>
+                <p><span class="text-neutral-400">[00:00.027]</span> <span class="text-foreground">coordinator:</span> generating defensive bounds &amp; database qualification patch for stokes-rust</p>
+                <p><span class="text-neutral-400">[00:00.041]</span> <span class="text-emerald-500">stokes-verify:</span> patch validated: 10,000 proptest cases passed in 1.42s with 0 bytes heap allocation</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- Deep Dive 2-Column Section -->
+      <section class="py-20 px-6 border-t border-border/30">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+          <!-- Left Column: Architecture Explanation -->
+          <div class="space-y-6 text-left">
+            <p class="text-xs uppercase tracking-widest text-muted-foreground font-mono lowercase">analysis architecture</p>
+            <h2 class="text-3xl font-extralight tracking-tight sm:text-4xl leading-snug lowercase">
+              domain-isolated parsers. parallel in-memory event bus.
+            </h2>
+            <p class="text-sm text-muted-foreground leading-relaxed lowercase font-light">
+              monolingual linters fail on multi-tier architectures because each compiler only inspects its local syntax. stokes isolates each language toolchain into a dedicated analysis worker with specialized ast patterns, coordinating findings concurrently across an in-memory event bus.
+            </p>
+
+            <!-- Numbered Steps 01 to 04 -->
+            <div class="space-y-4 pt-2">
+              <div class="flex items-start gap-4">
+                <span class="font-mono text-xs text-muted-foreground/80 shrink-0 mt-0.5">01</span>
+                <div>
+                  <h3 class="text-sm font-semibold text-foreground font-sans lowercase">domain-isolated ast parsing</h3>
+                  <p class="text-xs text-muted-foreground mt-1 lowercase font-light">each worker inspects code within its language boundaries (clickhouse sql, python ast, rust fixed buffers, protobuf repeated bounds) to prevent mixed-grammar syntax errors.</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4">
+                <span class="font-mono text-xs text-muted-foreground/80 shrink-0 mt-0.5">02</span>
+                <div>
+                  <h3 class="text-sm font-semibold text-foreground font-sans lowercase">in-memory event queue & wire framing</h3>
+                  <p class="text-xs text-muted-foreground mt-1 lowercase font-light">workers stream typed diagnostics into an in-memory asyncio queue with cooperative backpressure and a 16.6ms render tick coalescer (60 fps) to avoid blocking cli output.</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4">
+                <span class="font-mono text-xs text-muted-foreground/80 shrink-0 mt-0.5">03</span>
+                <div>
+                  <h3 class="text-sm font-semibold text-foreground font-sans lowercase">automated patch generation</h3>
+                  <p class="text-xs text-muted-foreground mt-1 lowercase font-light">when contract drift is flagged, stokes generates parameterized unified diffs (such as database qualification for clickhouse or in-place quickselect for rust edge proxies) with zero heap allocations.</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4">
+                <span class="font-mono text-xs text-muted-foreground/80 shrink-0 mt-0.5">04</span>
+                <div>
+                  <h3 class="text-sm font-semibold text-foreground font-sans lowercase">clean verification gate</h3>
+                  <p class="text-xs text-muted-foreground mt-1 lowercase font-light">stokes requires all active language analyzers to pass invariant checks before updating the machine-verifiable stokes.lock and human-readable conformance.md.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Protocol Handshake Window Card -->
+          <div class="rounded-xl border border-border/50 bg-card/40 stokes-card overflow-hidden backdrop-blur-sm text-left">
+            <div class="flex items-center gap-2 px-3 py-2 border-b border-border/40 bg-muted/20">
+              <div class="flex gap-1">
+                <span class="h-2 w-2 rounded-full bg-red-500/40"></span>
+                <span class="h-2 w-2 rounded-full bg-yellow-500/40"></span>
+                <span class="h-2 w-2 rounded-full bg-green-500/40"></span>
+              </div>
+              <span class="text-xs text-muted-foreground font-mono lowercase">protocol/analyzer_progress_event.json (typed event schema)</span>
+            </div>
+
+            <div class="p-4 font-mono text-xs leading-relaxed space-y-3">
+              <pre class="text-foreground/90 whitespace-pre overflow-x-auto text-[11px] leading-5"><code>// length-prefixed event frame payload
+&#123;
+  "event_id": "c7a8e291-f0b4-4e2a-92b1-8d2e82110c4a",
+  "timestamp_ns": 1727282400012000000,
+  "analyzer_id": "stokes-rust",
+  "phase": "invariant_evaluation",
+  "target_file": "crates/dirichlet-proxy/src/engine/feature_ingest.rs",
+  "line_offset": 98,
+  "ast_node_type": "call_expression",
+  "ast_symbol_name": "try_into().unwrap()",
+  "status_message": "fatal tryfromsliceerror: 280 elements exceed [feature; 200]",
+  "severity": "contract_violation",
+  "remediation_patch": &#123;
+    "action": "defensive_bounds_guard",
+    "heap_allocation_limit_bytes": 0,
+    "error_type": "Result<[Feature; 200], PayloadError>"
+  &#125;
+&#125;</code></pre>
+
+              <div class="pt-2 border-t border-border/30 text-muted-foreground text-[11px] space-y-1">
+                <div class="flex items-center justify-between">
+                  <span class="text-foreground font-medium lowercase">event transport:</span>
+                  <span class="text-emerald-500 font-semibold lowercase">in-memory queue (asyncio.Queue)</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-foreground font-medium lowercase">render coalescer:</span>
+                  <span class="text-emerald-500 font-semibold lowercase">16.6 ms (60 fps tick)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3-Column Capability Grid -->
+      <section class="max-w-6xl mx-auto px-6 py-20 border-t border-border/30">
+        <div class="grid gap-8 md:grid-cols-3 text-left">
+          <article class="rounded-xl border border-border/40 bg-card/20 stokes-card p-6 space-y-3">
+            <span class="text-[11px] font-mono text-muted-foreground lowercase">[stokes-sql]</span>
+            <h3 class="text-lg font-semibold text-foreground leading-snug lowercase font-sans">sql schema inspection</h3>
+            <p class="text-xs text-muted-foreground leading-relaxed lowercase font-light">
+              traverses clickhouse ddl and catalog queries to enforce database predicate hygiene and prevent shard replica duplication.
+            </p>
+          </article>
+
+          <article class="rounded-xl border border-border/40 bg-card/20 stokes-card p-6 space-y-3">
+            <span class="text-[11px] font-mono text-muted-foreground lowercase">[stokes-rust]</span>
+            <h3 class="text-lg font-semibold text-foreground leading-snug lowercase font-sans">buffer capacity verifier</h3>
+            <p class="text-xs text-muted-foreground leading-relaxed lowercase font-light">
+              audits fixed stack buffers and slice conversions in rust proxy crates, applying in-place partitioning with zero heap allocations.
+            </p>
+          </article>
+
+          <article class="rounded-xl border border-border/40 bg-card/20 stokes-card p-6 space-y-3">
+            <span class="text-[11px] font-mono text-muted-foreground lowercase">[stokes-verify]</span>
+            <h3 class="text-lg font-semibold text-foreground leading-snug lowercase font-sans">property test harness</h3>
+            <p class="text-xs text-muted-foreground leading-relaxed lowercase font-light">
+              executes 10,000 ieee-754 property fuzzing iterations with randomized float inputs and validates criterion micro-benchmarks in isolated test harnesses.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Analyzer-Specific FAQ Section -->
+      <section class="border-t border-border/30 px-6 py-20">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-start text-left">
+          <div class="lg:col-span-5 space-y-3 lg:sticky lg:top-20 self-start">
+            <p class="text-sm text-muted-foreground font-mono lowercase">faq</p>
+            <h2 class="text-3xl font-extralight tracking-tight sm:text-4xl text-foreground lowercase">
+              analyzer questions
+            </h2>
+            <p class="text-sm text-muted-foreground leading-relaxed lowercase font-light">
+              details on domain isolation, in-memory event queues, and external agent integrations.
+            </p>
+          </div>
+
+          <div class="lg:col-span-7 border-t border-border/30">
+            {analyzerFaqs.map((faq) => (
+              <details class="group border-b border-border/30">
+                <summary class="flex items-center justify-between py-4 text-sm font-medium text-foreground hover:text-foreground/80 cursor-pointer list-none select-none transition-colors">
+                  <span class="lowercase">{faq.q}</span>
+                  <span class="text-muted-foreground group-open:rotate-45 transition-transform duration-200 text-base font-mono">
+                    +
+                  </span>
+                </summary>
+                <div class="pb-4 text-xs text-muted-foreground leading-relaxed font-light lowercase">
+                  {faq.a}
+                </div>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <FinalCTA />
+    </main>
+
+    <Footer />
+  </div>
+</BaseLayout>

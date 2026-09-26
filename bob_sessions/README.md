@@ -30,7 +30,7 @@ Project Lifecycle Status   : WIP (In-Progress / Under Active Construction)
 | **01** | `eca6a6d36cbe730f5c1064bc5f7970e4` | 208.9k / 270.0k (77%) | 27.180 | 10 logged | Core verification scaffolding, AST parsers, subagents, and test suite | [`58787e4`](https://github.com/yvliet/stokes/commit/58787e4) |
 | **02** | `bc3669627aec37f22070a3c49aa93209` | 22.3k / 270.0k (8%) | 0.534 | 5 logged | Git repository lifecycle, identity setup, and GitHub remote push | [`yvliet/stokes`](https://github.com/yvliet/stokes) |
 | **03** | `ee34ccd0b15f8e99001def36425c2fc1` | 37.7k / 270.0k (14%) | 1.450 | 6 logged | PyPI wheel build, twine validation, and initial package release | `pip install stokes` |
-| **04** | `f5100dc74eccb43137abd7edea0fb559` | 103.9k / 270.0k (38%) | 3.600 | 8 logged | Stokes Studio dark mode charcoal palette and token standardization | [`a1c02e6`](https://github.com/yvliet/stokes/commit/a1c02e6) |
+| **04** | `f5100dc74eccb43137abd7edea0fb559` | 103.9k / 270.0k (38%) | 3.600 | 8 logged | Dark mode charcoal palette and token standardization across Astro components | [`a1c02e6`](https://github.com/yvliet/stokes/commit/a1c02e6) |
 | **05** | `fbd8a21d8eaa665c34a2d1e91ef85a0f` | 60.4k / 270.0k (22%) | 2.300 | 9 logged | 3x3 matrix bracket banner and tree connector subagents alignment | [`f4818b3`](https://github.com/yvliet/stokes/commit/f4818b3) |
 
 ---
@@ -113,8 +113,8 @@ Project Lifecycle Status   : WIP (In-Progress / Under Active Construction)
 - **Context Length**: 103.9k / 270.0k tokens (38%)
 - **Bobcoin Expenditure**: 3.600 Bobcoins
 - **Target Workspace**: `ibm 2.0`
-- **Prompt Reference**: Pasted text #1 (41 lines): Dark mode palette alignment with Stokes Studio charcoal tokens.
-- **Scope**: Consistent design tokens matching Stokes Studio spatial canvas across Astro landing page components.
+- **Prompt Reference**: Pasted text #1 (41 lines): Dark mode palette alignment with charcoal tokens.
+- **Scope**: Consistent design tokens across Astro landing page components.
 
 ### Executed Session Tasks
 - [x] **Subtask 1**: Read current CSS files to understand existing tokens and classes
@@ -123,7 +123,7 @@ Project Lifecycle Status   : WIP (In-Progress / Under Active Construction)
 - [x] **Subtask 4**: Update `web/src/components/CliTerminal.astro` terminal colors (semantic variables)
 - [x] **Subtask 5**: Update `web/src/components/ShowcaseSections.astro` code well colors (semantic variables)
 - [x] **Subtask 6**: Run `npm run build` in `web/` to verify zero errors
-- [x] **Subtask 7**: Commit with conventional commit message (`style(web): align dark mode palette with stokes studio charcoal tokens`)
+- [x] **Subtask 7**: Commit with conventional commit message (`style(web): align dark mode palette with charcoal tokens`)
 - [x] **Subtask 8**: Push to origin main from parent workspace
 
 ---

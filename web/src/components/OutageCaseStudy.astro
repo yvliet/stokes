@@ -4,14 +4,28 @@
 <section id="outage-tour" class="py-24 px-6">
   <div class="max-w-6xl mx-auto space-y-12">
     <!-- Header -->
-    <div class="text-left max-w-3xl space-y-3">
-      <p class="text-sm text-muted-foreground">case study</p>
+    <div class="text-left max-w-4xl space-y-3">
+      <p class="text-sm text-muted-foreground font-mono lowercase">case study · cloudflare nov 18, 2025 outage</p>
       <h2 class="text-3xl font-extralight tracking-tight sm:text-4xl text-foreground mb-3 lowercase">
-        the $5.4m/hr single-compiler blind spot.
+        out-of-band db grants activate latent cross-boundary defects in git.
       </h2>
-      <p class="text-base sm:text-lg text-muted-foreground font-light leading-relaxed lowercase">
-        based on the Cloudflare November 18, 2025 outage. three compilers (sqlfluff, mypy, rustc) each passed on their own. but a schema change added 80 extra columns that overflowed a fixed-size buffer downstream, taking the whole fleet offline.
+      <p class="text-base text-muted-foreground font-light leading-relaxed lowercase max-w-4xl">
+        the cloudflare incident was triggered by a live database permissions update, but the defect was committed in git: an unqualified reflection query (`system.columns`) coupled to a downstream fixed stack buffer (`[Feature; 200]`). stokes proves this latent capacity violation in the pull request before code reaches production.
       </p>
+      <div class="pt-2 flex flex-wrap items-center gap-6">
+        <a 
+          href="/conformance" 
+          class="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1 lowercase"
+        >
+          view pr conformance <span>→</span>
+        </a>
+        <a 
+          href="/contracts" 
+          class="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1 lowercase"
+        >
+          view invariant rules <span>→</span>
+        </a>
+      </div>
     </div>
 
     <!-- Timeline 4-Card Grid -->
@@ -20,11 +34,11 @@
       <div class="rounded-xl border border-border/50 bg-card/40 stokes-card backdrop-blur-sm p-4 space-y-2.5">
         <div class="flex items-center justify-between text-xs font-mono">
           <span class="text-muted-foreground">T+0m</span>
-          <span class="text-amber-600 dark:text-amber-400 font-medium lowercase">leak</span>
+          <span class="text-amber-600 dark:text-amber-400 font-medium lowercase">catalog reflection</span>
         </div>
-        <div class="text-sm font-medium text-foreground lowercase">schema reflection</div>
+        <div class="text-sm font-medium text-foreground lowercase">replica row duplication</div>
         <p class="text-xs text-muted-foreground leading-relaxed font-light lowercase">
-          internal replica tables quietly project 280 features instead of the expected 200 into KV metadata.
+          an out-of-band permission grant exposes shard replica tables. the unqualified reflection query in git ingests 280 rows instead of 200 canonical columns.
         </p>
         <div class="text-[11px] font-mono text-muted-foreground/60 pt-1 border-t border-border/30 lowercase">
           sqlfluff: pass
@@ -39,7 +53,7 @@
         </div>
         <div class="text-sm font-medium text-foreground lowercase">KV replication</div>
         <p class="text-xs text-muted-foreground leading-relaxed font-light lowercase">
-          automated KV sync pushes dynamic config fleet-wide. early restarts look like transient jitter.
+          python pipeline serializes the 280-element payload into KV cache. valid JSON/bytes on the wire, blind to downstream fixed array limits.
         </p>
         <div class="text-[11px] font-mono text-muted-foreground/60 pt-1 border-t border-border/30 lowercase">
           mypy: pass
@@ -50,11 +64,11 @@
       <div class="rounded-xl border border-border/50 bg-card/40 stokes-card backdrop-blur-sm p-4 space-y-2.5">
         <div class="flex items-center justify-between text-xs font-mono">
           <span class="text-muted-foreground">T+91m</span>
-          <span class="text-rose-600 dark:text-rose-400 font-medium lowercase">panic</span>
+          <span class="text-rose-600 dark:text-rose-400 font-medium lowercase">panic or 100% drop</span>
         </div>
         <div class="text-sm font-medium text-rose-600 dark:text-rose-400">TryFromSliceError</div>
         <p class="text-xs text-muted-foreground leading-relaxed font-light lowercase">
-          the proxy's fixed [Feature; 200] buffer gets 280 entries. worker threads panic, edge traffic drops to zero.
+          the proxy's fixed [Feature; 200] stack buffer ingests 280 entries. localized unwrap causes thread panics; localized Result::Err causes 100% request error drops.
         </p>
         <div class="text-[11px] font-mono text-muted-foreground/60 pt-1 border-t border-border/30 lowercase">
           rustc: pass
@@ -65,14 +79,49 @@
       <div class="rounded-xl border border-green-500/30 bg-green-500/5 stokes-card backdrop-blur-sm p-4 space-y-2.5">
         <div class="flex items-center justify-between text-xs font-mono">
           <span class="text-green-600 dark:text-green-400 font-medium lowercase">with stokes</span>
-          <span class="text-green-600 dark:text-green-400 font-medium lowercase">90s MTTR</span>
+          <span class="text-green-600 dark:text-green-400 font-medium lowercase">seam contract gate</span>
         </div>
-        <div class="text-sm font-medium text-green-700 dark:text-green-300 lowercase">dual-zone shedding</div>
+        <div class="text-sm font-medium text-green-700 dark:text-green-300 lowercase">transitive boundary safety</div>
         <p class="text-xs text-muted-foreground leading-relaxed font-light lowercase">
-          stokes partitions the buffer and synthesizes the dual-zone guard: 128 core rules stay pinned, 72 adaptive features get Zone 1, 80 extras get safely dropped. no heap allocations.
+          stokes cross-references reflection query scope and serialization sink bounds against downstream buffer capacity. upstream PR CI fails before replication occurs.
         </p>
         <div class="text-[11px] font-mono text-green-600 dark:text-green-400 pt-1 border-t border-green-500/20 font-medium lowercase">
-          100% uptime guaranteed
+          blocks invalid payloads upstream
+        </div>
+      </div>
+    </div>
+
+    <!-- The Panic vs 100% Outage Reality Box -->
+    <div class="rounded-xl border border-border/60 bg-muted/20 p-6 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/40 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+          <h3 class="text-sm font-mono font-medium text-foreground lowercase">
+            architectural breakdown: panic vs. 100% error rate blackout
+          </h3>
+        </div>
+        <span class="text-xs font-mono text-muted-foreground lowercase">why clippy alone does not solve the seam</span>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-muted-foreground leading-relaxed font-light">
+        <div class="space-y-2">
+          <p class="text-foreground font-medium font-mono lowercase">localized rust error handling (clippy::unwrap_used)</p>
+          <pre class="p-3 rounded-lg bg-background/80 border border-border/40 font-mono text-[11px] text-foreground/90 overflow-x-auto"><code>let features: [Feature; 200] = match payload.try_into() &#123;
+    Ok(f) =&gt; f,
+    Err(_) =&gt; return Err(PayloadError::CapacityMismatch),
+&#125;;</code></pre>
+          <p class="lowercase">
+            satisfies clippy and prevents thread crashes. however, when an uncontracted 280-element payload arrives, every edge worker returns `Err`. instead of panicking, the edge fleet drops 100% of incoming customer traffic with 502 bad gateway responses. the global outage still occurs.
+          </p>
+        </div>
+        <div class="space-y-2">
+          <p class="text-foreground font-medium font-mono lowercase">cross-boundary contract verification (stokes verify)</p>
+          <pre class="p-3 rounded-lg bg-background/80 border border-border/40 font-mono text-[11px] text-green-600 dark:text-green-400 overflow-x-auto"><code>[stokes] FATAL: Boundary breach detected at PR time
+ClickHouse reflection query emits 280 column records
+Downstream Rust proxy buffer capacity is 200 slots
+Upstream PR blocked in CI before deployment.</code></pre>
+          <p class="lowercase">
+            the defect is not a localized syntax error in the rust service; it is an uncoordinated boundary contract violation. stokes verifies schema reflection scoping and serialization sink bounds in upstream pull requests, ensuring breaking payloads never reach production.
+          </p>
         </div>
       </div>
     </div>
@@ -80,37 +129,24 @@
     <!-- Quantitative Metrics Strip (clean, light, matching terminal shadow) -->
     <div class="rounded-xl border border-border/50 bg-card/40 stokes-card backdrop-blur-sm p-6 flex flex-wrap items-center justify-around gap-6 text-center">
       <div>
-        <div class="text-3xl font-extralight font-mono text-foreground">90s</div>
-        <div class="text-xs text-muted-foreground mt-1 lowercase">MTTR (from 4h)</div>
+        <div class="text-3xl font-extralight font-mono text-foreground">&lt; 38ms</div>
+        <div class="text-xs text-muted-foreground mt-1 lowercase">full boundary check</div>
       </div>
       <div class="w-px h-8 bg-border/40 hidden sm:block"></div>
       <div>
-        <div class="text-3xl font-extralight font-mono text-foreground">7.66 ns</div>
-        <div class="text-xs text-muted-foreground mt-1 lowercase">in-place selection</div>
+        <div class="text-3xl font-extralight font-mono text-foreground">0 Panics</div>
+        <div class="text-xs text-muted-foreground mt-1 lowercase">bounds verified</div>
       </div>
       <div class="w-px h-8 bg-border/40 hidden sm:block"></div>
       <div>
-        <div class="text-3xl font-extralight font-mono text-foreground">0 Bytes</div>
-        <div class="text-xs text-muted-foreground mt-1 lowercase">heap alloc on hot path</div>
+        <div class="text-3xl font-extralight font-mono text-foreground">0 LLM Calls</div>
+        <div class="text-xs text-muted-foreground mt-1 lowercase">100% deterministic ci</div>
       </div>
       <div class="w-px h-8 bg-border/40 hidden sm:block"></div>
       <div>
-        <div class="text-3xl font-extralight font-mono text-foreground">100%</div>
-        <div class="text-xs text-muted-foreground mt-1 lowercase">active core rules</div>
+        <div class="text-3xl font-extralight font-mono text-foreground">10,000</div>
+        <div class="text-xs text-muted-foreground mt-1 lowercase">property fuzzing cases</div>
       </div>
-    </div>
-
-    <!-- Right-aligned Canvas Studio CTA -->
-    <div class="flex flex-col sm:flex-row items-end sm:items-center justify-end gap-3 pt-2">
-      <span class="text-xs sm:text-sm text-muted-foreground font-light text-right lowercase">
-        watch stokes isolate the failure cascade and synthesize buffer remediations interactively
-      </span>
-      <a 
-        href="/studio" 
-        class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-foreground hover:text-foreground/80 rounded-full px-4 py-1.5 border border-border/60 hover:border-foreground/30 bg-card/40 shadow-sm backdrop-blur-sm transition-all"
-      >
-        <span class="lowercase">open canvas studio</span> <span>→</span>
-      </a>
     </div>
   </div>
 </section>

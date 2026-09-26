@@ -166,7 +166,7 @@ This project strictly adheres to the official IBM Bob 2.0 Hackathon regulations.
 Full verification captures and role verifications are documented in [docs/compliance/COMPLIANCE.md](docs/compliance/COMPLIANCE.md). Exported task session screenshots, task IDs, and ongoing milestone checkpoints are documented in [bob_sessions/](bob_sessions/README.md).
 
 - **Active Build with IBM Bob 2.0 (WIP)**: Core AST reachability engine, subagents, and test batteries constructed during the hackathon build window. Active Bob token consumption checkpoints logged in [bob_sessions/](bob_sessions/README.md) (35.064 Bobcoins burned to date across 5 intermediate task sessions; project is currently in active development).
-- **Disclosed Baseline Templates & Canvas Fork**: Dirichlet benchmark patient (`dirichlet/`), demo web UI template, and Stokes Studio canvas (`stokes/web/openpencil-repo/`, adapted from a stripped fork of OpenPencil without Figma/media overhead for storage pipeline DAG routing).
+- **Disclosed Baseline Templates**: Dirichlet benchmark patient (`dirichlet/`) and demo web UI documentation shell (`web/`).
 
 ---
 

@@ -1,15 +1,3 @@
 /*.wasm
   Content-Type: application/wasm
   Cross-Origin-Resource-Policy: cross-origin
-
-/canvaskit.wasm
-  Content-Type: application/wasm
-  Cross-Origin-Resource-Policy: cross-origin
-
-/studio/canvaskit.wasm
-  Content-Type: application/wasm
-  Cross-Origin-Resource-Policy: cross-origin
-
-/studio/assets/canvaskit.wasm
-  Content-Type: application/wasm
-  Cross-Origin-Resource-Policy: cross-origin

@@ -1,7 +1,9 @@
 """
 stokes/subagents/stokes_sql.py
 ClickHouse/PostgreSQL DDL & system.columns auditor.
-LINT-001: Unbounded Upstream Catalog Reflection
+LINT-001: Unbounded Upstream Catalog Reflection (Context Blindness Principle:
+In isolation, metadata reflection is valid SQL; it becomes a fatal defect only
+when its output binds to a capacity-constrained downstream consumer buffer).
 GitHub: yvliet
 """
 
@@ -192,7 +194,7 @@ class StokesSQLAgent(ActorBase):
                     explanation=(
                         "Add 'AND database = currentDatabase()' to scope the query "
                         "to the active database, excluding shard replicas. "
-                        "This reduces observed cardinality from 280 → 200."
+                        "This reduces observed cardinality from 280 → 200, matching downstream [Feature; 200] capacity."
                     ),
                     risk_ratio=280 / 200,
                     tainted_identifiers=[f"system.{m.group(2)}", "events_r0", "events_r1"],

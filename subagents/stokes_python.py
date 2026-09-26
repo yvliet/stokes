@@ -19,20 +19,23 @@ if TYPE_CHECKING:
 # ─── Python Analysis Patterns ─────────────────────────────────────────────────
 
 _EXTRACTOR_FN = re.compile(
-    r"def\s+(resolve_feature_cardinality|extract_features|sync_features|"
-    r"build_feature_list|fetch_features)\s*\(",
+    r"def\s+(\w+)\s*\(",
     re.MULTILINE,
 )
 _LIST_APPEND = re.compile(
     r"(\w+)\.append\s*\(",
     re.MULTILINE,
 )
-_SLICE_GUARD = re.compile(
+_BLIND_SLICE = re.compile(
     r"\[:\s*(?:MAX_CANONICAL|MAX_ACTIVE_FEATURES|MAX_FEATURES|\d{3,})\s*\]",
     re.MULTILINE,
 )
+_FAIL_FAST_GUARD = re.compile(
+    r"(?:if\s+len\s*\([^\)]+\)\s*>\s*\w+|raise\s+\w*Capacity|assert\s+len\()",
+    re.MULTILINE,
+)
 _MAX_CONST = re.compile(
-    r"(?:MAX_CANONICAL|MAX_ACTIVE_FEATURES|MAX_FEATURES|FEATURE_LIMIT)\s*=\s*(\d+)",
+    r"(?:MAX_CANONICAL|MAX_ACTIVE_FEATURES|MAX_FEATURES|FEATURE_LIMIT|MAX_CAPACITY)\s*=\s*(\d+)",
     re.MULTILINE,
 )
 _SIMULATE_DUP = re.compile(
@@ -42,17 +45,21 @@ _SIMULATE_DUP = re.compile(
 
 # ─── Remediation Diffs ────────────────────────────────────────────────────────
 
-_PYTHON_SLICE_DIFF = """\
+_PYTHON_FAIL_FAST_DIFF = """\
 --- a/services/feature-pipeline/extractor.py
 +++ b/services/feature-pipeline/extractor.py
-@@ -45,6 +45,9 @@
+@@ -45,6 +45,11 @@
      features = []
      for col in columns:
          features.append({"name": col["name"], "priority": col.get("priority", 0)})
 -    return features
-+    # Stokes INVARIANT_1: Enforce maximum canonical slice guard
-+    MAX_CANONICAL = 200
-+    return features[:MAX_CANONICAL]
++    # Stokes INVARIANT_1: Fail-fast boundary serialization guard
++    MAX_CAPACITY = 200
++    if len(features) > MAX_CAPACITY:
++        raise ValueError(
++            f"Payload cardinality {len(features)} exceeds contract capacity {MAX_CAPACITY}"
++        )
++    return features
 """
 
 _PYTHON_CATALOG_DIFF = """\
@@ -151,16 +158,36 @@ class StokesPythonAgent(ActorBase):
             # Extract function body (next 2000 chars as approximation)
             fn_body = source[fn_start:fn_start + 2000]
 
-            # Check for list.append without slice guard
+            # Check for list.append without fail-fast guard or with blind slice truncation
             has_append = bool(_LIST_APPEND.search(fn_body))
-            has_slice_guard = bool(_SLICE_GUARD.search(fn_body))
+            has_blind_slice = bool(_BLIND_SLICE.search(fn_body))
+            has_fail_fast = bool(_FAIL_FAST_GUARD.search(fn_body))
             has_max_const = bool(_MAX_CONST.search(source))
 
-            if has_append and not has_slice_guard:
+            is_candidate = has_blind_slice or (
+                has_append and any(k in fn_name.lower() for k in ("feature", "column", "signal", "catalog", "extract", "sync", "build", "fetch", "signal", "resolve"))
+            )
+
+            if is_candidate and not has_fail_fast:
                 snippet = lines[line_num - 1].strip()[:100] if 0 < line_num <= len(lines) else ""
+                rule = "LINT-006" if has_blind_slice else "LINT-002"
+                root_cause = (
+                    f"Function '{fn_name}' in {rel}:{line_num} uses blind slice truncation ([:MAX]) "
+                    f"which silently sheds excess features without errors. Enforce fail-fast boundary validation."
+                    if has_blind_slice else
+                    f"Function '{fn_name}' in {rel}:{line_num} appends to a list without a fail-fast capacity guard. "
+                    f"When upstream reflection returns excess items, unbounded payloads trigger downstream buffer panics."
+                )
+                explanation = (
+                    "Replace blind slice truncation with an explicit fail-fast capacity guard: "
+                    "'if len(features) > MAX_CAPACITY: raise ValueError(...)'. Silent truncation causes model and scoring drift."
+                    if has_blind_slice else
+                    "Add fail-fast capacity check ('if len(features) > MAX_CAPACITY: raise ValueError(...)') "
+                    "to enforce the downstream buffer capacity ceiling."
+                )
                 v = self._make_diagnostic(
                     invariant_id="INVARIANT_1_INFALLIBLE_INTAKE",
-                    lint_rule="LINT-002",
+                    lint_rule=rule,
                     target_file=rel,
                     start_line=line_num,
                     start_col=0,
@@ -168,17 +195,9 @@ class StokesPythonAgent(ActorBase):
                     end_col=0,
                     node_type="function_definition",
                     snippet=snippet,
-                    root_cause=(
-                        f"Function '{fn_name}' in {rel}:{line_num} appends to a list "
-                        f"without a [:MAX_CANONICAL] slice guard. When an unscoped "
-                        f"system.columns query returns 280 columns, this list expands "
-                        f"unboundedly and causes a downstream TryFromSliceError panic in Rust."
-                    ),
-                    unified_diff=_PYTHON_SLICE_DIFF,
-                    explanation=(
-                        "Add 'return features[:MAX_CANONICAL]' (where MAX_CANONICAL=200) "
-                        "to enforce the downstream buffer capacity ceiling."
-                    ),
+                    root_cause=root_cause,
+                    unified_diff=_PYTHON_FAIL_FAST_DIFF,
+                    explanation=explanation,
                     risk_ratio=280 / 200,
                     tainted_identifiers=[fn_name, "features", "columns"],
                 )

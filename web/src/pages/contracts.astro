@@ -3,6 +3,25 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Navbar from '../components/Navbar.astro';
 import FinalCTA from '../components/FinalCTA.astro';
 import Footer from '../components/Footer.astro';
+
+const contractFaqs = [
+  {
+    q: "what is the cardinality risk ratio?",
+    a: "the cardinality risk ratio is the formal metric Risk = C_upstream / B_downstream. when Risk <= 1.0, the downstream buffer can safely ingest all emitted fields. when Risk > 1.0 (such as 280 / 200 = 1.40 in the Cloudflare outage benchmark), downstream fixed allocations will breach and panic."
+  },
+  {
+    q: "what are rules LINT-001 through LINT-005?",
+    a: "LINT-001 flags unscoped database catalog reflection (system.columns missing database filters); LINT-002 flags dynamic wire serialization sinks without slice bounds; LINT-003 detects unreserved protobuf field renumbering; LINT-004 identifies uncontracted .try_into().unwrap() buffer conversions; and LINT-005 flags heap allocations on microsecond packet intake paths."
+  },
+  {
+    q: "how do Tree-sitter queries trace contracts without running the code?",
+    a: "stokes compiles declarative Tree-sitter queries (.scm files) for ClickHouse SQL, Protobuf, Python, and Rust. it evaluates abstract syntax trees statically, mapping projection symbols in SQL directly to dictionary extraction loops and fixed buffer allocations in Rust."
+  },
+  {
+    q: "how does stokes prevent silent data corruption?",
+    a: "stokes rejects silent data shedding. instead of truncating or discarding dynamic records without schema consensus, stokes generates defensive bounds validation (Result<[Feature; 200], PayloadError>) and verifies database catalog qualification (AND database = currentDatabase()) so downstream services never ingest malformed or duplicated data."
+  }
+];
 ---
 
 <BaseLayout 
@@ -14,29 +33,31 @@ import Footer from '../components/Footer.astro';
 
     <main class="flex-1">
       <!-- Hero Section -->
-      <section class="pt-24 sm:pt-32 pb-16 px-6 text-center">
-        <div class="max-w-4xl mx-auto">
-          <p class="text-sm text-muted-foreground mb-4 lowercase tracking-normal">contracts</p>
-          <h1 class="text-5xl sm:text-6xl font-extralight leading-none tracking-tight mb-6 lowercase">
+      <section class="pt-20 sm:pt-28 pb-14 px-6 text-center">
+        <div class="max-w-4xl mx-auto space-y-4">
+          <p class="text-sm text-muted-foreground font-mono lowercase">contracts</p>
+          <h1 class="text-4xl sm:text-6xl font-extralight tracking-tight text-foreground lowercase">
             any compiler. one invariant contract.
           </h1>
-          <p class="text-xl sm:text-2xl text-muted-foreground max-w-3xl mx-auto mb-10 font-light leading-relaxed lowercase">
-            declarative boundary specifications across clickhouse sql, python etl pipelines, and rust edge proxies. zero runtime panic.
+          <p class="text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto font-light leading-relaxed lowercase">
+            declarative boundary specifications across clickhouse sql, python etl pipelines, and rust edge proxies to prevent downstream buffer panics.
           </p>
           
           <!-- Action Buttons -->
-          <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+          <div class="flex flex-col sm:flex-row gap-3.5 justify-center items-center pt-4">
             <a 
               href="/cli" 
-              class="group/button inline-flex shrink-0 items-center justify-center border border-transparent font-medium whitespace-nowrap outline-none select-none h-12 px-8 text-base bg-foreground text-background hover:bg-foreground/90 transition-all rounded-full cursor-pointer"
+              class="group/button inline-flex shrink-0 items-center justify-center border border-transparent font-medium whitespace-nowrap outline-none select-none h-11 px-7 text-base bg-foreground text-background hover:bg-foreground/90 transition-all rounded-full cursor-pointer shadow-xs"
             >
-              run contract audit
+              <span class="lowercase">run contract audit</span>
+              <span>→</span>
             </a>
             <a 
               href="/#outage-tour" 
-              class="group/button inline-flex shrink-0 items-center justify-center border border-transparent font-medium whitespace-nowrap outline-none select-none h-12 px-8 text-base ring-2 ring-foreground/20 bg-foreground/[0.05] text-foreground hover:bg-foreground/[0.12] hover:ring-foreground/40 transition-all rounded-full cursor-pointer"
+              class="group/button inline-flex shrink-0 items-center justify-center border border-border bg-card/60 text-foreground hover:bg-muted transition-all select-none h-11 px-7 text-base rounded-full cursor-pointer"
             >
-              see outage case study <span>→</span>
+              <span class="lowercase">see outage case study</span>
+              <span class="ml-1 text-muted-foreground">→</span>
             </a>
           </div>
         </div>
@@ -45,120 +66,122 @@ import Footer from '../components/Footer.astro';
       <!-- Centerpiece Showcase Window: Polyglot Boundary Policy -->
       <section class="px-6 pb-20">
         <div class="max-w-5xl mx-auto">
-          <div class="rounded-xl border border-border/40 bg-card/30 overflow-hidden shadow-sm">
-            <div class="p-4 sm:p-6 space-y-4">
-              <div class="flex flex-col rounded-lg border border-border/60 bg-background/80 overflow-hidden text-left">
-                <!-- Window Titlebar -->
-                <div class="flex items-center justify-between px-4 py-2.5 border-b border-border/40 bg-muted/20">
-                  <div class="flex items-center gap-2">
-                    <div class="flex gap-1.5">
-                      <span class="h-2.5 w-2.5 rounded-full bg-red-500/40"></span>
-                      <span class="h-2.5 w-2.5 rounded-full bg-yellow-500/40"></span>
-                      <span class="h-2.5 w-2.5 rounded-full bg-green-500/40"></span>
-                    </div>
-                    <span class="text-xs text-muted-foreground font-mono">contracts/boundary_policy.yaml (active AST contract)</span>
-                  </div>
-                  <span class="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-foreground/10 text-foreground">
-                    verified 200 signals
-                  </span>
+          <!-- Single clean window container without outer redundant box -->
+          <div class="rounded-xl border border-border/50 bg-card/40 stokes-card overflow-hidden backdrop-blur-sm text-left">
+            <!-- Window Titlebar -->
+            <div class="flex items-center justify-between px-4 py-2.5 border-b border-border/40 bg-muted/30">
+              <div class="flex items-center gap-2">
+                <div class="flex gap-1.5">
+                  <span class="h-2.5 w-2.5 rounded-full bg-red-500/50"></span>
+                  <span class="h-2.5 w-2.5 rounded-full bg-yellow-500/50"></span>
+                  <span class="h-2.5 w-2.5 rounded-full bg-green-500/50"></span>
                 </div>
+                <span class="text-xs text-muted-foreground font-mono lowercase">contracts/boundary_policy.yaml (active ast contract)</span>
+              </div>
+              <span class="text-[10px] font-mono lowercase tracking-wider px-2 py-0.5 rounded bg-foreground/10 text-foreground">
+                verified 200 signals
+              </span>
+            </div>
 
-                <!-- Scope Strip -->
-                <div class="px-4 py-2.5 border-b border-border/40 bg-muted/10 flex flex-wrap items-center justify-between gap-3">
-                  <div class="flex items-center gap-1.5 text-xs font-mono">
-                    <span class="text-muted-foreground">scope:</span>
-                    <span class="px-2 py-0.5 rounded bg-foreground/10 text-foreground font-medium">all targets</span>
-                    <span class="text-muted-foreground">•</span>
-                    <span class="text-muted-foreground">clickhouse sql</span>
-                    <span class="text-muted-foreground">•</span>
-                    <span class="text-muted-foreground">python etl</span>
-                    <span class="text-muted-foreground">•</span>
-                    <span class="text-muted-foreground">rust l7 proxy</span>
-                  </div>
-                  <div class="text-[11px] font-mono text-muted-foreground">
-                    digest: <code class="text-foreground">e3b0c442...b855</code>
-                  </div>
-                </div>
-
-                <!-- Code / Contract Body -->
-                <div class="p-4 sm:p-6 font-mono text-xs leading-relaxed space-y-4 overflow-x-auto">
-                  <div class="space-y-1 text-muted-foreground">
-                    <p class="text-foreground font-semibold"># Stokes Declarative Boundary Contract Specification</p>
-                    <p>schema_version: "2026.09.25"</p>
-                    <p>target_workspace: "dirichlet-l7-proxy"</p>
-                    <p>max_canonical_features: 200</p>
-                  </div>
-
-                  <div class="border-t border-border/30 pt-3 space-y-3">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <!-- Domain 1: SQL Target -->
-                      <div class="p-3 rounded border border-border/40 bg-muted/15 space-y-1.5">
-                        <div class="flex items-center justify-between text-[11px]">
-                          <span class="text-foreground font-medium">ClickHouse Target</span>
-                          <span class="text-emerald-500 font-semibold">MATCH</span>
-                        </div>
-                        <p class="text-[11px] text-muted-foreground">schema: <code>migrations/001_bot_signals.sql</code></p>
-                        <p class="text-[11px] text-muted-foreground">query filter: <code>AND database = currentDatabase()</code></p>
-                        <p class="text-[11px] text-muted-foreground">signals: <code>200 canonical cols</code></p>
-                        <div class="pt-1 text-[10px] text-emerald-600 dark:text-emerald-400">shard replicas isolated (r0, r1)</div>
-                      </div>
-
-                      <!-- Domain 2: Python Target -->
-                      <div class="p-3 rounded border border-border/40 bg-muted/15 space-y-1.5">
-                        <div class="flex items-center justify-between text-[11px]">
-                          <span class="text-foreground font-medium">Python ETL Pipeline</span>
-                          <span class="text-emerald-500 font-semibold">MATCH</span>
-                        </div>
-                        <p class="text-[11px] text-muted-foreground">service: <code>services/feature-pipeline</code></p>
-                        <p class="text-[11px] text-muted-foreground">taxonomy: <code>6 security domains (200 feats)</code></p>
-                        <p class="text-[11px] text-muted-foreground">payload: <code>payloads/features.json</code></p>
-                        <div class="pt-1 text-[10px] text-emerald-600 dark:text-emerald-400">extraction bounded to 200 items</div>
-                      </div>
-
-                      <!-- Domain 3: Rust Target -->
-                      <div class="p-3 rounded border border-border/40 bg-muted/15 space-y-1.5">
-                        <div class="flex items-center justify-between text-[11px]">
-                          <span class="text-foreground font-medium">Rust L7 Edge Proxy</span>
-                          <span class="text-emerald-500 font-semibold">MATCH</span>
-                        </div>
-                        <p class="text-[11px] text-muted-foreground">crate: <code>crates/dirichlet-proxy</code></p>
-                        <p class="text-[11px] text-muted-foreground">stack buffer: <code>[Feature; 200]</code></p>
-                        <p class="text-[11px] text-muted-foreground">degradation: <code>select_nth_unstable_by</code></p>
-                        <div class="pt-1 text-[10px] text-emerald-600 dark:text-emerald-400">hot path verified (7.66 ns, 0 B heap)</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Invariant Rule Tree Snippet -->
-                  <div class="border-t border-border/30 pt-3">
-                    <span class="text-muted-foreground"># Mathematical Invariant Enforcement Rule:</span>
-                    <pre class="mt-2 text-foreground/90 whitespace-pre overflow-x-auto text-[11px] leading-5"><code>rules:
-  - id: "INVARIANT_1_INFALLIBLE_INTAKE"
-    assertion: "cardinality_risk_ratio = C_upstream / B_downstream &lt;= 1.0"
-    on_violation: "synthesize_zero_alloc_dual_zone_degradation"
-    core_zone_capacity: 128   # Zone 0: immune to eviction (priority &gt;= 200)
-    adaptive_zone_capacity: 72 # Zone 1: Quickselect sheds untrusted shadow columns
-    heap_allocation_limit_bytes: 0</code></pre>
-                  </div>
-                </div>
-
+            <!-- Scope Strip -->
+            <div class="px-4 py-2.5 border-b border-border/40 bg-muted/10 flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
+              <div class="flex items-center gap-1.5 lowercase">
+                <span class="text-muted-foreground">scope:</span>
+                <span class="px-2 py-0.5 rounded bg-foreground/10 text-foreground font-medium">all targets</span>
+                <span class="text-muted-foreground">·</span>
+                <span class="text-muted-foreground">clickhouse sql</span>
+                <span class="text-muted-foreground">·</span>
+                <span class="text-muted-foreground">python etl</span>
+                <span class="text-muted-foreground">·</span>
+                <span class="text-muted-foreground">rust l7 proxy</span>
+              </div>
+              <div class="text-[11px] text-muted-foreground lowercase">
+                digest: <code class="text-foreground">e3b0c442...b855</code>
               </div>
             </div>
+
+            <!-- Code / Contract Body -->
+            <div class="p-4 sm:p-6 font-mono text-xs leading-relaxed space-y-4 overflow-x-auto">
+              <div class="space-y-1 text-muted-foreground lowercase">
+                <p class="text-foreground font-semibold"># stokes declarative boundary contract specification</p>
+                <p>schema_version: "2026.09.25"</p>
+                <p>target_workspace: "dirichlet-l7-proxy"</p>
+                <p>max_canonical_features: 200</p>
+              </div>
+
+              <div class="border-t border-border/30 pt-3 space-y-3">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <!-- Domain 1: SQL Target -->
+                  <div class="p-3 rounded border border-border/40 bg-muted/15 space-y-1.5">
+                    <div class="flex items-center justify-between text-[11px]">
+                      <span class="text-foreground font-medium lowercase">clickhouse target</span>
+                      <span class="text-emerald-500 font-semibold lowercase">match</span>
+                    </div>
+                    <p class="text-[11px] text-muted-foreground lowercase">schema: <code>migrations/001_bot_signals.sql</code></p>
+                    <p class="text-[11px] text-muted-foreground lowercase">query filter: <code>AND database = currentDatabase()</code></p>
+                    <p class="text-[11px] text-muted-foreground lowercase">signals: <code>200 canonical cols</code></p>
+                    <div class="pt-1 text-[10px] text-emerald-600 dark:text-emerald-400 lowercase">shard replicas isolated (r0, r1)</div>
+                  </div>
+
+                  <!-- Domain 2: Python Target -->
+                  <div class="p-3 rounded border border-border/40 bg-muted/15 space-y-1.5">
+                    <div class="flex items-center justify-between text-[11px]">
+                      <span class="text-foreground font-medium lowercase">python etl pipeline</span>
+                      <span class="text-emerald-500 font-semibold lowercase">match</span>
+                    </div>
+                    <p class="text-[11px] text-muted-foreground lowercase">service: <code>services/feature-pipeline</code></p>
+                    <p class="text-[11px] text-muted-foreground lowercase">taxonomy: <code>6 security domains (200 feats)</code></p>
+                    <p class="text-[11px] text-muted-foreground lowercase">payload: <code>payloads/features.json</code></p>
+                    <div class="pt-1 text-[10px] text-emerald-600 dark:text-emerald-400 lowercase">extraction bounded to 200 items</div>
+                  </div>
+
+                  <!-- Domain 3: Rust Target -->
+                  <div class="p-3 rounded border border-border/40 bg-muted/15 space-y-1.5">
+                    <div class="flex items-center justify-between text-[11px]">
+                      <span class="text-foreground font-medium lowercase">rust l7 edge proxy</span>
+                      <span class="text-emerald-500 font-semibold lowercase">match</span>
+                    </div>
+                    <p class="text-[11px] text-muted-foreground lowercase">crate: <code>crates/dirichlet-proxy</code></p>
+                    <p class="text-[11px] text-muted-foreground lowercase">stack buffer: <code>[Feature; 200]</code></p>
+                    <p class="text-[11px] text-muted-foreground lowercase">bounds guard: <code>Result&lt;[Feature; 200], PayloadError&gt;</code></p>
+                    <div class="pt-1 text-[10px] text-emerald-600 dark:text-emerald-400 lowercase">hot path verified (0 b heap)</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Invariant Rule Tree Snippet -->
+              <div class="border-t border-border/30 pt-3">
+                <span class="text-muted-foreground lowercase"># mathematical invariant enforcement rule:</span>
+                <pre class="mt-2 text-foreground/90 whitespace-pre overflow-x-auto text-[11px] leading-5"><code>rules:
+  - id: "INVARIANT_1_INFALLIBLE_INTAKE"
+    assertion: "cardinality_risk_ratio = C_upstream / B_downstream &lt;= 1.0"
+    on_violation: "block_pr_merge_upstream"
+    protection: "avoids 100% request error rate outages across edge nodes"
+    heap_allocation_limit_bytes: 0
+  - id: "INVARIANT_2_CATALOG_QUALIFICATION"
+    assertion: "system.columns reflection query must declare database filter"
+    on_violation: "flag_unscoped_reflection"
+  - id: "INVARIANT_5_BOUNDARY_SINK_BOUNDS"
+    assertion: "wire serialization sinks must declare explicit limit or slice clamp"
+    on_violation: "reject_unbounded_payload"</code></pre>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
 
       <!-- Deep Dive 2-Column Section -->
       <section class="py-20 px-6 border-t border-border/30">
-        <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-start text-left">
           <!-- Left Column: Problem & Mechanics -->
           <div class="space-y-6">
-            <p class="text-xs uppercase tracking-widest text-muted-foreground font-mono">cross-boundary blind spots</p>
+            <p class="text-sm text-muted-foreground font-mono lowercase">cross-boundary blind spots</p>
             <h2 class="text-3xl font-extralight tracking-tight sm:text-4xl leading-snug lowercase">
-              why modern compilers can't protect cross-service boundaries.
+              why modern compilers cannot protect cross-service boundaries.
             </h2>
-            <p class="text-sm text-muted-foreground leading-relaxed">
-              In heterogeneous distributed systems, individual compilers operate in monolingual silos. `sqlfluff` verifies valid SQL DDL, `mypy` verifies Python dictionary packing, and `rustc` validates local borrow semantics. None of these compilers possess semantic visibility across service boundaries.
+            <p class="text-sm text-muted-foreground leading-relaxed lowercase font-light">
+              in heterogeneous distributed systems, individual compilers operate in monolingual silos. sqlfluff verifies valid SQL DDL, mypy verifies Python dictionary packing, and rustc validates local borrow semantics. none of these compilers possess semantic visibility across service boundaries.
             </p>
 
             <!-- Numbered Steps 01 to 04 -->
@@ -166,72 +189,69 @@ import Footer from '../components/Footer.astro';
               <div class="flex items-start gap-4">
                 <span class="font-mono text-xs text-muted-foreground/80 shrink-0 mt-0.5">01</span>
                 <div>
-                  <h3 class="text-sm font-semibold text-foreground font-sans">Analytical Schema Expansion</h3>
-                  <p class="text-xs text-muted-foreground mt-1">An RBAC update or migration alters ClickHouse reflection. An unqualified <code>system.columns WHERE table LIKE 'events%'</code> query matches across shard replicas (<code>events_r0</code>, <code>events_r1</code>), expanding emitted columns from 200 to 280 without SQL errors.</p>
+                  <h3 class="text-sm font-medium text-foreground lowercase">analytical schema expansion</h3>
+                  <p class="text-xs text-muted-foreground mt-1 lowercase font-light">an rbac update or migration alters ClickHouse reflection. an unqualified system.columns WHERE table LIKE 'events%' query matches across shard replicas (events_r0, events_r1), expanding emitted columns from 200 to 280 without SQL errors.</p>
                 </div>
               </div>
 
               <div class="flex items-start gap-4">
                 <span class="font-mono text-xs text-muted-foreground/80 shrink-0 mt-0.5">02</span>
                 <div>
-                  <h3 class="text-sm font-semibold text-foreground font-sans">Dynamic ETL Serialization</h3>
-                  <p class="text-xs text-muted-foreground mt-1">The Python extraction pipeline queries all columns dynamically. Unrecognized columns are assigned <code>priority = 0</code> and serialized into <code>payloads/features.json</code>. Because the JSON syntax is valid, no pipeline alerts fire.</p>
+                  <h3 class="text-sm font-medium text-foreground lowercase">dynamic etl serialization</h3>
+                  <p class="text-xs text-muted-foreground mt-1 lowercase font-light">the Python extraction pipeline queries all columns dynamically. unrecognized columns are assigned priority = 0 and serialized into payloads/features.json. because the JSON syntax is valid, no pipeline alerts fire.</p>
                 </div>
               </div>
 
               <div class="flex items-start gap-4">
                 <span class="font-mono text-xs text-muted-foreground/80 shrink-0 mt-0.5">03</span>
                 <div>
-                  <h3 class="text-sm font-semibold text-foreground font-sans">Native Stack Panic</h3>
-                  <p class="text-xs text-muted-foreground mt-1">The Rust L7 edge proxy converts the 280-item slice into a fixed stack array <code>[Feature; 200]</code> via <code>try_into().unwrap()</code>. Element 201 triggers a <code>TryFromSliceError</code> panic, crashing worker threads and blackholing global traffic.</p>
+                  <h3 class="text-sm font-medium text-foreground lowercase">native stack panic</h3>
+                  <p class="text-xs text-muted-foreground mt-1 lowercase font-light">the Rust L7 edge proxy converts the 280-item slice into a fixed stack array [Feature; 200] via try_into().unwrap(). element 201 triggers a TryFromSliceError panic, crashing worker threads and blackholing global traffic.</p>
                 </div>
               </div>
 
               <div class="flex items-start gap-4">
                 <span class="font-mono text-xs text-muted-foreground/80 shrink-0 mt-0.5">04</span>
                 <div>
-                  <h3 class="text-sm font-semibold text-foreground font-sans">Stokes Invariant Shield</h3>
-                  <p class="text-xs text-muted-foreground mt-1">Stokes traverses SQL, Python, and Rust ASTs concurrently prior to commits. It detects cardinality mismatches ($280 / 200 = 1.40 &gt; 1.0$) and synthesizes in-place zero-allocation degradation routines.</p>
+                  <h3 class="text-sm font-medium text-foreground lowercase">stokes invariant shield</h3>
+                  <p class="text-xs text-muted-foreground mt-1 lowercase font-light">stokes traverses SQL, Python, and Rust ASTs concurrently prior to commits. it detects cardinality mismatches (280 / 200 = 1.40 &gt; 1.0) and generates in-place zero-allocation degradation routines.</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Right Column: AST Diff Window Card -->
-          <div class="rounded-xl border border-border/40 bg-card/30 overflow-hidden shadow-sm">
-            <div class="p-4">
-              <div class="flex flex-col rounded-lg border border-border/60 bg-background/80 overflow-hidden text-left">
-                <div class="flex items-center gap-2 px-3 py-2 border-b border-border/40 bg-muted/20">
-                  <div class="flex gap-1">
-                    <span class="h-2 w-2 rounded-full bg-red-500/40"></span>
-                    <span class="h-2 w-2 rounded-full bg-yellow-500/40"></span>
-                    <span class="h-2 w-2 rounded-full bg-green-500/40"></span>
-                  </div>
-                  <span class="text-xs text-muted-foreground font-mono">stokes audit --diff (cross-boundary mismatch)</span>
-                </div>
+          <!-- Right Column: AST Diff Window Card (single clean window) -->
+          <div class="rounded-xl border border-border/50 bg-card/40 stokes-card overflow-hidden backdrop-blur-sm text-left">
+            <div class="flex items-center gap-2 px-4 py-2.5 border-b border-border/40 bg-muted/30">
+              <div class="flex gap-1.5">
+                <span class="h-2.5 w-2.5 rounded-full bg-red-500/50"></span>
+                <span class="h-2.5 w-2.5 rounded-full bg-yellow-500/50"></span>
+                <span class="h-2.5 w-2.5 rounded-full bg-green-500/50"></span>
+              </div>
+              <span class="text-xs text-muted-foreground font-mono lowercase">stokes audit --diff (cross-boundary mismatch)</span>
+            </div>
 
-                <div class="p-4 font-mono text-xs leading-relaxed space-y-3">
-                  <div class="text-muted-foreground">
-                    <span class="text-red-500 font-semibold">DRIFT DETECTED:</span> Cardinality Risk Ratio = 1.40 (280 features &gt; 200 buffer)
-                  </div>
+            <div class="p-4 sm:p-5 font-mono text-xs leading-relaxed space-y-3">
+              <div class="text-muted-foreground lowercase">
+                <span class="text-red-500 font-semibold">drift detected:</span> cardinality risk ratio = 1.40 (280 features &gt; 200 buffer)
+              </div>
 
-                  <div class="bg-muted/30 p-3 rounded border border-border/30 space-y-1 text-[11px]">
-                    <p class="text-muted-foreground">// services/feature-pipeline/catalog_sync.py</p>
-                    <p class="text-red-500">- query = "SELECT name, type FROM system.columns WHERE table LIKE 'events%'"</p>
-                    <p class="text-emerald-500">+ query = "SELECT name, type FROM system.columns WHERE database = currentDatabase() AND table = 'events'"</p>
-                    
-                    <p class="text-muted-foreground mt-2">// crates/dirichlet-proxy/src/engine/feature_ingest.rs</p>
-                    <p class="text-red-500">- raw_features.into_boxed_slice().try_into().unwrap() // PANIC ON #201</p>
-                    <p class="text-emerald-500">+ raw_features.select_nth_unstable_by(200, |a, b| b.priority.cmp(&a.priority));</p>
-                  </div>
+              <div class="bg-muted/30 p-3 rounded border border-border/30 space-y-1 text-[11px]">
+                <p class="text-muted-foreground lowercase">// services/feature-pipeline/catalog_sync.py</p>
+                <p class="text-red-500">- query = "SELECT name, type FROM system.columns WHERE table LIKE 'events%'"</p>
+                <p class="text-emerald-500">+ query = "SELECT name, type FROM system.columns WHERE database = currentDatabase() AND table = 'events'"</p>
+                
+                <p class="text-muted-foreground mt-2 lowercase">// crates/dirichlet-proxy/src/engine/feature_ingest.rs</p>
+                <p class="text-red-500">- raw_features.into_boxed_slice().try_into().unwrap() // panic on #201</p>
+                <p class="text-emerald-500">+ if raw_features.len() &gt; 200 &#123; return Err(PayloadError::CapacityExceeded); &#125;</p>
+                <p class="text-emerald-500">+ let features: [Feature; 200] = raw_features[..200].try_into()?;</p>
+              </div>
 
-                  <div class="pt-2 text-muted-foreground text-[11px] space-y-1">
-                    <p class="text-foreground font-medium">Stokes Autonomous Remediation Result:</p>
-                    <p class="text-emerald-500">✓ Transitive catalog qualification: shard replicas excluded</p>
-                    <p class="text-emerald-500">✓ In-place partial selection: 80 untrusted shadow columns shed</p>
-                    <p class="text-emerald-500">✓ Heap allocation overhead: 0 Bytes (L1 cache aligned)</p>
-                  </div>
-                </div>
+              <div class="pt-2 text-muted-foreground text-[11px] space-y-1 lowercase">
+                <p class="text-foreground font-medium">stokes remediation patch result:</p>
+                <p class="text-emerald-500">✓ transitive catalog qualification: database = currentDatabase() added</p>
+                <p class="text-emerald-500">✓ defensive bounds check: zero panics on unhandled slice conversions</p>
+                <p class="text-emerald-500">✓ heap allocation overhead: 0 bytes (l1 cache aligned)</p>
               </div>
             </div>
           </div>
@@ -239,31 +259,62 @@ import Footer from '../components/Footer.astro';
       </section>
 
       <!-- 3-Column Capability Grid -->
-      <section class="max-w-6xl mx-auto px-6 py-20 border-t border-border/30">
-        <div class="grid gap-8 md:grid-cols-3">
-          <article class="rounded-xl border border-border/40 bg-card/20 p-6 space-y-3">
-            <span class="text-[11px] font-mono text-muted-foreground">[CLICKHOUSE_AST]</span>
-            <h3 class="text-lg font-semibold text-foreground leading-snug lowercase font-sans">analytical metadata hygiene</h3>
-            <p class="text-xs text-muted-foreground leading-relaxed">
-              Enforces <code>database = currentDatabase()</code> predicates across ClickHouse analytical schemas, stopping physical shard replica tables from contaminating dynamic feature extraction pipelines.
+      <section class="max-w-6xl mx-auto px-6 py-16 border-t border-border/30">
+        <div class="grid gap-6 md:grid-cols-3 text-left">
+          <article class="rounded-xl border border-border/40 bg-card/30 stokes-card p-5 space-y-2.5">
+            <span class="text-[11px] font-mono text-muted-foreground lowercase">[clickhouse_ast]</span>
+            <h3 class="text-base font-medium text-foreground lowercase">analytical metadata hygiene</h3>
+            <p class="text-xs text-muted-foreground leading-relaxed font-light lowercase">
+              enforces database = currentDatabase() predicates across ClickHouse analytical schemas, stopping shard replicas from contaminating pipelines.
             </p>
           </article>
 
-          <article class="rounded-xl border border-border/40 bg-card/20 p-6 space-y-3">
-            <span class="text-[11px] font-mono text-muted-foreground">[PYTHON_ETL]</span>
-            <h3 class="text-lg font-semibold text-foreground leading-snug lowercase font-sans">bounded ingestion assertions</h3>
-            <p class="text-xs text-muted-foreground leading-relaxed">
-              Audits dictionary comprehension loops and feature models in Python extraction daemons, asserting explicit capacity bounds and strict priority ranking before serialization.
+          <article class="rounded-xl border border-border/40 bg-card/30 stokes-card p-5 space-y-2.5">
+            <span class="text-[11px] font-mono text-muted-foreground lowercase">[python_etl]</span>
+            <h3 class="text-base font-medium text-foreground lowercase">bounded ingestion assertions</h3>
+            <p class="text-xs text-muted-foreground leading-relaxed font-light lowercase">
+              audits dictionary comprehension loops and feature models in Python extraction daemons, asserting explicit capacity bounds.
             </p>
           </article>
 
-          <article class="rounded-xl border border-border/40 bg-card/20 p-6 space-y-3">
-            <span class="text-[11px] font-mono text-muted-foreground">[RUST_L7]</span>
-            <h3 class="text-lg font-semibold text-foreground leading-snug lowercase font-sans">zero-allocation degradation</h3>
-            <p class="text-xs text-muted-foreground leading-relaxed">
-              Replaces fatal <code>try_into().unwrap()</code> calls with in-place Dual-Zone Quickselect, shedding low-priority shadow columns in 7.66 ns with zero heap reallocations.
+          <article class="rounded-xl border border-border/40 bg-card/30 stokes-card p-5 space-y-2.5">
+            <span class="text-[11px] font-mono text-muted-foreground lowercase">[rust_l7]</span>
+            <h3 class="text-base font-medium text-foreground lowercase">defensive boundary contracts</h3>
+            <p class="text-xs text-muted-foreground leading-relaxed font-light lowercase">
+              replaces uncontracted try_into().unwrap() buffer conversions with verified capacity guards, eliminating thread panics and preventing 100% request error drops.
             </p>
           </article>
+        </div>
+      </section>
+
+      <!-- Contracts-Specific FAQ Section -->
+      <section class="border-t border-border/30 px-6 py-20">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-start text-left">
+          <div class="lg:col-span-5 space-y-3 lg:sticky lg:top-20 self-start">
+            <p class="text-sm text-muted-foreground font-mono lowercase">contracts faq</p>
+            <h2 class="text-3xl font-extralight tracking-tight sm:text-4xl text-foreground lowercase">
+              boundary rules & contract questions
+            </h2>
+            <p class="text-sm text-muted-foreground leading-relaxed lowercase font-light">
+              details on cardinality risk ratios, diagnostic rules, and dual-zone memory partitioning.
+            </p>
+          </div>
+
+          <div class="lg:col-span-7 border-t border-border/30">
+            {contractFaqs.map((faq) => (
+              <details class="group border-b border-border/30">
+                <summary class="flex items-center justify-between py-4 text-sm font-medium text-foreground hover:text-foreground/80 cursor-pointer list-none select-none transition-colors">
+                  <span class="lowercase">{faq.q}</span>
+                  <span class="text-muted-foreground group-open:rotate-45 transition-transform duration-200 text-base font-mono">
+                    +
+                  </span>
+                </summary>
+                <div class="pb-4 text-xs text-muted-foreground leading-relaxed font-light lowercase">
+                  {faq.a}
+                </div>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
 

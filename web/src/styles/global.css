@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @font-face {
   font-family: 'Sentient';
   src: url('/fonts/Sentient-300.woff2') format('woff2');
@@ -44,7 +46,6 @@
   --color-accent: hsl(var(--accent));
   --color-accent-foreground: hsl(var(--accent-foreground));
 
-  --color-brand-pink: hsl(var(--brand-pink));
   --color-brand-purple: hsl(var(--brand-purple));
   --color-brand-green: hsl(var(--brand-green));
   --color-brand-amber: hsl(var(--brand-amber));
@@ -73,17 +74,16 @@
   --accent-foreground: 0 0% 9%;
 
   /* Brand tints */
-  --brand-pink: 330 100% 67%;
   --brand-purple: 255 100% 54%;
   --brand-green: 161 100% 41%;
   --brand-amber: 38 92% 50%;
 }
 
 .dark {
-  /* Aligned with Stokes Studio (OpenPencil) charcoal palette - Light Mode Mirror */
-  --background: 0 0% 14.1%;       /* #242424 canvas */
+  /* Systems dark palette - Light Mode Mirror */
+  --background: 0 0% 14.1%;       /* #242424 background */
   --foreground: 0 0% 94.1%;       /* #f0f0f0 surface text */
-  --card: 0 0% 14.1%;             /* #242424 canvas-unified like light mode */
+  --card: 0 0% 14.1%;             /* #242424 card surface */
   --card-foreground: 0 0% 94.1%;  /* #f0f0f0 */
   --muted: 0 0% 17%;              /* #2b2b2b subtle titlebars & tabs */
   --muted-foreground: 0 0% 65.1%; /* #a6a6a6 muted text */
@@ -126,6 +126,11 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground) / 0.45);
+}
+
+html,
+body {
+  overscroll-behavior: none;
 }
 
 body {
@@ -237,9 +242,47 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
 }
 
-/* Header blur aligned with Studio topbar */
+/* Header blur styling */
 .dark header,
 .dark header[class*="bg-background"] {
   background-color: rgba(36, 36, 36, 0.88) !important;
   border-bottom-color: #3a3a3a !important;
 }
+
+/* Sidebar hover-only scrollbar physics */
+.sidebar-hover-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.2s ease;
+}
+
+.sidebar-hover-scrollbar:hover,
+.sidebar-container:hover .sidebar-hover-scrollbar {
+  scrollbar-color: hsl(var(--muted-foreground) / 0.35) transparent;
+}
+
+.sidebar-hover-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.sidebar-hover-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-hover-scrollbar::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+}
+
+.sidebar-container:hover .sidebar-hover-scrollbar::-webkit-scrollbar-thumb,
+.sidebar-hover-scrollbar:hover::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--muted-foreground) / 0.35);
+}
+
+.sidebar-container:hover .sidebar-hover-scrollbar::-webkit-scrollbar-thumb:hover,
+.sidebar-hover-scrollbar:hover::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--muted-foreground) / 0.65);
+}
+

@@ -6,8 +6,6 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "build:studio": "cd openpencil-repo && bunx vite build && powershell -Command \"Remove-Item -Path '..\\public\\studio\\assets\\*' -Recurse -Force; Copy-Item -Path 'dist\\*' -Destination '..\\public\\studio\\' -Recurse -Force; Copy-Item -Path '..\\public\\studio\\canvaskit.wasm' -Destination '..\\public\\studio\\assets\\canvaskit.wasm' -Force\"",
-    "build:all": "npm run build:studio && astro build",
     "preview": "astro preview"
   },
   "keywords": [],

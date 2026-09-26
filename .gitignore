@@ -28,10 +28,6 @@ web/node_modules/
 .astro/
 web/.astro/
 web/dist/
-web/openpencil-repo/node_modules/
-web/openpencil-repo/**/node_modules/
-web/openpencil-repo/dist/
-web/openpencil-repo/**/dist/
 *.log
 .wrangler/
 web/.wrangler/

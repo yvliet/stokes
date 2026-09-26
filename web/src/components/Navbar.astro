@@ -1,5 +1,5 @@
 ---
-import { ThemeToggle } from './ThemeToggle';
+import ThemeToggle from './ThemeToggle.astro';
 ---
 
 <header class="w-full border-b border-border/40 bg-background/80 backdrop-blur-md transition-colors sticky top-0 z-50">
@@ -19,23 +19,55 @@ import { ThemeToggle } from './ThemeToggle';
         <li>
           <a 
             href="/" 
-            class="inline-flex h-9 w-max items-center justify-center rounded-md px-3.5 py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+            class="inline-flex h-9 w-max items-center justify-center rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
           >
-            landing
+            overview
           </a>
         </li>
         <li>
           <a 
-            href="/studio" 
-            class="inline-flex h-9 w-max items-center justify-center rounded-md px-3.5 py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+            href="/cli" 
+            class="inline-flex h-9 w-max items-center justify-center rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
           >
-            studio
+            cli
+          </a>
+        </li>
+        <li>
+          <a 
+            href="/analyzers" 
+            class="inline-flex h-9 w-max items-center justify-center rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+          >
+            analyzers
+          </a>
+        </li>
+        <li>
+          <a 
+            href="/contracts" 
+            class="inline-flex h-9 w-max items-center justify-center rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+          >
+            contracts
+          </a>
+        </li>
+        <li>
+          <a 
+            href="/benchmarks" 
+            class="inline-flex h-9 w-max items-center justify-center rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+          >
+            benchmarks
+          </a>
+        </li>
+        <li>
+          <a 
+            href="/conformance" 
+            class="inline-flex h-9 w-max items-center justify-center rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+          >
+            conformance
           </a>
         </li>
         <li>
           <a 
             href="/docs" 
-            class="inline-flex h-9 w-max items-center justify-center rounded-md px-3.5 py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+            class="inline-flex h-9 w-max items-center justify-center rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
           >
             docs
           </a>
@@ -45,7 +77,7 @@ import { ThemeToggle } from './ThemeToggle';
 
     <!-- Right Actions (Theme toggle + github + install) -->
     <div class="flex items-center gap-2 z-10">
-      <ThemeToggle client:load />
+      <ThemeToggle />
 
       <div class="hidden sm:flex items-center gap-2">
         <a 

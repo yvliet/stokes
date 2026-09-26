@@ -18,7 +18,7 @@ from stokes.subagents.ast_engine.tree_sitter_loader import TreeSitterLoader
 # ─── Patterns for boundary discovery ─────────────────────────────────────────
 
 _RUST_FIXED_BUFFER = re.compile(
-    r"\[\s*(\w+)\s*;\s*(\d+)\s*\]",  # [T; N]
+    r"(?:\[\s*(\w+)\s*;\s*(\d+)\s*\]|ArrayVec<\s*(\w+)\s*,\s*(\d+)\s*>)",  # [T; N] or ArrayVec<T, N>
     re.MULTILINE,
 )
 _RUST_CONST_CAPACITY = re.compile(
@@ -34,13 +34,51 @@ _SQL_DATABASE_SCOPE = re.compile(
     re.MULTILINE,
 )
 _PYTHON_MAX_CONST = re.compile(
-    r"(?:MAX_CANONICAL|MAX_ACTIVE_FEATURES|MAX_FEATURES|FEATURE_LIMIT)\s*=\s*(\d+)",
+    r"(?:MAX_CANONICAL|MAX_ACTIVE_FEATURES|MAX_FEATURES|FEATURE_LIMIT|MAX_CAPACITY)\s*=\s*(\d+)",
     re.MULTILINE,
 )
 _PROTO_REPEATED = re.compile(
     r"^\s*repeated\s+(\w+)\s+(\w+)\s*=\s*(\d+)",
     re.MULTILINE,
 )
+_SQL_SELECT_TABLE = re.compile(
+    r"(?i)SELECT\s+(.+?)\s+FROM\s+([a-zA-Z0-9_\.]+)(?:\s+WHERE\s+(.*?))?(?:$|\n|;|ORDER|LIMIT)",
+    re.MULTILINE,
+)
+_SQL_LIMIT = re.compile(r"(?i)\bLIMIT\s+(\d+)")
+
+DEFAULT_SINKS = [
+    {
+        "name": "kv_put",
+        "pattern": r"(?:kv_store|cache|kv|client)\.(?:put|set|kv_put)",
+        "payload_arg_index": 1,
+        "capacity": 200,
+    },
+    {
+        "name": "kafka_send",
+        "pattern": r"(?:producer|producer_client|stream)\.(?:send|produce)",
+        "payload_arg_index": 1,
+        "capacity": 200,
+    },
+]
+
+
+def load_stokes_config(workspace: Path | str) -> dict[str, Any]:
+    """Load declarative boundary policies from stokes.yaml if present."""
+    ws = Path(workspace)
+    for cfg_name in ["stokes.yaml", "stokes.yml", ".stokes.yaml", ".stokes/config.yaml"]:
+        cfg_file = ws / cfg_name
+        if cfg_file.is_file():
+            try:
+                import yaml
+                data = yaml.safe_load(cfg_file.read_text(encoding="utf-8"))
+                if isinstance(data, dict):
+                    if "sinks" not in data and "serialization_sinks" in data:
+                        data["sinks"] = data["serialization_sinks"]
+                    return data
+            except Exception:
+                pass
+    return {"sinks": DEFAULT_SINKS}
 
 
 class BoundaryDiscovery:
@@ -66,6 +104,7 @@ class BoundaryDiscovery:
     def __init__(self, workspace: str) -> None:
         self.workspace = Path(workspace)
         self.loader = TreeSitterLoader()
+        self.config = load_stokes_config(self.workspace)
 
     async def scan(self) -> dict[str, Any]:
         """
@@ -80,6 +119,8 @@ class BoundaryDiscovery:
             "upstream_projections": [],
             "cardinality_constants": [],
             "protobuf_repeated_fields": [],
+            "boundary_serialization_sinks": [],
+            "data_ingestion_queries": [],
             "scan_files": [],
         }
 
@@ -128,10 +169,10 @@ class BoundaryDiscovery:
         # Compute risk ratio
         upstream_card = self._max_upstream_cardinality(contracts)
         downstream_cap = self._min_downstream_capacity(contracts)
+        contracts["downstream_capacity"] = downstream_cap
+        contracts["upstream_cardinality"] = upstream_card
         if downstream_cap > 0 and upstream_card > 0:
             contracts["cardinality_risk_ratio"] = upstream_card / downstream_cap
-            contracts["upstream_cardinality"] = upstream_card
-            contracts["downstream_capacity"] = downstream_cap
         else:
             contracts["cardinality_risk_ratio"] = None
 
@@ -156,8 +197,8 @@ class BoundaryDiscovery:
 
         # Find fixed-size array type patterns in type positions
         for m in _RUST_FIXED_BUFFER.finditer(source):
-            elem_type = m.group(1)
-            size = int(m.group(2))
+            elem_type = m.group(1) or m.group(3)
+            size = int(m.group(2) or m.group(4))
             line = source[:m.start()].count("\n") + 1
             snippet_line = lines[line - 1] if 0 < line <= len(lines) else ""
             # Filter to meaningful buffer allocations (not tiny padding arrays)
@@ -173,7 +214,7 @@ class BoundaryDiscovery:
                 })
 
     def _scan_sql(self, source: str, rel: str, contracts: dict) -> None:
-        """Detect system.columns queries and check for database scoping."""
+        """Detect system.columns queries and check for database scoping, plus check table queries for explicit LIMIT."""
         for m in _SQL_SYSTEM_COLUMNS.finditer(source):
             line = source[:m.start()].count("\n") + 1
             # Check if this query has database = currentDatabase() anywhere nearby
@@ -190,8 +231,26 @@ class BoundaryDiscovery:
                 "violation": not has_scope,
             })
 
+        for m in _SQL_SELECT_TABLE.finditer(source):
+            projection = m.group(1).strip()
+            table_name = m.group(2).strip()
+            if table_name.lower().startswith("system."):
+                continue
+            line = source[:m.start()].count("\n") + 1
+            context = source[m.start():m.start() + 400]
+            limit_m = _SQL_LIMIT.search(context)
+            contracts["data_ingestion_queries"].append({
+                "file": rel,
+                "line": line,
+                "table": table_name,
+                "projection": projection,
+                "has_limit": bool(limit_m),
+                "limit_value": int(limit_m.group(1)) if limit_m else None,
+                "language": "sql",
+            })
+
     def _scan_python(self, source: str, rel: str, contracts: dict) -> None:
-        """Extract Python cardinality constants and detect unguarded loops."""
+        """Extract Python cardinality constants and detect boundary serialization sinks."""
         for m in _PYTHON_MAX_CONST.finditer(source):
             name = m.group(0).split("=")[0].strip()
             value = int(m.group(1))
@@ -203,6 +262,47 @@ class BoundaryDiscovery:
                 "value": value,
                 "language": "python",
             })
+
+        configured_sinks = self.config.get("sinks", DEFAULT_SINKS)
+        has_module_guard = bool(re.search(r"(?:if\s+len\([^\)]+\)\s*>\s*\w+|raise\s+\w*Capacity|ContractViolation|assert_capacity)", source))
+
+        for sink_cfg in configured_sinks:
+            pat = sink_cfg.get("pattern", "")
+            if not pat:
+                continue
+            if pat.endswith(r"\("):
+                pat = pat[:-2]
+            elif pat.endswith("("):
+                pat = pat[:-1]
+            sink_re = re.compile(pat + r"\s*\(\s*([^,\)]+)(?:,\s*([^,\)]+))?", re.MULTILINE)
+            for m in sink_re.finditer(source):
+                arg0 = m.group(1).strip() if m.group(1) else ""
+                arg1 = m.group(2).strip() if m.group(2) else ""
+                payload_arg_idx = sink_cfg.get("payload_arg_index", sink_cfg.get("payload_arg", 1))
+                payload_str = arg1 if (payload_arg_idx == 1 and arg1) else arg0
+                line = source[:m.start()].count("\n") + 1
+
+                # Check for hazardous blind slice truncation
+                has_blind_slice = bool(re.search(r"\[\s*:\s*[\w\d_]+\s*\]", payload_str))
+
+                # Check surrounding context for fail-fast guard
+                fn_start = source.rfind("def ", 0, m.start())
+                local_context = source[fn_start:m.start()] if fn_start != -1 else source[max(0, m.start() - 300):m.start()]
+                has_local_guard = bool(re.search(r"(?:if\s+len\([^\)]+\)\s*>\s*\w+|raise\s+\w*Capacity|ContractViolation|assert_capacity)", local_context))
+                is_bounded = has_local_guard and not has_blind_slice
+
+                contracts["boundary_serialization_sinks"].append({
+                    "file": rel,
+                    "line": line,
+                    "sink_name": sink_cfg.get("name", m.group(0).split("(")[0].strip()),
+                    "target": arg0,
+                    "payload": payload_str,
+                    "capacity": sink_cfg.get("capacity", 200),
+                    "bounded": is_bounded,
+                    "blind_slice_detected": has_blind_slice,
+                    "fail_fast_guarded": has_local_guard,
+                    "language": "python",
+                })
 
     def _scan_proto(self, source: str, rel: str, contracts: dict) -> None:
         """Detect unbounded repeated fields in protobuf definitions."""
@@ -251,15 +351,17 @@ class BoundaryDiscovery:
     def _min_downstream_capacity(self, contracts: dict) -> int:
         """Extract the minimum downstream buffer capacity."""
         buffers = contracts["downstream_buffers"]
-        if not buffers:
-            # Check constants
-            for const in contracts["cardinality_constants"]:
-                if const.get("value") == 200 and "FEATURE" in const.get("name", ""):
-                    return 200
-            return 200  # Dirichlet default
+        if buffers:
+            capacities = [b["capacity"] for b in buffers if b["capacity"] >= 8]
+            if capacities:
+                return min(capacities)
 
-        capacities = [b["capacity"] for b in buffers if b["capacity"] >= 8]
-        return min(capacities) if capacities else 200
+        # Check constants
+        for const in contracts.get("cardinality_constants", []):
+            if "FEATURE" in const.get("name", "") or "CAPACITY" in const.get("name", ""):
+                return const["value"]
+
+        return self.config.get("default_capacity", 200)
 
 
 async def scan_workspace(workspace: str | Path = ".") -> dict[str, Any]:

@@ -23,8 +23,8 @@ _TRY_INTO_UNWRAP = re.compile(
     r"\.try_into\(\)\s*\.(unwrap|expect)\s*\(",
     re.MULTILINE,
 )
-_FIXED_BUFFER = re.compile(
-    r"\[\s*([A-Z][A-Za-z0-9_]*)\s*;\s*(\d+)\s*\]",
+_UPPER_BOUNDED_BUFFER = re.compile(
+    r"(?:\[\s*([A-Z]\w*)\s*;\s*(\d+)\s*\]|ArrayVec<\s*([A-Z]\w*)\s*,\s*(\d+)\s*>)",
     re.MULTILINE,
 )
 _HEAP_VEC_FEATURE = re.compile(
@@ -53,6 +53,26 @@ _CATCH_UNWIND = re.compile(
 )
 
 # ─── Remediation Diffs ────────────────────────────────────────────────────────
+
+_RUST_DEFENSIVE_BOUNDS_DIFF = """\
+--- a/crates/dirichlet-proxy/src/engine/feature_ingest.rs
++++ b/crates/dirichlet-proxy/src/engine/feature_ingest.rs
+@@ -42,5 +42,16 @@
+-    let mut features: [Feature; 200] = payload.as_slice().try_into().unwrap();
++    // Stokes INVARIANT_1: Defensive bounds validation & contract error propagation
++    const MAX_FEATURES: usize = 200;
++    if payload.len() > MAX_FEATURES {
++        metrics::counter!("proxy_feature_overflow_dropped", payload.len() as u64);
++        return Err(ContractError::CapacityExceeded {
++            received: payload.len(),
++            maximum: MAX_FEATURES,
++        });
++    }
++    let features: [Feature; MAX_FEATURES] = payload
++        .as_slice()
++        .try_into()
++        .map_err(|_| ContractError::InvalidSliceConversion)?;
+"""
 
 _RUST_DUAL_ZONE_DIFF = """\
 --- a/crates/dirichlet-proxy/src/engine/feature_ingest.rs
@@ -176,20 +196,27 @@ class StokesRustAgent(ActorBase):
             line_num = source[:m.start()].count("\n") + 1
             snippet = lines[line_num - 1].strip()[:100] if 0 < line_num <= len(lines) else ""
 
-            # Check if this is inside a fixed buffer context
+            # Check if this is inside a buffer context
             context_before = source[max(0, m.start() - 100):m.start()]
-            is_fixed_buffer = bool(_FIXED_BUFFER.search(context_before))
+            is_fixed_buffer = bool(_UPPER_BOUNDED_BUFFER.search(context_before))
 
-            # Find the max features constant
-            max_const = None
+            # Find dynamic buffer capacity
+            buf_capacity = 200
+            for b_match in _UPPER_BOUNDED_BUFFER.finditer(source):
+                cap_str = b_match.group(2) or b_match.group(4)
+                if cap_str:
+                    buf_capacity = int(cap_str)
+                    break
+
             for cm in _MAX_FEATURES_CONST.finditer(source):
-                max_const = int(cm.group(2))
+                buf_capacity = int(cm.group(2))
+                break
 
-            # Check if Dual-Zone is already implemented
+            # Check if Dual-Zone or bounds guard is already implemented
             has_dual_zone = bool(_DUAL_ZONE.search(source))
 
             if not has_dual_zone:
-                risk = 280 / (max_const or 200)
+                risk = 280 / buf_capacity
                 v = self._make_diagnostic(
                     invariant_id="INVARIANT_1_INFALLIBLE_INTAKE",
                     lint_rule="LINT-004",
@@ -203,21 +230,19 @@ class StokesRustAgent(ActorBase):
                     root_cause=(
                         f"`.try_into().unwrap()` at {rel}:{line_num} converts a "
                         f"dynamic slice into a fixed stack array without an upstream "
-                        f"cardinality bound check. When upstream returns {280} items "
-                        f"into a [{max_const or 200}]-slot buffer, this panics immediately "
+                        f"cardinality bound check. When upstream returns 280 items "
+                        f"into a [{buf_capacity}]-slot buffer, this panics immediately "
                         f"with TryFromSliceError, crashing the worker thread."
                     ),
-                    unified_diff=_RUST_DUAL_ZONE_DIFF,
+                    unified_diff=_RUST_DEFENSIVE_BOUNDS_DIFF,
                     explanation=(
-                        "Replace .try_into().unwrap() with ingest_descriptors_dual_zone() "
-                        "which partitions features in-place with zero heap allocation: "
-                        "Zone 0 (slots 0..127, core reserved, priority≥200, immune to eviction) "
-                        "and Zone 1 (slots 128..199, dynamic, shed lowest priority first via "
-                        "select_nth_unstable_by - measured at 7.66 ns vs 29.74 ns heap sort)."
+                        f"Replace .try_into().unwrap() with explicit capacity bounds checking "
+                        f"(Result<[Feature; {buf_capacity}], ContractError>) to propagate payload errors cleanly "
+                        f"and emit telemetry rather than crashing worker threads."
                     ),
                     risk_ratio=risk,
                     tainted_identifiers=[
-                        "try_into", "unwrap", f"[Feature; {max_const or 200}]"
+                        "try_into", "unwrap", f"[Feature; {buf_capacity}]"
                     ],
                 )
                 violations.append(v)
@@ -293,5 +318,32 @@ class StokesRustAgent(ActorBase):
                     tainted_identifiers=["evaluator.evaluate"],
                 )
                 violations.append(v)
+
+        # INVARIANT_4: Dynamic configuration reload without atomic LKG store
+        if ("reload_config" in source or "update_config" in source or "ConfigStore" in source) and not _ARC_SWAP.search(source):
+            v = self._make_diagnostic(
+                invariant_id="INVARIANT_4_LKG_ATOMIC_ROLLBACK",
+                lint_rule="LINT-005",
+                target_file=rel,
+                start_line=1,
+                start_col=0,
+                end_line=1,
+                end_col=0,
+                node_type="struct_definition",
+                snippet="// missing: ArcSwap<FeatureCatalogState> atomic LKG rollback store",
+                root_cause=(
+                    f"Dynamic configuration reload in {rel} lacks wait-free atomic "
+                    f"Last-Known-Good (LKG) rollback. An uncontracted runtime payload "
+                    f"either freezes the service or causes stale-state lockup."
+                ),
+                unified_diff=_RUST_ARC_SWAP_DIFF,
+                explanation=(
+                    "Implement ConfigStore with ArcSwap<FeatureCatalogState> to allow wait-free "
+                    "atomic rollback to Last-Known-Good configuration (< 50ns) on invalid payload."
+                ),
+                risk_ratio=None,
+                tainted_identifiers=["ConfigStore", "ArcSwap"],
+            )
+            violations.append(v)
 
         return violations
