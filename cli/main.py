@@ -180,7 +180,7 @@ async def cmd_scan(args: argparse.Namespace) -> int:
     stokes_dir = Path(abs_path) / ".stokes"
     stokes_dir.mkdir(exist_ok=True)
     contracts_path = stokes_dir / "contracts.json"
-    contracts_path.write_text(json.dumps(contracts, indent=2))
+    contracts_path.write_text(json.dumps(contracts, indent=2), encoding="utf-8")
 
     print(
         f"  {FG_EMERALD}✔{RESET} Boundary scan complete: "
@@ -194,7 +194,7 @@ async def cmd_scan(args: argparse.Namespace) -> int:
         synth = ContractSynthesizer(contracts)
         agents_md = synth.synthesize()
         agents_path = Path(abs_path) / "AGENTS.md"
-        agents_path.write_text(agents_md)
+        agents_path.write_text(agents_md, encoding="utf-8")
         print(f"  {FG_EMERALD}✔{RESET} AGENTS.md synthesized: {agents_path}")
         print()
 

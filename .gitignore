@@ -40,4 +40,5 @@ web/.wrangler/
 .env
 .env.*
 .cache/
+.stokes/
 package-lock.json
