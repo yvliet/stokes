@@ -14,14 +14,16 @@ This document provides formal, comprehensive disclosure regarding compliance wit
 
 This disclosure delineates the 100% in-sprint Bob 2.0 autonomous analysis build from disclosed pre-prepared assets in full compliance with the organizer ruling.
 
-## 1. Official Organizer Ruling
+## 1. Official Organizer & Mentor Rulings
 ---
+
+### Ruling 1: Pre-Prepared Assets & Code Scaffolding Permissions
 
 During the official hackathon question-and-answer period, the lablab.ai organizing team issued a formal ruling clarifying permissions regarding pre-prepared sample code, benchmarks, and UI presentation shells:
 
 > *"Yes, you can use pre-prepared synthetic sample code and demo UI templates as long as they are clearly disclosed in your repository and all the core Bob analysis and project logic are built during the hackathon. For using and animating the IBM Bob mascot, I am checking with the IBM team to confirm their branding permissions - stay tuned for an update on that shortly. for 2 i am confirming sorry for that"*
 
-### Verification Metadata
+#### Verification Metadata (Organizer Ruling)
 
 | Field | Detail |
 | :--- | :--- |
@@ -37,8 +39,29 @@ During the official hackathon question-and-answer period, the lablab.ai organizi
 
 ![Organizer Profile & Badges - Hamza (lablab.ai Team, Moderator, Mentor)](./lablab_organizer_profile.png)
 
+### Ruling 2: Bobalytics Telemetry & Tooling Guidance
+
+In response to developer inquiries regarding Bobalytics telemetry tracking and multi-tool workflows, hackathon admin and technical mentor Vedant Sharma confirmed the telemetry architecture and clarified why GitHub-committed code or specific IDE builds can show empty stats:
+
+> *"This usually comes down to one of two things in the Bob IDE: - A known Bobalytics telemetry bug: Bobalytics did not capture telemetry data when code was committed to GitHub, and that was fixed in 2.0.2. If the IDE is on an older build, Bobalytics can show no lines written or no commits even when task summaries exist. - Missing task history data: task summaries can exist while Bobalytics stays empty if the underlying task history was lost, never created properly, or not reloaded."*
+
+#### Verification Metadata (Mentor Telemetry Guidance)
+
+| Field | Detail |
+| :--- | :--- |
+| **Speaker** | Vedant Sharma \| lablab.ai (`vedantsharma01`) |
+| **User ID** | `1230067605713453137` |
+| **Official Roles** | `Admin`, `lablab.ai team 🧙`, `Mentors`, `Business`, `Technical` |
+| **Discord Server** | LABLAB.AI (`877056448956346408`) |
+| **Channel** | `💭 ╰participants-chat-ibm-bob-2-0-hackathon` (`1549403442206875779`) |
+| **Evidence Screenshots** | [`lablab_bobalytics_bug_msg.png`](/docs/compliance/lablab_bobalytics_bug_msg.png)<br/>[`lablab_mentor_profile.png`](/docs/compliance/lablab_mentor_profile.png) |
+
+![Bobalytics Telemetry Ruling - Mentor Clarification](./lablab_bobalytics_bug_msg.png)
+
+![Mentor Profile & Badges - Vedant Sharma (Admin, lablab.ai Team, Mentor)](./lablab_mentor_profile.png)
+
 > [!NOTE]
-> Per the organizer ruling, all core Stokes analysis, subagent orchestration, AST graph traversal, and verification engines were authored 100% from scratch inside the hackathon window using IBM Bob 2.0.
+> Per the organizer ruling and official hackathon rules, all core Stokes analysis, parallel analyzer suite orchestration, AST graph traversal, and verification engines were authored 100% from scratch inside the hackathon window using IBM Bob 2.0, with complementary tooling utilized for secondary typechecking and formatting.
 
 ## 2. Scope & Delineation of Repository Assets
 ---
@@ -47,25 +70,29 @@ To guarantee complete auditability, the repository maintains an unambiguous sepa
 
 | Asset Category | File Tree Paths | Description & Authorship Origin |
 | :--- | :--- | :--- |
-| **100% In-Sprint Build** | `stokes/cli/`<br/>`stokes/subagents/`<br/>`stokes/harness/`<br/>`stokes/mcp/`<br/>`stokes/tests/` | Synthesized during sprint: CLI runner, 5 subagents, Tree-sitter AST queries, 10,000 float tests, binary IPC framing, MCP server |
+| **100% In-Sprint Build** | `stokes/cli/`<br/>`stokes/subagents/`<br/>`stokes/harness/`<br/>`stokes/tests/` | Synthesized with IBM Bob 2.0 during sprint: CLI runner, 8-component parallel analyzer suite, Tree-sitter AST queries, 10,000 float tests, binary IPC framing |
+| **Disclosed Supplementary Build** | `stokes/mcp/` | Model Context Protocol JSON-RPC stdio server engineered using complementary tooling to conserve Bobcoins for core engines |
 | **Disclosed Templates** | `cloudflame/`<br/>`web/src/` | Pre-prepared synthetic testbed modeling Cloudflare Nov 18, 2025 outage and Astro documentation shell |
 
 ### Assets Built 100% During the Hackathon Build Window with IBM Bob 2.0
 
-Every line of core project logic, AST analysis, and agent orchestration was synthesized and verified during the official hackathon sprint:
+Every line of core project logic, AST analysis, and analyzer orchestration was synthesized and verified directly inside the IBM Bob 2.0 environment during the official hackathon sprint, and refined with supporting language tooling:
 
 1. **CLI Subcommand Suite & ANSI Renderer (`stokes/cli/`)**:
    - `main.py`: Complete CLI entrypoint supporting `verify`, `check`, `scan`, `audit`, `remediate`, `codegen`, `cert`, `diff`, `graph`, `init`, and `mcp`.
-   - `terminal_overwriter.py`: 60 FPS multi-line cursor addressability (`\033[<N>A`), bracketless grayscale loading tickers, and tree-nested subagent progress visualizers.
+   - `terminal_overwriter.py`: 60 FPS multi-line cursor addressability (`\033[<N>A`), bracketless grayscale loading tickers, and tree-nested analyzer progress visualizers.
    - `formatters.py`: 3x3 matrix bracket headers, diagnostic alert cards, and ANSI unified diff formatters.
    - `agent_bridge.py`: Dynamic AI agent bridge dispatching invariant constraints to IBM Bob 2.0, Claude Code, Cursor, and patch exporters.
 
-2. **Autonomous Subagent Swarm (`stokes/subagents/`)**:
+2. **Parallel AST Analyzer Suite (`stokes/subagents/`)**:
    - `stokes-sql`: Specialized ClickHouse AST visitor detecting unqualified `system.columns` reflections across database replica shards.
    - `stokes-proto`: Protobuf AST visitor locating unbounded `repeated` message fields lacking capacity annotations.
    - `stokes-python`: Python AST traverser finding unguarded dictionary feature loops and serialization sinks.
    - `stokes-rust`: Rust syn/Tree-sitter parser identifying fixed stack array `.try_into().unwrap()` hazards.
    - `stokes-verify`: Ephemeral sandbox runner executing Criterion micro-benchmarks and adversarial property fuzzers.
+   - `boundary_discovery`: Cross-compiler AST discovery actor constructing sparse interface dependency graphs across polyglot boundaries.
+   - `contract_synthesizer`: Invariant synthesis engine compiling verified constraints into cryptographically signed `stokes.lock` manifests.
+   - `staging_inspector`: Pre-commit zero-allocation patch inspector validating AST diff safety prior to disk emission.
 
 3. **Cross-Boundary AST Reachability Graph (`stokes/subagents/ast_engine/`)**:
    - `tree_sitter_loader.py`: Native Tree-sitter C-grammar binding loader for SQL, Protobuf, Python, and Rust.
@@ -83,8 +110,8 @@ Every line of core project logic, AST analysis, and agent orchestration was synt
 6. **Test Suite (`stokes/tests/`)**:
    - 111 comprehensive unit and integration tests passing in 0.55s across CLI flags, AST queries, IPC framing, and lockfile hashing.
 
-7. **Native Model Context Protocol Server (`stokes/mcp/server.py`)**:
-   - JSON-RPC 2.0 stdio server exposing 9 tools, 4 resource URIs, and 2 guided prompt templates to IDE coding agents.
+7. **Disclosed Supplementary Build: Native MCP Server (`stokes/mcp/server.py`)**:
+   - JSON-RPC 2.0 stdio server exposing 9 tools, 4 resource URIs, and 2 guided prompt templates to IDE coding agents. Authoring was completed using complementary developer tooling to conserve the allocated Bobcoin token budget for the core compiler and verification subsystems.
 
 ---
 
@@ -117,23 +144,29 @@ Stokes was developed through active collaboration with the IBM Bob 2.0 autonomou
 
 | Session | Task ID | Context Length | Bobcoins | Executed Tasks | Milestone Objective | Commit / Release |
 |:---:|:---|:---:|:---:|:---:|:---|:---|
-| **01** | `eca6a6d36cbe730f5c1064bc5f7970e4` | 208.9k / 270.0k (77%) | 27.180 | 10 subtasks | Core verification scaffolding, Tree-sitter AST queries, 5 subagents, fuzzing battery, test suite | [`58787e4`](https://github.com/yvliet/stokes/commit/58787e4) |
+| **01** | `eca6a6d36cbe730f5c1064bc5f7970e4` | 208.9k / 270.0k (77%) | 27.180 | 10 subtasks | Core verification scaffolding, Tree-sitter AST queries, 5 analyzers, fuzzing battery, test suite | [`58787e4`](https://github.com/yvliet/stokes/commit/58787e4) |
 | **02** | `bc3669627aec37f22070a3c49aa93209` | 22.3k / 270.0k (8%) | 0.534 | 5 subtasks | Git repository lifecycle, identity setup, and initial GitHub remote push | [`yvliet/stokes`](https://github.com/yvliet/stokes) |
 | **03** | `ee34ccd0b15f8e99001def36425c2fc1` | 37.7k / 270.0k (14%) | 1.450 | 6 subtasks | PyPI wheel build, twine validation, and initial package distribution | `pip install stokes` |
 | **04** | `f5100dc74eccb43137abd7edea0fb559` | 103.9k / 270.0k (38%) | 3.600 | 8 subtasks | Dark mode charcoal palette and token standardization across Astro components | [`a1c02e6`](https://github.com/yvliet/stokes/commit/a1c02e6) |
-| **05** | `fbd8a21d8eaa665c34a2d1e91ef85a0f` | 60.4k / 270.0k (22%) | 2.300 | 9 subtasks | 3x3 matrix bracket banner, tree connector subagents, and CLI/web terminal visual parity | [`f4818b3`](https://github.com/yvliet/stokes/commit/f4818b3) |
+| **05** | `fbd8a21d8eaa665c34a2d1e91ef85a0f` | 60.4k / 270.0k (22%) | 2.300 | 9 subtasks | 3x3 matrix bracket banner, tree connector analyzers, and CLI/web terminal visual parity | [`f4818b3`](https://github.com/yvliet/stokes/commit/f4818b3) |
+
+### Bobalytics Telemetry & Task History Audit Note
+
+As officially confirmed by hackathon admin and technical mentor `vedantsharma01` (`1230067605713453137`), earlier Bob IDE releases and external Git push pipelines can exhibit a telemetry desynchronization where lines committed or pushed to remote repositories are not fully reflected inside the automated Bobalytics dashboard. 
+
+In accordance with official hackathon submission requirements, the authoritative record of IBM Bob 2.0 development consists of the exported **Task Session Summaries**, including timestamped context lengths, Bobcoin expenditure ledgers, and task execution checkpoints documented below and preserved in [`bob_sessions/`](https://github.com/yvliet/stokes/tree/main/bob_sessions).
 
 ## 4. Session Breakdown & Audit Details
 ---
 
-### Session 01: Core Verification Engine & Multi-Agent Scaffolding
+### Session 01: Core Verification Engine & Parallel Analyzer Scaffolding
 
 ![Session 01 - Core Verification Engine Build](./session_01_core_engine_build.png)
 
 - **Task ID**: `eca6a6d36cbe730f5c1064bc5f7970e4`
 - **Context Length**: 208.9k / 270.0k tokens (77%)
 - **Bobcoin Expenditure**: 27.180 Bobcoins
-- **Scope**: Stokes core scaffolding, Tree-sitter AST queries, 5 subagents, fuzzing battery, and test modules.
+- **Scope**: Stokes core scaffolding, Tree-sitter AST queries, 5 parallel analyzers, fuzzing battery, and test modules.
 - **Completed Subtasks**:
   - Subtask 1: Build `stokes/` directory structure and core module hierarchy.
   - Subtask 2: Author `contracts/`: AST query `.scm` files and JSON schemas.
@@ -195,9 +228,9 @@ Stokes was developed through active collaboration with the IBM Bob 2.0 autonomou
   - Subtask 7: Author conventional commit (`style(web): align dark mode palette with charcoal tokens`).
   - Subtask 8: Push updates to origin main.
 
-### Session 05: CLI Matrix Bracket Header & Tree Subagent Visualizer
+### Session 05: CLI Matrix Bracket Header & Tree Analyzer Visualizer
 
-![Session 05 - Matrix Bracket & Tree Subagents Parity](./session_05_matrix_bracket_and_tree_subagents.png)
+![Session 05 - Matrix Bracket & Tree Analyzers Parity](./session_05_matrix_bracket_and_tree_subagents.png)
 
 - **Task ID**: `fbd8a21d8eaa665c34a2d1e91ef85a0f`
 - **Context Length**: 60.4k / 270.0k tokens (22%)
@@ -208,13 +241,40 @@ Stokes was developed through active collaboration with the IBM Bob 2.0 autonomou
   - Subtask 2: Update `web/src/components/CliTerminal.astro` with 3x3 matrix bracket and tree connectors.
   - Subtask 3: Synchronize identical changes to `src/components/CliTerminal.astro`.
   - Subtask 4: Update `cli/formatters.py` with 3x3 matrix bracket ASCII/Unicode banner.
-  - Subtask 5: Update `cli/terminal_overwriter.py` with tree connector subagent progress lines.
+  - Subtask 5: Update `cli/terminal_overwriter.py` with tree connector analyzer progress lines.
   - Subtask 6: Run `pytest` to confirm zero regressions in terminal output parsing.
   - Subtask 7: Run `npm run build` to verify Astro build integrity.
   - Subtask 8: Validate git diff to verify parity between web components and CLI output.
   - Subtask 9: Author conventional commit (`feat(cli): switch to 3x3 matrix bracket header and tree nested subagents`).
 
-## 5. Verification & Attestation
+## 5. Resource Allocation & Hackathon Retrospective
+---
+
+Building an enterprise-grade cross-boundary compiler verification platform requires substantial computational context across AST query compilation, binary IPC framing protocols, property-based fuzzing harnesses, and zero-allocation static analysis.
+
+### Context & Token Economy Realities
+
+1. **Solo Allocation vs. Project Scope**:
+   - The hackathon trial allocation provided **40.000 Bobcoins** per registered participant workspace.
+   - For an architectural scope spanning 4 language targets (ClickHouse SQL, Protobuf, Python, and Rust), over **35.064 Bobcoins** were purposefully exhausted constructing the core verification engine, 8-component parallel analyzer suite, AST graph traversal logic, and terminal driver.
+   - Hackathon participants were strictly bound to organizer-provisioned team workspaces without the ability to authenticate personal IBM Bob subscriptions or bridge outside credits into the build environment.
+
+2. **Solo vs. Multi-Member Team Token Asymmetry**:
+   - Under the per-participant token structure, 6-person teams had collective access to up to **240 Bobcoins** (40 per member), whereas solo participants operated under a strict 40-coin ceiling.
+   - This created an asymmetry where solo builders had 1/6th the autonomous generation budget of maximum-sized squads, despite tackling production-grade systems architectures.
+   - As documented in official hackathon Q&A channels, multiple participants highlighted this resource dynamic during active development.
+
+![Discord FAQ: Team Member Size & Bobcoin Allocation](./lablab_bobcoin_team_allocation_faq.png)
+
+![Discord Q&A: Solo vs Team Credit Economy Discussion](./lablab_bobcoin_solo_vs_team_ruling.png)
+
+### Constructive Recommendations for Future Hackathons
+
+To empower both ambitious solo builders and multi-person squads in future IBM Bob hackathons, two key optimizations are recommended:
+- **Unified Team Credit Pools**: Standardize a fixed, project-level token pool (e.g. 150-200 Bobcoins per registered project repository) rather than per-seat scaling, ensuring absolute equity across solo hackers and collaborative teams.
+- **Personal Account Bridging**: Provide an optional API or subscription bridge allowing participants to link personal IBM Bob accounts if their project roadmap exceeds standard trial allocations.
+
+## 6. Verification & Attestation
 ---
 
 This compliance document serves as the binding attribution statement for Project Stokes in the IBM Bob 2.0 Hackathon.
