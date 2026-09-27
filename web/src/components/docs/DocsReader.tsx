@@ -436,8 +436,27 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
           }
         }
 
+        // Check if this horizontal rule is right below a heading (heading -> hr)
+        let prevNonEmptyIdx = i - 1;
+        while (prevNonEmptyIdx >= 0 && !rawLines[prevNonEmptyIdx].trim()) {
+          prevNonEmptyIdx--;
+        }
+        const isFollowHeading = prevNonEmptyIdx >= 0 && /^#{1,6}\s+/.test(rawLines[prevNonEmptyIdx].trim());
+
+        // Check if this horizontal rule is right above a heading (hr -> heading)
+        const isPrecedingHeading = nextNonEmptyIdx < rawLines.length && /^#{1,6}\s+/.test(rawLines[nextNonEmptyIdx].trim());
+
+        let hrMargin = "my-8";
+        if (isFollowHeading && isPrecedingHeading) {
+          hrMargin = "mt-1.5 mb-4";
+        } else if (isFollowHeading) {
+          hrMargin = "mt-1.5 mb-6";
+        } else if (isPrecedingHeading) {
+          hrMargin = "mt-6 mb-3";
+        }
+
         parsedBlocks.push(
-          <hr key={`hr-${i}`} className="border-t border-border/40 my-8" />
+          <hr key={`hr-${i}`} className={`border-t border-border/40 ${hrMargin}`} />
         );
         i++;
         continue;
@@ -704,9 +723,33 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
 
         extractedHeadings.push({ id, text: cleanText, level });
 
+        // Check if preceded or followed by a horizontal rule to tighten spacing
+        let prevNonEmptyIdx = i - 1;
+        while (prevNonEmptyIdx >= 0 && !rawLines[prevNonEmptyIdx].trim()) {
+          prevNonEmptyIdx--;
+        }
+        const precededByHr = prevNonEmptyIdx >= 0 && (rawLines[prevNonEmptyIdx].trim() === '---' || rawLines[prevNonEmptyIdx].trim() === '***');
+
+        let nextNonEmptyIdx = i + 1;
+        while (nextNonEmptyIdx < rawLines.length && !rawLines[nextNonEmptyIdx].trim()) {
+          nextNonEmptyIdx++;
+        }
+        const followedByHr = nextNonEmptyIdx < rawLines.length && (rawLines[nextNonEmptyIdx].trim() === '---' || rawLines[nextNonEmptyIdx].trim() === '***');
+
+        const topPadH1 = precededByHr ? 'pt-3' : 'pt-6';
+        const botPadH1 = followedByHr ? 'pb-0' : 'pb-2';
+        const topPadH2 = precededByHr ? 'pt-3' : 'pt-8';
+        const botPadH2 = followedByHr ? 'pb-0' : 'pb-1';
+        const topPadH3 = precededByHr ? 'pt-3' : 'pt-6';
+        const botPadH3 = followedByHr ? 'pb-0' : 'pb-1';
+        const topPadH4 = precededByHr ? 'pt-2' : 'pt-4';
+        const botPadH4 = followedByHr ? 'pb-0' : 'pb-1';
+        const topPadH56 = precededByHr ? 'pt-2' : 'pt-3';
+        const botPadH56 = followedByHr ? 'pb-0' : 'pb-1';
+
         if (level === 1) {
           parsedBlocks.push(
-            <div key={`h1-${i}`} className="pt-6 pb-2 text-left">
+            <div key={`h1-${i}`} className={`${topPadH1} ${botPadH1} text-left`}>
               <h1
                 id={id}
                 className="group flex items-center gap-2 text-2xl sm:text-3xl lg:text-4xl font-serif font-light text-foreground tracking-tight scroll-mt-24"
@@ -736,7 +779,7 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
           );
         } else if (level === 2) {
           parsedBlocks.push(
-            <div key={`h2-${i}`} className="pt-8 pb-1 text-left">
+            <div key={`h2-${i}`} className={`${topPadH2} ${botPadH2} text-left`}>
               <h2
                 id={id}
                 className="group flex items-center gap-2 text-2xl sm:text-3xl font-serif font-light text-foreground tracking-tight scroll-mt-24"
@@ -769,7 +812,7 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
             <h3
               key={`h3-${i}`}
               id={id}
-              className="pt-6 pb-1 text-lg sm:text-xl font-serif font-light text-foreground tracking-tight scroll-mt-24 text-left"
+              className={`${topPadH3} ${botPadH3} text-lg sm:text-xl font-serif font-light text-foreground tracking-tight scroll-mt-24 text-left`}
             >
               <span dangerouslySetInnerHTML={{ __html: renderInline(text) }} />
             </h3>
@@ -779,7 +822,7 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
             <h4
               key={`h4-${i}`}
               id={id}
-              className="pt-4 pb-1 text-xs sm:text-sm font-sans font-medium text-foreground tracking-normal uppercase text-left"
+              className={`${topPadH4} ${botPadH4} text-xs sm:text-sm font-sans font-medium text-foreground tracking-normal uppercase text-left`}
             >
               <span dangerouslySetInnerHTML={{ __html: renderInline(text) }} />
             </h4>
@@ -790,7 +833,7 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
             <Tag
               key={`h${level}-${i}`}
               id={id}
-              className="pt-3 pb-1 text-xs font-sans font-medium text-muted-foreground tracking-wide uppercase text-left"
+              className={`${topPadH56} ${botPadH56} text-xs font-sans font-medium text-muted-foreground tracking-wide uppercase text-left`}
             >
               <span dangerouslySetInnerHTML={{ __html: renderInline(text) }} />
             </Tag>

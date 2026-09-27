@@ -16,7 +16,6 @@ However, decoupling systems into specialized linguistic tiers creates an archite
 In a traditional pipeline, each tier validates its own syntax: SQL migrations pass `sqlfluff`, Python extractors pass `mypy`, and Rust proxies compile under `rustc`. Yet none of these compilers verify the semantic invariant connecting them. When an upstream migration expands emitted columns from 200 to 280, a downstream edge proxy allocating a fixed `[Feature; 200]` stack buffer panics at runtime with `TryFromSliceError`. Stokes bridges this gap at build time.
 
 ## 1. The Systemic Void Across Polyglot Tiers
-
 ---
 
 Consider a typical production incident path observed in large-scale edge networks:
@@ -31,7 +30,6 @@ Consider a typical production incident path observed in large-scale edge network
    A fleet of edge proxies ingests the key-value configuration. To process millions of requests per second under strict 5-microsecond budgets, the proxy avoids dynamic heap allocations on the packet path, decoding features directly into a fixed-size stack array: `[Feature; 200]`. Converting the 280-element slice via `.try_into().unwrap()` triggers an immediate `TryFromSliceError` panic. Worker threads abort, epoll event loops collapse, and the entire edge fleet enters synchronized crash loops.
 
 ## 2. Why Single-Language Linters Provide False Confidence
-
 ---
 
 The fundamental design flaw in modern verification tooling is **isolation**. Each linter is mathematically sound only within its own closed-world assumption:
@@ -51,7 +49,6 @@ Single-language linters yield false confidence because they verify syntax rather
 > $$\mathcal{C}_{\text{upstream}} > \mathcal{B}_{\text{downstream}}$$
 
 ## 3. Core Architectural Principles of Stokes
-
 ---
 
 Stokes is designed around three foundational systems engineering principles:
@@ -123,7 +120,6 @@ Stokes formalizes the **Consumer Expands First (Tolerant Reader)** deployment pr
 By verifying that consumer capacity is always greater than or equal to producer cardinality ($\mathcal{B}_{\text{downstream}} \ge \mathcal{C}_{\text{upstream}}$), Stokes enables autonomous poly-repo progression without risking runtime boundary crashes.
 
 ## 4. Architectural Comparison Matrix
-
 ---
 
 | Capability | Traditional Linters (`mypy`, `clippy`) | Traditional IDLs (`protobuf`, `grpc`) | Dynamic Taint Analysis (`codeql`) | Stokes Platform |

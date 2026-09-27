@@ -14,7 +14,6 @@ This guide walks through installing Stokes, initializing a cross-boundary worksp
 The five core steps to configure and run Stokes in your repository: install the CLI, initialize workspace boundaries, lock contracts into `stokes.lock`, enforce the verification gate in CI, and connect the native MCP server to your local IDE.
 
 ## 1. Installation
-
 ---
 
 Stokes is distributed as a standalone, zero-dependency native binary or as a Python package for developer environments.
@@ -47,7 +46,6 @@ stokes --version
 ```
 
 ## 2. Project Initialization
-
 ---
 
 Navigate to the root of your polyglot project or monorepo and run `stokes init`:
@@ -74,7 +72,6 @@ Generated stokes.toml with 1 bound channel.
 ```
 
 ## 3. Defining Cross-Boundary Contracts (`stokes.toml`)
-
 ---
 
 The `stokes.toml` manifest defines the semantic bindings connecting upstream producers with downstream consumers across your architecture:
@@ -116,7 +113,6 @@ max_l1d_footprint_bytes = 32768
 > `stokes.toml` is a declarative verification manifest, not an Interface Definition Language (IDL). It generates zero code, adds zero serialization stubs, and imposes zero runtime overhead on your production binaries.
 
 ## 4. Cryptographic Boundary Locking (`stokes.lock`)
-
 ---
 
 To prevent silent contract drift in polyglot teams, Stokes compiles semantic AST signatures into a deterministic, machine-authoritative lockfile: `stokes.lock`.
@@ -159,7 +155,6 @@ This generates `stokes.lock`, containing cryptographic SHA-256 digests of parsed
 > The AST digests in `stokes.lock` are computed over normalized syntax representations: comments, whitespace, variable renamings, and internal implementation details are stripped before hashing. Only declared interface boundaries, table definitions, and fixed buffer capacities affect the digest.
 
 ## 5. Running Verification in CI (`stokes verify --strict`)
-
 ---
 
 In CI/CD environments, Stokes acts as an uncompromising gatekeeper. Running `stokes verify --strict` parses all boundary files, checks the sparse boundary graph, evaluates the Cardinality Risk Ratio, and validates signatures against `stokes.lock`:
@@ -234,7 +229,6 @@ jobs:
 ```
 
 ## 6. Local Model Context Protocol (MCP) Server Launch
-
 ---
 
 Stokes provides a built-in Model Context Protocol (MCP) server operating over standard input/output (`stdio`). This allows AI development tools such as Cursor, Windsurf, Claude Code, and IBM Bob 2.0 to inspect boundary contracts, run property tests, and synthesize zero-allocation patches natively within your editor.

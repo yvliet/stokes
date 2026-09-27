@@ -36,7 +36,6 @@ flowchart LR
 > Compilers are blind to external systems boundaries. `sqlfluff` verifies valid SQL syntax. `mypy` verifies Python type annotations. `rustc` enforces borrow semantics and memory safety within local compilation units. None of these tools can observe that a SQL schema modification emits 280 fields into an edge proxy stack buffer allocated for 200 elements.
 
 ## 1. The Context Blindness Principle
-
 ---
 
 In multi-tier microservice architectures, data contracts span heterogeneous technologies:
@@ -51,7 +50,6 @@ $$\text{Visibility}(\text{Compiler}_i) \cap \text{Domain}(\text{Compiler}_j) = \
 Stokes solves Context Blindness by lifting interface signatures from isolated abstract syntax trees (ASTs) into a unified, sparse **Interface Boundary Compatibility Graph**.
 
 ## 2. Core System Architecture
-
 ---
 
 Stokes delivers cross-boundary verification and autonomous repair sharing a unified semantic core across two primary operational modes: static CI gate analysis and autonomous multi-agent synthesis.
@@ -80,7 +78,6 @@ Stokes connects boundary analysis directly to AI coding workflows:
 - **Native MCP Protocol (`stokes mcp`)**: Full JSON-RPC 2.0 stdio server providing IDE agents with live boundary contracts, AST diagnostics, and verified patch simulation.
 
 ## 3. The Cardinality Invariant
-
 ---
 
 The primary mathematical invariant enforced by Stokes across all system boundaries is the **Cardinality Decision Invariant**:
@@ -101,7 +98,6 @@ Where:
 > When upstream cardinality $\mathcal{C}_{\text{upstream}} = 280$ and downstream capacity $\mathcal{B}_{\text{downstream}} = 200$, $\text{Risk} = 1.40 > 1.0$. Downstream conversion via direct slice slicing or `.try_into().unwrap()` is mathematically guaranteed to panic at runtime under production load.
 
 ## 4. Core Diagnostic Rules
-
 ---
 
 Stokes evaluates five diagnostic rules across heterogeneous boundaries:
@@ -115,7 +111,6 @@ Stokes evaluates five diagnostic rules across heterogeneous boundaries:
 | `LINT-005` | WARNING | Heap allocations on microsecond intake hot path | Cache line evictions degrading latency from sub-10ns register evaluation to microsecond tail spikes. |
 
 ## 5. Multi-Agent Verification Architecture
-
 ---
 
 Stokes couples static verification with an autonomous multi-agent core. Built on the IBM Bob 2.0 runtime, Stokes orchestrates five specialized language subagents communicating over length-prefixed binary sockets:
@@ -129,7 +124,6 @@ Stokes couples static verification with an autonomous multi-agent core. Built on
 These subagents stream diagnostics through an internal message bus into the ANSI multi-line terminal UI and emit structured JSON-RPC events for IDE coding agents.
 
 ## 6. Author & Attribution
-
 ---
 
 Stokes is engineered exclusively by **Yuliet Li (`yvliet`)**.
