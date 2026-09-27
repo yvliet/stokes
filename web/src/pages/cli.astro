@@ -32,10 +32,11 @@ const cliFaqs = [
   title="cli | developer terminal tooling | stokes"
   description="Deterministic developer terminal tooling for cross-boundary audit, verification, benchmarking, and certificate generation."
 >
-  <div class="flex min-h-screen flex-col bg-background text-foreground transition-colors selection:bg-neutral-200 dark:selection:bg-neutral-800">
+  <div class="flex h-screen flex-col bg-background text-foreground transition-colors selection:bg-neutral-200 dark:selection:bg-neutral-800 overflow-hidden">
     <Navbar />
 
-    <main class="flex-1">
+    <div class="flex-1 w-full min-h-0 overflow-y-auto">
+      <main class="flex-1">
       <!-- Hero Section -->
       <section class="pt-20 sm:pt-28 pb-14 px-6 text-center">
         <div class="max-w-4xl mx-auto space-y-4">
@@ -376,5 +377,6 @@ jobs:
     </main>
 
     <Footer />
+    </div>
   </div>
 </BaseLayout>

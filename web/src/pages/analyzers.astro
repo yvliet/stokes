@@ -28,10 +28,11 @@ const analyzerFaqs = [
   title="analyzers | parallel cross-boundary verification | stokes"
   description="parallel language-specific ast analyzers verifying schema contracts and buffer bounds across sql, python, and rust."
 >
-  <div class="flex min-h-screen flex-col bg-background text-foreground transition-colors selection:bg-neutral-200 dark:selection:bg-neutral-800">
+  <div class="flex h-screen flex-col bg-background text-foreground transition-colors selection:bg-neutral-200 dark:selection:bg-neutral-800 overflow-hidden">
     <Navbar />
 
-    <main class="flex-1">
+    <div class="flex-1 w-full min-h-0 overflow-y-auto">
+      <main class="flex-1">
       <!-- Hero Section -->
       <section class="pt-24 sm:pt-32 pb-16 px-6 text-center">
         <div class="max-w-4xl mx-auto">
@@ -368,5 +369,6 @@ const analyzerFaqs = [
     </main>
 
     <Footer />
+    </div>
   </div>
 </BaseLayout>

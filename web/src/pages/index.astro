@@ -14,18 +14,20 @@ import Footer from '../components/Footer.astro';
   title="stokes | cross-boundary static analysis linter"
   description="Statically catch cross-service buffer panics across ClickHouse SQL, Python pipelines, and Rust edge proxies before code commits."
 >
-  <div class="flex min-h-screen flex-col bg-background text-foreground transition-colors selection:bg-neutral-200 dark:selection:bg-neutral-800">
+  <div class="flex h-screen flex-col bg-background text-foreground transition-colors selection:bg-neutral-200 dark:selection:bg-neutral-800 overflow-hidden">
     <Navbar />
     
-    <main class="flex-1">
-      <Hero />
-      <CliTerminal />
-      <BenchmarkGrid />
-      <OutageCaseStudy />
-      <FAQ />
-      <FinalCTA />
-    </main>
+    <div class="flex-1 w-full min-h-0 overflow-y-auto">
+      <main class="flex-1">
+        <Hero />
+        <CliTerminal />
+        <BenchmarkGrid />
+        <OutageCaseStudy />
+        <FAQ />
+        <FinalCTA />
+      </main>
 
-    <Footer />
+      <Footer />
+    </div>
   </div>
 </BaseLayout>
