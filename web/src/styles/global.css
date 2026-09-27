@@ -128,6 +128,18 @@
   background: hsl(var(--muted-foreground) / 0.45);
 }
 
+/* Remove scrollbar stepper arrow buttons site-wide */
+::-webkit-scrollbar-button,
+*::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 html,
 body {
   overscroll-behavior: none;
