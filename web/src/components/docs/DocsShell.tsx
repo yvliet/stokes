@@ -111,9 +111,9 @@ export const DocsShell: React.FC = () => {
   const nextDoc = currentIndex >= 0 && currentIndex < flattened.length - 1 ? flattened[currentIndex + 1] : null;
 
   return (
-    <div className="w-full h-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col min-h-0">
+    <div className="w-full h-full flex flex-col min-h-0">
       {/* Mobile Navigation Toggle Bar */}
-      <div className="lg:hidden flex items-center justify-between py-3 mb-2 border-b border-border/40 shrink-0">
+      <div className="lg:hidden flex items-center justify-between py-3 px-4 sm:px-6 border-b border-border/40 shrink-0">
         <button
           type="button"
           onClick={() => setIsMobileDrawerOpen(true)}
@@ -158,9 +158,9 @@ export const DocsShell: React.FC = () => {
       )}
 
       {/* Tri-Column Desktop Layout */}
-      <div className="flex-1 flex flex-col lg:flex-row gap-6 lg:gap-8 xl:gap-10 min-h-0 overflow-hidden">
+      <div className="flex-1 flex min-h-0 overflow-hidden w-full">
         {/* Left Fixed Sidebar - Has its own independent scrollbar */}
-        <div className="hidden lg:flex flex-col w-64 xl:w-72 shrink-0 h-full py-6 pr-2">
+        <div className="hidden lg:flex flex-col w-64 xl:w-72 2xl:w-80 shrink-0 h-full py-6 pl-4 sm:pl-6 lg:pl-8 pr-4 border-r border-border/40">
           <DocTreeSidebar
             categories={DOCS_TREE}
             activeDocId={activeDoc.id}
@@ -168,12 +168,12 @@ export const DocsShell: React.FC = () => {
           />
         </div>
 
-        {/* Center Main Content + Right TOC Rail Container - Unified scrollbar for center and right pane */}
+        {/* Center Main Content + Right TOC Rail Container - Unified scrollbar directly at the rightmost edge */}
         <div
           ref={contentContainerRef}
-          className="flex-1 h-full min-w-0 overflow-y-auto pt-6 pb-20 pr-2 xl:pr-4"
+          className="flex-1 h-full min-w-0 overflow-y-auto"
         >
-          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 xl:gap-10 items-start max-w-full">
+          <div className="w-full max-w-[1440px] px-6 lg:px-10 xl:px-12 py-6 pb-24 flex flex-col lg:flex-row gap-8 xl:gap-12 items-start">
             {/* Center Main Article */}
             <div className="flex-1 min-w-0">
               <DocsReader
