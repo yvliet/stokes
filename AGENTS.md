@@ -7,7 +7,7 @@
 
 - **Project**: Stokes - Autonomous Cross-Boundary Systems Verification Engine
 - **Engine**: IBM Bob 2.0 Multi-Agent Orchestrator
-- **Target Patient**: Dirichlet (Edge Proxy & Analytics Testbed)
+- **Target Patient**: Cloudflame (Edge Proxy & Analytics Testbed)
 - **Maintainer**: yvliet (GitHub: yvliet)
 - **Certification Status**: INVARIANTS ACTIVE - VERIFIED
 
@@ -22,7 +22,7 @@
 **Trigger**: `tree-sitter` detects `call_expression` wrapping `field_expression` with `try_into` → `unwrap` or `expect`.  
 **Stokes Response**: `stokes-rust` synthesizes defensive bounds validation using explicit slice capacity checks and `Result<[Feature; 200], PayloadError>` with zero heap allocation.  
 **Mathematical Condition**: `Risk = C_upstream / B_downstream > 1.0` implies FATAL TRYFROMSLICEERROR reachable.  
-**Dirichlet Benchmark**: C_upstream = 280 (200 canonical + 40 shard_r0 + 40 shard_r1), B_downstream = 200. Risk = 1.40 → FATAL.
+**Cloudflame Benchmark**: C_upstream = 280 (200 canonical + 40 shard_r0 + 40 shard_r1), B_downstream = 200. Risk = 1.40 → FATAL.
 
 ---
 
@@ -115,7 +115,7 @@ Risk > 1.0  (finite overflow)     → FATAL CONTRACT DRIFT
 Risk = ∞    (unbounded stream)    → UNBOUNDED CAPACITY HAZARD
 ```
 
-**Current Dirichlet Measurement**: Risk = 280 / 200 = **1.40 → FATAL**
+**Current Cloudflame Measurement**: Risk = 280 / 200 = **1.40 → FATAL**
 
 ---
 

@@ -106,7 +106,7 @@ const contractFaqs = [
               <div class="space-y-1 text-muted-foreground lowercase">
                 <p class="text-foreground font-semibold"># stokes declarative boundary contract specification</p>
                 <p>schema_version: "2026.09.25"</p>
-                <p>target_workspace: "dirichlet-l7-proxy"</p>
+                <p>target_workspace: "cloudflame-l7-proxy"</p>
                 <p>max_canonical_features: 200</p>
               </div>
 
@@ -142,7 +142,7 @@ const contractFaqs = [
                       <span class="text-foreground font-medium lowercase">rust l7 edge proxy</span>
                       <span class="text-emerald-500 font-semibold lowercase">match</span>
                     </div>
-                    <p class="text-[11px] text-muted-foreground lowercase">crate: <code>crates/dirichlet-proxy</code></p>
+                    <p class="text-[11px] text-muted-foreground lowercase">crate: <code>crates/cloudflame-proxy</code></p>
                     <p class="text-[11px] text-muted-foreground lowercase">stack buffer: <code>[Feature; 200]</code></p>
                     <p class="text-[11px] text-muted-foreground lowercase">bounds guard: <code>Result&lt;[Feature; 200], PayloadError&gt;</code></p>
                     <div class="pt-1 text-[10px] text-emerald-600 dark:text-emerald-400 lowercase">hot path verified (0 b heap)</div>
@@ -242,7 +242,7 @@ const contractFaqs = [
                 <p class="text-red-500">- query = "SELECT name, type FROM system.columns WHERE table LIKE 'events%'"</p>
                 <p class="text-emerald-500">+ query = "SELECT name, type FROM system.columns WHERE database = currentDatabase() AND table = 'events'"</p>
                 
-                <p class="text-muted-foreground mt-2 lowercase">// crates/dirichlet-proxy/src/engine/feature_ingest.rs</p>
+                <p class="text-muted-foreground mt-2 lowercase">// crates/cloudflame-proxy/src/engine/feature_ingest.rs</p>
                 <p class="text-red-500">- raw_features.into_boxed_slice().try_into().unwrap() // panic on #201</p>
                 <p class="text-emerald-500">+ if raw_features.len() &gt; 200 &#123; return Err(PayloadError::CapacityExceeded); &#125;</p>
                 <p class="text-emerald-500">+ let features: [Feature; 200] = raw_features[..200].try_into()?;</p>

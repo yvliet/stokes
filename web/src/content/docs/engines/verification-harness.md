@@ -65,7 +65,7 @@ Numbers with magnitude smaller than the minimum normal float ($2^{-126} \approx 
 Stokes configures CPU hardware registers directly upon proxy initialization to enable Flush-to-Zero (FTZ) and Denormals-Are-Zero (DAZ) modes:
 
 ```rust
-// crates/dirichlet-proxy/src/engine/traffic_evaluator.rs
+// crates/cloudflame-proxy/src/engine/traffic_evaluator.rs
 #[inline(always)]
 pub fn configure_hardware_float_registers() {
     #[cfg(target_arch = "x86_64")]
@@ -137,7 +137,7 @@ High-throughput systems cannot tolerate latency regressions introduced by dynami
 
 ### Authoritative Measured Baselines
 
-In the Dirichlet benchmark testbed, Stokes compares the performance of unhardened heap allocations against hardened in-place partial sorting:
+In the Cloudflame benchmark testbed, Stokes compares the performance of unhardened heap allocations against hardened in-place partial sorting:
 
 | Ingestion Method | Latency (p50) | Heap Allocation | Cache Lines (64B) | L1D Occupancy | Allocator Lock Impact |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -235,4 +235,4 @@ class ChaosEngine:
 | **Carrier BGP Stability** | `chaos_engine.py` (RFC-2439 simulator) | Simulated RFD penalty $< 1,500$; zero route dampening |
 | **Schema Bounds** | `stokes verify --strict` (AST engine) | Emitted cardinality $\le$ buffer capacity ($\mathcal{C} \le \mathcal{B}$) |
 
-By uniting microarchitectural benchmarks, IEEE-754 float fuzzing, and carrier-grade BGP flap simulation, the Stokes Verification Harness guarantees that low-latency systems maintain mathematical stability under production stress. See the [[dirichlet-case-study|Dirichlet Case Study]] for real-world benchmarking results and [[02-panic-resilience|Panic Resilience]] for the two-tier runtime model.
+By uniting microarchitectural benchmarks, IEEE-754 float fuzzing, and carrier-grade BGP flap simulation, the Stokes Verification Harness guarantees that low-latency systems maintain mathematical stability under production stress. See the [[cloudflame-case-study|Cloudflame Case Study]] for real-world benchmarking results and [[02-panic-resilience|Panic Resilience]] for the two-tier runtime model.

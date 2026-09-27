@@ -38,7 +38,7 @@ def print_banner(
         f"{FG_WHITE}⎣{RESET} {DIM}·{RESET}  {DIM}·{RESET}  {FG_WHITE}■{RESET} {FG_WHITE}⎦{RESET}",
     ]
     header_texts = [
-        f"{BOLD}{FG_WHITE}stokes v0.2.0{RESET} {DIM}· scanning \"dirichlet\"{RESET}",
+        f"{BOLD}{FG_WHITE}stokes v0.2.0{RESET} {DIM}· scanning \"cloudflame\"{RESET}",
         f"{DIM}orchestrator:{RESET} {orchestrator}{RESET}",
         f"{DIM}subagents: {subagents_text}{RESET}",
     ]

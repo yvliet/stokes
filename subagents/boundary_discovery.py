@@ -333,7 +333,7 @@ class BoundaryDiscovery:
             if p.get("violation")
         ]
         if unscoped:
-            return 280  # Dirichlet: 200 canonical + 80 shard duplicates
+            return 280  # Cloudflame: 200 canonical + 80 shard duplicates
 
         scoped = [
             p for p in contracts["upstream_projections"]

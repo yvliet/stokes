@@ -40,7 +40,7 @@ All core project logic, AST analysis engines, and autonomous orchestration worke
 
 ### Disclosed Pre-Prepared Templates & Benchmarks
 In compliance with organizer guidance, the following baseline templates were prepared prior to the build window and are transparently disclosed:
-1. **Dirichlet Testbed (`dirichlet/`)**: Synthetic production-grade patient modeling the Cloudflare November 18, 2025 outage cascade (ClickHouse DDL, Python feature extractor, and Rust fixed-capacity L7 edge proxy).
+1. **Cloudflame Testbed (`cloudflame/`)**: Synthetic production-grade patient modeling the Cloudflare November 18, 2025 outage cascade (ClickHouse DDL, Python feature extractor, and Rust fixed-capacity L7 edge proxy).
 2. **Web UI Presentation Shell (`web/`)**: Staged Astro frontend layout and visual presentation template.
 
 ---

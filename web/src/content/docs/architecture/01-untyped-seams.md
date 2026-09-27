@@ -82,7 +82,7 @@ $$\text{Risk} = \frac{\mathcal{C}_{\text{upstream}}}{\mathcal{B}_{\text{downstre
 
 ### Formal Proof of Reachability for TryFromSliceError
 
-In the Dirichlet benchmark (modeling the November 18, 2025 incident):
+In the Cloudflame benchmark (modeling the November 18, 2025 incident):
 
 1. **Upstream Schema Cardinality**:
    The analytical database schema emits 200 canonical feature columns, plus 40 replica columns from shard $r_0$, and 40 replica columns from shard $r_1$:

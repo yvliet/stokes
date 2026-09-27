@@ -14,7 +14,7 @@ import ciMcpGateRaw from '../content/docs/architecture/07-ci-mcp-gate.md?raw';
 import astEngineRaw from '../content/docs/engines/ast-engine.md?raw';
 import subagentSwarmRaw from '../content/docs/engines/subagent-swarm.md?raw';
 import verificationHarnessRaw from '../content/docs/engines/verification-harness.md?raw';
-import dirichletCaseStudyRaw from '../content/docs/engines/dirichlet-case-study.md?raw';
+import cloudflameCaseStudyRaw from '../content/docs/engines/cloudflame-case-study.md?raw';
 
 import cliReferenceRaw from '../content/docs/reference/cli-reference.md?raw';
 import lockfileSpecRaw from '../content/docs/reference/lockfile-spec.md?raw';
@@ -64,7 +64,7 @@ const docCiMcpGate = parseFrontmatter(ciMcpGateRaw);
 const docAstEngine = parseFrontmatter(astEngineRaw);
 const docSubagentSwarm = parseFrontmatter(subagentSwarmRaw);
 const docVerificationHarness = parseFrontmatter(verificationHarnessRaw);
-const docDirichletCaseStudy = parseFrontmatter(dirichletCaseStudyRaw);
+const docCloudflameCaseStudy = parseFrontmatter(cloudflameCaseStudyRaw);
 
 const docCliReference = parseFrontmatter(cliReferenceRaw);
 const docLockfileSpec = parseFrontmatter(lockfileSpecRaw);
@@ -245,16 +245,16 @@ export const DOCS_TREE: DocCategory[] = [
         content: docVerificationHarness.content,
       },
       {
-        id: 'dirichlet-case-study',
-        title: docDirichletCaseStudy.data.title || 'dirichlet cloudflare outage reproduction',
-        slug: 'dirichlet-case-study',
+        id: 'cloudflame-case-study',
+        title: docCloudflameCaseStudy.data.title || 'cloudflame cloudflare outage reproduction',
+        slug: 'cloudflame-case-study',
         category: 'engines & incident analysis',
-        summary: docDirichletCaseStudy.data.summary || 'complete production-grade reproduction of the Cloudflare Nov 18, 2025 outage cascade and stokes verification.',
-        lastUpdated: docDirichletCaseStudy.data.lastUpdated || 'last updated 1 day ago',
-        readTime: docDirichletCaseStudy.data.readTime || '7 min read',
-        author: docDirichletCaseStudy.data.author,
-        license: docDirichletCaseStudy.data.license,
-        content: docDirichletCaseStudy.content,
+        summary: docCloudflameCaseStudy.data.summary || 'complete production-grade reproduction of the Cloudflare Nov 18, 2025 outage cascade and stokes verification.',
+        lastUpdated: docCloudflameCaseStudy.data.lastUpdated || 'last updated 1 day ago',
+        readTime: docCloudflameCaseStudy.data.readTime || '7 min read',
+        author: docCloudflameCaseStudy.data.author,
+        license: docCloudflameCaseStudy.data.license,
+        content: docCloudflameCaseStudy.content,
       },
     ],
   },

@@ -69,7 +69,7 @@ SUBAGENT_CATALOG: dict[str, dict] = {
         "runtime": "Rust 1.85",
         "scope": "edge proxy L7 engine, fixed memory & panic invariants",
         "stages": [
-            "inspecting crates/dirichlet-proxy/src/lib.rs buffer bounds...",
+            "inspecting crates/cloudflame-proxy/src/lib.rs buffer bounds...",
             "auditing feature_ingest.rs intake handler allocation...",
             "evaluating fixed stack buffer [Feature; 200] capacity...",
             "FLAGGED: infallible intake violation (.unwrap() on overflow)",
@@ -155,7 +155,7 @@ async def cmd_scan(args: argparse.Namespace) -> int:
     from stokes.subagents.boundary_discovery import BoundaryDiscovery
     from stokes.subagents.contract_synthesizer import ContractSynthesizer
 
-    path = args.path or "../dirichlet"
+    path = args.path or "../cloudflame"
     abs_path = str(Path(path).resolve())
 
     stack = detect_workspace_stack(abs_path)
@@ -211,7 +211,7 @@ async def cmd_audit(args: argparse.Namespace) -> int:
     from stokes.subagents.stokes_proto import StokesProtoAgent
     from stokes.subagents.bob_multiplexer import AgentMultiplexer, BobMultiplexer
 
-    path = args.path or "../dirichlet"
+    path = args.path or "../cloudflame"
     abs_path = str(Path(path).resolve())
     strict = getattr(args, "strict", False)
 
@@ -351,9 +351,9 @@ async def cmd_audit(args: argparse.Namespace) -> int:
             remediation_prompt = (
                 "Stokes Systems Invariant Engine detected cross-boundary contract drift:\n"
                 f"- Peak Cardinality Risk Ratio: {max_risk:.2f} > 1.0 (FATAL)\n"
-                "- Downstream fixed buffer [Feature; 200] in crates/dirichlet-proxy/src/engine/feature_ingest.rs\n"
+                "- Downstream fixed buffer [Feature; 200] in crates/cloudflame-proxy/src/engine/feature_ingest.rs\n"
                 "- Upstream ClickHouse reflection emits 280 rows without database qualification predicate\n"
-                "Task: Enforce cross-boundary cardinality bounds: scope upstream ClickHouse reflection queries to database = currentDatabase() and implement defensive bounds guards (Result<_, PayloadError>) in crates/dirichlet-proxy."
+                "Task: Enforce cross-boundary cardinality bounds: scope upstream ClickHouse reflection queries to database = currentDatabase() and implement defensive bounds guards (Result<_, PayloadError>) in crates/cloudflame-proxy."
             )
             scan_res = await scan_workspace(abs_path)
             synthesizer = ContractSynthesizer(scan_res)
@@ -423,7 +423,7 @@ async def cmd_patch(args: argparse.Namespace) -> int:
     from stokes.subagents.contract_synthesizer import ContractSynthesizer
     from stokes.cli.agent_bridge import PatchExportProvider
 
-    abs_path = os.path.abspath(args.path or "../dirichlet")
+    abs_path = os.path.abspath(args.path or "../cloudflame")
     scan_res = await scan_workspace(abs_path)
     synthesizer = ContractSynthesizer(scan_res)
     diff_str = synthesizer.synthesize()
@@ -443,7 +443,7 @@ async def cmd_codegen(args: argparse.Namespace) -> int:
     from stokes.subagents.contract_synthesizer import ContractSynthesizer
     from stokes.cli.agent_bridge import PatchExportProvider
 
-    abs_path = os.path.abspath(getattr(args, "path", None) or "../dirichlet")
+    abs_path = os.path.abspath(getattr(args, "path", None) or "../cloudflame")
     consumer = getattr(args, "consumer", None)
     should_write = getattr(args, "write", False)
 
@@ -477,7 +477,7 @@ async def cmd_stage_check(args: argparse.Namespace) -> int:
     """stokes stage-check [DATABASE_URL] - evaluate staging catalog against buffer bounds."""
     from stokes.subagents.staging_inspector import StagingInspector
 
-    db_url = args.database_url or "mock://dirichlet"
+    db_url = args.database_url or "mock://cloudflame"
 
     stack = ["sql", "python", "rust"]
     subagents = resolve_subagents(stack)
@@ -588,8 +588,8 @@ async def cmd_verify(args: argparse.Namespace) -> int:
     from stokes.harness.sandbox_runner import SandboxRunner
 
     strict = getattr(args, "strict", False)
-    path = getattr(args, "path", "../dirichlet")
-    abs_path = str(Path(path).resolve()) if path else str(Path("../dirichlet").resolve())
+    path = getattr(args, "path", "../cloudflame")
+    abs_path = str(Path(path).resolve()) if path else str(Path("../cloudflame").resolve())
 
     stack = ["sql", "python", "rust"]
     subagents = resolve_subagents(stack)
@@ -648,8 +648,8 @@ async def cmd_cert(args: argparse.Namespace) -> int:
     from stokes.harness.criterion_runner import CriterionRunner
 
     output = getattr(args, "output", "stokes.lock") or "stokes.lock"
-    path = getattr(args, "path", "../dirichlet")
-    abs_path = str(Path(path).resolve()) if path else str(Path("../dirichlet").resolve())
+    path = getattr(args, "path", "../cloudflame")
+    abs_path = str(Path(path).resolve()) if path else str(Path("../cloudflame").resolve())
 
     stack = ["sql", "python", "rust"]
     subagents = resolve_subagents(stack)
@@ -666,7 +666,7 @@ async def cmd_cert(args: argparse.Namespace) -> int:
     schema_files = [
         Path(abs_path) / "migrations" / "001_bot_signals.sql",
         Path(abs_path) / "services" / "feature-pipeline" / "catalog_sync.py",
-        Path(abs_path) / "crates" / "dirichlet-proxy" / "src" / "engine" / "feature_ingest.rs",
+        Path(abs_path) / "crates" / "cloudflame-proxy" / "src" / "engine" / "feature_ingest.rs",
     ]
     for sf in schema_files:
         if sf.exists():
@@ -815,13 +815,13 @@ def build_parser() -> argparse.ArgumentParser:
 
     # scan
     p_scan = sub.add_parser("scan", help="Crawl workspace and discover cross-boundary contracts")
-    p_scan.add_argument("path", nargs="?", default="../dirichlet", help="Workspace path")
+    p_scan.add_argument("path", nargs="?", default="../cloudflame", help="Workspace path")
     p_scan.add_argument("--generate-contract", action="store_true",
                         help="Auto-synthesize AGENTS.md from discovered contracts")
 
     # audit
     p_audit = sub.add_parser("audit", help="Run parallel subagents and evaluate contract compliance")
-    p_audit.add_argument("path", nargs="?", default="../dirichlet", help="Workspace path")
+    p_audit.add_argument("path", nargs="?", default="../cloudflame", help="Workspace path")
     p_audit.add_argument("--strict", action="store_true", default=True,
                          help="Require contracts.json; exit 1 on any violation (default: True)")
     p_audit.add_argument("--agent", choices=["claude", "bob", "aider", "goose", "openhands", "generic", "patch"],
@@ -840,7 +840,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_remed = sub.add_parser(
         "remediate", help="Evaluate contract drift and invoke AI coding agent to apply fixes"
     )
-    p_remed.add_argument("path", nargs="?", default="../dirichlet", help="Workspace path")
+    p_remed.add_argument("path", nargs="?", default="../cloudflame", help="Workspace path")
     p_remed.add_argument("--agent", choices=["claude", "bob", "aider", "goose", "openhands", "generic", "patch"], default=None,
                          help="Specific coding agent provider (default: auto-detect)")
     p_remed.add_argument("--agent-cmd", help="Custom command template for generic agent")
@@ -864,7 +864,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_patch = sub.add_parser(
         "patch", help="Synthesize and export unified remediation patch directly to disk"
     )
-    p_patch.add_argument("path", nargs="?", default="../dirichlet", help="Workspace path")
+    p_patch.add_argument("path", nargs="?", default="../cloudflame", help="Workspace path")
     p_patch.add_argument("--output", default=None, help="Output path for patch file")
 
     # stage-check
@@ -872,8 +872,8 @@ def build_parser() -> argparse.ArgumentParser:
         "stage-check", help="Evaluate staging database catalog against buffer bounds"
     )
     p_stage.add_argument(
-        "database_url", nargs="?", default="mock://dirichlet",
-        help="Database URL (e.g. clickhouse://host:9000/db or mock://dirichlet)"
+        "database_url", nargs="?", default="mock://cloudflame",
+        help="Database URL (e.g. clickhouse://host:9000/db or mock://cloudflame)"
     )
 
     # verify
@@ -886,13 +886,13 @@ def build_parser() -> argparse.ArgumentParser:
                           help="Path to downstream consumer repo for poly-repo sequence verification")
     p_verify.add_argument("--producer", default=None,
                           help="Path to upstream producer repo for poly-repo sequence verification")
-    p_verify.add_argument("path", nargs="?", default="../dirichlet")
+    p_verify.add_argument("path", nargs="?", default="../cloudflame")
 
     # codegen (autonomous synthesis of certified zero-heap buffers)
     p_codegen = sub.add_parser(
         "codegen", help="Synthesize certified zero-heap buffers (TieredBuffer) and patch AST boundaries"
     )
-    p_codegen.add_argument("path", nargs="?", default="../dirichlet", help="Workspace path")
+    p_codegen.add_argument("path", nargs="?", default="../cloudflame", help="Workspace path")
     p_codegen.add_argument("--consumer", default=None,
                            help="Target consumer file to synthesize TieredBuffer for")
     p_codegen.add_argument("--write", action="store_true",
@@ -906,7 +906,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_cert.add_argument("--output", default="stokes.lock",
                         help="Output path for stokes.lock (default: stokes.lock)")
-    p_cert.add_argument("path", nargs="?", default="../dirichlet")
+    p_cert.add_argument("path", nargs="?", default="../cloudflame")
 
     # check (fast deterministic CI boundary contract gate)
     p_check = sub.add_parser(
@@ -918,7 +918,7 @@ def build_parser() -> argparse.ArgumentParser:
                           help="Path to downstream consumer repo for poly-repo sequence verification")
     p_check.add_argument("--producer", default=None,
                           help="Path to upstream producer repo for poly-repo sequence verification")
-    p_check.add_argument("path", nargs="?", default="../dirichlet")
+    p_check.add_argument("path", nargs="?", default="../cloudflame")
 
     return parser
 

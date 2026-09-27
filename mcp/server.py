@@ -109,7 +109,7 @@ STOKES_TOOLS = [
                 },
                 "target_file": {
                     "type": "string",
-                    "description": "Target source file being patched (e.g. crates/dirichlet-proxy/src/buffer.rs).",
+                    "description": "Target source file being patched (e.g. crates/cloudflame-proxy/src/buffer.rs).",
                 },
             },
             "required": ["patch_content"],
@@ -184,7 +184,7 @@ STOKES_PROMPTS = [
         "arguments": [
             {
                 "name": "target_service",
-                "description": "Downstream service receiving untrusted payloads (e.g. crates/dirichlet-proxy)",
+                "description": "Downstream service receiving untrusted payloads (e.g. crates/cloudflame-proxy)",
                 "required": False,
             }
         ],
@@ -369,7 +369,7 @@ class StokesMcpServer:
             }
 
         if name == "stokes_refactor_contract":
-            target = args.get("target_service", "crates/dirichlet-proxy")
+            target = args.get("target_service", "crates/cloudflame-proxy")
             msg = (
                 f"You are a systems engineer refactoring {target} using Stokes.\n"
                 f"1. Ingest stokes://contracts to observe exact upstream field counts and downstream buffer bounds.\n"

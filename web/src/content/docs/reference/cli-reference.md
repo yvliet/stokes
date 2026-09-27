@@ -151,7 +151,7 @@ The synthesized `TieredBuffer<T, INLINE, SPILL>` provides:
 #### Example Usage & Output
 
 ```bash
-stokes codegen crates/dirichlet-proxy --consumer=src/engine/feature_ingest.rs --write
+stokes codegen crates/cloudflame-proxy --consumer=src/engine/feature_ingest.rs --write
 ```
 
 Synthesized Rust buffer intake pattern:
@@ -361,7 +361,7 @@ boundaries:
       type: "clickhouse_ddl"
       scope_database: true
   consumers:
-    - path: "crates/dirichlet-proxy/src/engine/feature_ingest.rs"
+    - path: "crates/cloudflame-proxy/src/engine/feature_ingest.rs"
       type: "rust_fixed_buffer"
       max_capacity: 200
 ```
@@ -380,7 +380,7 @@ stokes scan [PATH] [--generate-contract]
 Scans workspace files, detects active language runtimes (SQL, Python, Rust, Protobuf), and runs initial Tree-sitter AST queries. If `--generate-contract` is provided, Stokes automatically compiles an `AGENTS.md` contract policy file used by AI coding agents.
 
 ```bash
-stokes scan ../dirichlet --generate-contract
+stokes scan ../cloudflame --generate-contract
 ```
 
 ---

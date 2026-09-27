@@ -54,7 +54,7 @@ class ReachabilityGraph:
     cross-boundary interface and identifies reachable contract violations.
     """
 
-    MAX_ACTIVE_FEATURES = 200  # Dirichlet downstream buffer capacity
+    MAX_ACTIVE_FEATURES = 200  # Cloudflame downstream buffer capacity
 
     def __init__(self) -> None:
         self.nodes: dict[str, ReachabilityNode] = {}
@@ -73,9 +73,9 @@ class ReachabilityGraph:
         self.edges.append(edge)
         self._adjacency.setdefault(edge.source, []).append(edge.target)
 
-    def build_dirichlet_graph(self, scan_results: dict[str, Any]) -> None:
+    def build_cloudflame_graph(self, scan_results: dict[str, Any]) -> None:
         """
-        Construct the Dirichlet incident reachability graph from scan results.
+        Construct the Cloudflame incident reachability graph from scan results.
 
         Topology:
           ClickHouse system.columns (upstream, cardinality=280)
@@ -130,7 +130,7 @@ class ReachabilityGraph:
         n_rust = ReachabilityNode(
             node_id="rust.feature_buffer",
             language="rust",
-            file="crates/dirichlet-proxy/src/engine/feature_ingest.rs",
+            file="crates/cloudflame-proxy/src/engine/feature_ingest.rs",
             line=42,
             symbol="[Feature; 200]",
             cardinality=self.MAX_ACTIVE_FEATURES,
@@ -291,3 +291,6 @@ class ReachabilityGraph:
             "violation_reachable": violations_reachable,
             "taint_propagation_path": taint_path,
         }
+
+# Backward compatibility alias (formerly Cloudflame)
+build_cloudflame_graph = ReachabilityGraph.build_cloudflame_graph

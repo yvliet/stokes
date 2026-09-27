@@ -179,14 +179,14 @@ The Stokes MCP server communicates via JSON-RPC 2.0 over standard input/output (
     "downstream_impacts": [
       {
         "channel_id": "analytics_to_edge_l7",
-        "consumer_repo": "dirichlet-proxy",
-        "consumer_file": "crates/dirichlet-proxy/src/engine/feature_ingest.rs",
+        "consumer_repo": "cloudflame-proxy",
+        "consumer_file": "crates/cloudflame-proxy/src/engine/feature_ingest.rs",
         "buffer_capacity": 200,
         "new_cardinality": 202,
         "panic_reachable": true
       }
     ],
-    "remediation_guidance": "Do not commit this SQL migration yet. Expand the downstream buffer in crates/dirichlet-proxy/src/engine/feature_ingest.rs to at least 256 slots first, or apply a projection field mask."
+    "remediation_guidance": "Do not commit this SQL migration yet. Expand the downstream buffer in crates/cloudflame-proxy/src/engine/feature_ingest.rs to at least 256 slots first, or apply a projection field mask."
   }
 }
 ```

@@ -1,5 +1,5 @@
 ---
-title: "The Dirichlet Benchmark & Incident Reproduction Testbed"
+title: "The Cloudflame Benchmark & Incident Reproduction Testbed"
 description: "Forensic breakdown and zero-drop mitigation of the Cloudflare November 18, 2025 outage reproduction across ClickHouse, Python ETL, and Pingora Rust proxy."
 category: "Engines"
 order: 4
@@ -8,11 +8,11 @@ readTime: "9 min read"
 author: "Yuliet Li"
 ---
 
-# The Dirichlet Benchmark & Incident Reproduction Testbed
+# The Cloudflame Benchmark & Incident Reproduction Testbed
 
 On November 18, 2025, a global cloud network experienced a severe multi-hour outage affecting millions of domains worldwide. The incident was not caused by external cyberattacks, power grid failures, or hardware faults. It was caused by cross-boundary contract drift across an untyped architectural seam between analytical database reflection and compiled edge reverse proxies.
 
-To validate Stokes under real-world systems conditions, the **Dirichlet Testbed** was constructed: a standalone, production-faithful incident reproduction modeling the exact three-tier architecture that failed during the November 18, 2025 event.
+To validate Stokes under real-world systems conditions, the **Cloudflame Testbed** was constructed: a standalone, production-faithful incident reproduction modeling the exact three-tier architecture that failed during the November 18, 2025 event.
 
 ```mermaid
 flowchart TD
@@ -47,15 +47,15 @@ flowchart TD
 ## Component Architecture Breakdown
 ---
 
-The Dirichlet testbed mirrors the real-world software stack across three distinct tiers:
+The Cloudflame testbed mirrors the real-world software stack across three distinct tiers:
 
 ### 1. The Analytical Tier: ClickHouse DDL Migrations
-Located in `dirichlet/migrations/`:
+Located in `cloudflame/migrations/`:
 - `001_bot_signals.sql`: Declares the canonical analytical schema containing 200 bot detection feature columns (`bot_score`, `ja4_fingerprint`, `entropy_score`, `datacenter_asn`, etc.).
 - `002_shard_definitions.sql`: Models horizontal cluster repartitioning by creating replica shard tables `events_r0` and `events_r1`. Each shard table contains 40 operational metadata columns (`_shard_num`, `_replica_sync_token`, `_part_offset`, etc.).
 
 ### 2. The Data Pipeline Tier: Python ETL Extractor
-Located in `dirichlet/services/feature-pipeline/`:
+Located in `cloudflame/services/feature-pipeline/`:
 - `catalog_sync.py`: Connects to ClickHouse and introspects metadata using an unqualified reflection query:
   ```sql
   SELECT name, type FROM system.columns WHERE table LIKE 'events%'
@@ -65,7 +65,7 @@ Located in `dirichlet/services/feature-pipeline/`:
 - Serializes the 280 features into `data/payloads/features_drift.json`.
 
 ### 3. The Edge Proxy Tier: Rust Pingora-Style Reverse Proxy
-Located in `dirichlet/crates/dirichlet-proxy/`:
+Located in `cloudflame/crates/cloudflame-proxy/`:
 - Modeled after modern multi-threaded edge ingress proxies (such as Cloudflare Pingora or Envoy).
 - Processes millions of requests per second. To maintain sub-microsecond packet intake latency and prevent memory fragmentation, the proxy allocates fixed stack buffers rather than dynamic heap vectors:
   ```rust
@@ -77,7 +77,7 @@ Located in `dirichlet/crates/dirichlet-proxy/`:
 ## Step-by-Step Incident Crash Reproduction
 ---
 
-The Dirichlet testbed allows executing the complete, reproducible failure sequence from baseline stability to global process collapse:
+The Cloudflame testbed allows executing the complete, reproducible failure sequence from baseline stability to global process collapse:
 
 ### Step 1: Baseline State (Healthy Operations)
 In baseline operations, ClickHouse contains only the 200 canonical features. The ETL pipeline extracts 200 features, serializes them into the configuration mesh, and the proxy ingests them into its 200-slot buffer:
@@ -89,7 +89,7 @@ In baseline operations, ClickHouse contains only the 200 canonical features. The
 ### Step 2: Applying the Shard Expansion Migration
 A database engineer applies `002_shard_definitions.sql` to prepare for horizontal partitioning:
 ```bash
-clickhouse-client --query="$(cat dirichlet/migrations/002_shard_definitions.sql)"
+clickhouse-client --query="$(cat cloudflame/migrations/002_shard_definitions.sql)"
 ```
 ClickHouse creates `events_r0` and `events_r1`. At this stage, traditional linters report complete success:
 - `sqlfluff`: **PASS** (100% valid ClickHouse DDL syntax).
@@ -97,7 +97,7 @@ ClickHouse creates `events_r0` and `events_r1`. At this stage, traditional linte
 ### Step 3: Unbounded Schema Extraction
 The automated ETL worker executes `catalog_sync.py`:
 ```bash
-python3 dirichlet/services/feature-pipeline/catalog_sync.py
+python3 cloudflame/services/feature-pipeline/catalog_sync.py
 ```
 Because the query uses `WHERE table LIKE 'events%'`, ClickHouse returns 280 rows. Python packs all 280 entries into `data/payloads/features_drift.json`.
 - `mypy` / `ruff`: **PASS** (Valid Python syntax, types match annotations).
@@ -106,7 +106,7 @@ Because the query uses `WHERE table LIKE 'events%'`, ClickHouse returns 280 rows
 ### Step 4: Edge Ingestion & Worker Thread Panic
 The edge proxy ingests the updated `features_drift.json` configuration payload:
 ```rust
-// crates/dirichlet-proxy/src/engine/feature_ingest.rs (Unhardened)
+// crates/cloudflame-proxy/src/engine/feature_ingest.rs (Unhardened)
 pub fn ingest_features_unhardened(incoming: &[Feature]) -> [Feature; 200] {
     // FATAL PANIC OCCURS HERE:
     // incoming.len() is 280, but destination array requires exactly 200 elements.
@@ -117,28 +117,28 @@ pub fn ingest_features_unhardened(incoming: &[Feature]) -> [Feature; 200] {
 ### Step 5: Process Crash Trace
 The call to `.try_into().unwrap()` immediately triggers a Rust core panic:
 ```text
-thread 'worker-0' panicked at crates/dirichlet-proxy/src/engine/feature_ingest.rs:42:29:
+thread 'worker-0' panicked at crates/cloudflame-proxy/src/engine/feature_ingest.rs:42:29:
 called `Result::unwrap()` on an `Err` value: TryFromSliceError(())
 stack backtrace:
    0: rust_begin_unwind
    1: core::panicking::panic_fmt
    2: core::result::unwrap_failed
-   3: dirichlet_proxy::engine::feature_ingest::ingest_features_unhardened
-   4: dirichlet_proxy::main::worker_loop
+   3: cloudflame_proxy::engine::feature_ingest::ingest_features_unhardened
+   4: cloudflame_proxy::main::worker_loop
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ### Step 6: Cascading Fleet Blackout
 1. Worker thread `worker-0` crashes, dropping its listening epoll sockets.
 2. Sibling worker threads ingest the same broadcast configuration payload and crash simultaneously.
-3. The host process supervisor attempts to restart `dirichlet-proxy`, but on boot, the proxy reloads `features_drift.json` and crashes again instantly (crash loop backoff).
+3. The host process supervisor attempts to restart `cloudflame-proxy`, but on boot, the proxy reloads `features_drift.json` and crashes again instantly (crash loop backoff).
 4. Edge health check probes fail, causing upstream L4 balancers and BGP daemons to drop the node.
 5. Millions of edge requests fail with `HTTP 502 Bad Gateway` and `HTTP 504 Gateway Timeout`.
 
 ## Stokes Zero-Drop Remediation
 ---
 
-When Stokes audits the Dirichlet testbed, the subagent swarm detects the cross-boundary contract drift and applies the **Dual-Zone Memory Remediation**.
+When Stokes audits the Cloudflame testbed, the subagent swarm detects the cross-boundary contract drift and applies the **Dual-Zone Memory Remediation**.
 
 | Allocation Zone | Capacity | Priority Envelope | Eviction & Operational Status |
 | :--- | :--- | :--- | :--- |
@@ -153,7 +153,7 @@ Under this layout, the 200 high-priority signals are admitted into the fixed 1,6
 Subagent `stokes-rust` replaces the dangerous `.try_into().unwrap()` with a two-zone in-place partial sort using `select_nth_unstable_by`:
 
 ```rust
-// crates/dirichlet-proxy/src/engine/feature_ingest.rs (Hardened Production Patch)
+// crates/cloudflame-proxy/src/engine/feature_ingest.rs (Hardened Production Patch)
 //! Hardened Feature Ingestion Engine with Dual-Zone Partitioning.
 //! Author: Yuliet Li (yvliet)
 
@@ -233,9 +233,9 @@ impl ConfigMesh {
 ## Empirical Benchmark & Verification Results
 ---
 
-Running the Dirichlet test suite before and after applying Stokes verification confirms complete mitigation:
+Running the Cloudflame test suite before and after applying Stokes verification confirms complete mitigation:
 
-| Benchmark Dimension | Unhardened Dirichlet Baseline | Hardened with Stokes Dual-Zone |
+| Benchmark Dimension | Unhardened Cloudflame Baseline | Hardened with Stokes Dual-Zone |
 | :--- | :--- | :--- |
 | **Response to 280-Feature Payload** | **Immediate Core Panic (Process Exit 1)** | **100% Traffic Preserved (Zero Panics)** |
 | **Ingestion Partition Latency** | N/A (Crashed) | **7.66 nanoseconds** (`select_nth_unstable`) |
@@ -244,4 +244,4 @@ Running the Dirichlet test suite before and after applying Stokes verification c
 | **Zone 0 Core Signal Retention** | 0% (Proxy Dead) | **100% Retained (Immune to Eviction)** |
 | **Global 502 Outage Risk** | Catastrophic Fleet Blackout | **Zero Drops (Mathematical Guarantee)** |
 
-By verifying boundaries at compile time with Stokes and enforcing Dual-Zone memory partitioning at runtime, the Dirichlet testbed demonstrates that distributed multi-tier pipelines can survive large-scale upstream schema drift without a single dropped packet. Read the foundational analysis in [[01-untyped-seams|Untyped Seams]] and [[02-panic-resilience|Panic Resilience]].
+By verifying boundaries at compile time with Stokes and enforcing Dual-Zone memory partitioning at runtime, the Cloudflame testbed demonstrates that distributed multi-tier pipelines can survive large-scale upstream schema drift without a single dropped packet. Read the foundational analysis in [[01-untyped-seams|Untyped Seams]] and [[02-panic-resilience|Panic Resilience]].

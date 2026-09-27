@@ -1,7 +1,7 @@
 .PHONY: all install test lint typecheck clean run-scan run-audit run-verify help
 
 PYTHON ?= python3
-STOKES_TARGET ?= ../dirichlet
+STOKES_TARGET ?= ../cloudflame
 PYTEST_FLAGS ?= -v --tb=short
 
 all: install test
@@ -37,7 +37,7 @@ run-audit:
 	$(PYTHON) -m stokes.cli.main audit $(STOKES_TARGET)
 
 run-stage-check:
-	$(PYTHON) -m stokes.cli.main stage-check mock://dirichlet
+	$(PYTHON) -m stokes.cli.main stage-check mock://cloudflame
 
 run-verify:
 	$(PYTHON) -m stokes.cli.main verify
@@ -89,8 +89,8 @@ help:
 	@echo "  test             Run full test suite"
 	@echo "  test-fast        Run tests with -x (stop on first failure)"
 	@echo "  test-verbose     Run tests with full output"
-	@echo "  run-scan         Run stokes scan on dirichlet target"
-	@echo "  run-audit        Run stokes audit on dirichlet target"
+	@echo "  run-scan         Run stokes scan on cloudflame target"
+	@echo "  run-audit        Run stokes audit on cloudflame target"
 	@echo "  run-stage-check  Run stokes stage-check with mock catalog"
 	@echo "  run-verify       Run stokes verify harness"
 	@echo "  run-cert         Run stokes cert and emit stokes.lock"

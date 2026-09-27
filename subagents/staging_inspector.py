@@ -13,29 +13,34 @@ from typing import Any
 from pathlib import Path
 
 
-# ─── Mock Catalog: Dirichlet Staging Data ─────────────────────────────────────
+# ─── Mock Catalog: Cloudflame Staging Data (formerly Dirichlet) ───────────────
 
-# Canonical 200 features (Dirichlet baseline)
-DIRICHLET_CANONICAL_COLUMNS = [
+# Canonical 200 features (Cloudflame baseline, formerly Dirichlet)
+CLOUDFLAME_CANONICAL_COLUMNS = [
     {"database": "bot_signals", "table": "events", "name": f"feature_{i:03d}",
      "type": "Float32", "priority": 200 + (i % 50)}
     for i in range(200)
 ]
 
 # Shard duplicate columns (the unscoped query defect)
-DIRICHLET_SHARD_R0 = [
+CLOUDFLAME_SHARD_R0 = [
     {"database": "bot_signals_shard_01", "table": "events_r0",
-     "name": f"shard_r0_{DIRICHLET_CANONICAL_COLUMNS[i]['name']}",
+     "name": f"shard_r0_{CLOUDFLAME_CANONICAL_COLUMNS[i]['name']}",
      "type": "Float32", "priority": 0, "is_shadow": True}
     for i in range(40)
 ]
 
-DIRICHLET_SHARD_R1 = [
+CLOUDFLAME_SHARD_R1 = [
     {"database": "bot_signals_shard_02", "table": "events_r1",
-     "name": f"shard_r1_{DIRICHLET_CANONICAL_COLUMNS[i]['name']}",
+     "name": f"shard_r1_{CLOUDFLAME_CANONICAL_COLUMNS[i]['name']}",
      "type": "Float32", "priority": 0, "is_shadow": True}
     for i in range(40)
 ]
+
+# Backward compatibility aliases (formerly Dirichlet database mock)
+DIRICHLET_CANONICAL_COLUMNS = CLOUDFLAME_CANONICAL_COLUMNS
+DIRICHLET_SHARD_R0 = CLOUDFLAME_SHARD_R0
+DIRICHLET_SHARD_R1 = CLOUDFLAME_SHARD_R1
 
 
 class StagingInspector:
@@ -46,8 +51,8 @@ class StagingInspector:
     and evaluates the active schema reflection against downstream buffer bounds.
 
     URL schemes:
-      mock://dirichlet           - Dirichlet mock catalog (canonical: 200, drift: 280)
-      mock://dirichlet-clean     - Dirichlet mock with scoped query (200 only)
+      mock://cloudflame         - Cloudflame mock catalog (formerly mock://dirichlet) (canonical: 200, drift: 280)
+      mock://cloudflame-clean   - Cloudflame mock with scoped query (formerly mock://dirichlet-clean) (200 only)
       clickhouse://host:port/db  - Real ClickHouse (requires clickhouse-driver)
       postgresql://...           - Real PostgreSQL (requires psycopg2)
     """
@@ -75,16 +80,16 @@ class StagingInspector:
             return await self._inspect_mock()
 
     async def _inspect_mock(self) -> dict[str, Any]:
-        """Use the Dirichlet mock staging catalog."""
+        """Use the Cloudflame mock staging catalog (formerly Dirichlet database)."""
         variant = self.db_url.replace("mock://", "").lower()
 
         if "clean" in variant or "scoped" in variant:
             # Scoped query: returns only canonical 200 columns
-            columns = list(DIRICHLET_CANONICAL_COLUMNS)
+            columns = list(CLOUDFLAME_CANONICAL_COLUMNS)
             query_scoped = True
         else:
             # Unscoped query defect: returns 200 + 80 shard duplicates = 280
-            columns = list(DIRICHLET_CANONICAL_COLUMNS) + DIRICHLET_SHARD_R0 + DIRICHLET_SHARD_R1
+            columns = list(CLOUDFLAME_CANONICAL_COLUMNS) + CLOUDFLAME_SHARD_R0 + CLOUDFLAME_SHARD_R1
             query_scoped = False
 
         upstream = len(columns)

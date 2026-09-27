@@ -248,7 +248,7 @@ class ContractSynthesizer:
         # Find primary buffer
         primary_buf = buffers[0] if buffers else None
         buf_type = primary_buf["type"] if primary_buf else "[Feature; 200]"
-        buf_file = primary_buf["file"] if primary_buf else "crates/dirichlet-proxy/src/engine/feature_ingest.rs"
+        buf_file = primary_buf["file"] if primary_buf else "crates/cloudflame-proxy/src/engine/feature_ingest.rs"
         buf_cap = primary_buf["capacity"] if primary_buf else 200
 
         # Find primary projection

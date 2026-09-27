@@ -19,7 +19,7 @@ class SandboxRunner:
 
     Executes:
     - Python pytest suite (services/feature-pipeline/tests/)
-    - Rust cargo test (crates/dirichlet-proxy/) when Rust toolchain available
+    - Rust cargo test (crates/cloudflame-proxy/) when Rust toolchain available
     - Property fuzz battery via FloatFuzzBattery
 
     Provides isolation by running each suite in its own subprocess.
@@ -84,8 +84,8 @@ class SandboxRunner:
             }
 
     def _run_rust_tests(self) -> dict[str, Any]:
-        """Run Rust cargo test suite for dirichlet-proxy."""
-        cargo_dir = self.workspace / "crates" / "dirichlet-proxy"
+        """Run Rust cargo test suite for cloudflame-proxy."""
+        cargo_dir = self.workspace / "crates" / "cloudflame-proxy"
         if not cargo_dir.exists():
             return {"suite": "rust", "passed": True, "skipped": True, "reason": "no crate dir"}
 

@@ -48,7 +48,7 @@ To guarantee complete auditability, the repository maintains an unambiguous sepa
 | Asset Category | File Tree Paths | Description & Authorship Origin |
 | :--- | :--- | :--- |
 | **100% In-Sprint Build** | `stokes/cli/`<br/>`stokes/subagents/`<br/>`stokes/harness/`<br/>`stokes/mcp/`<br/>`stokes/tests/` | Synthesized during sprint: CLI runner, 5 subagents, Tree-sitter AST queries, 10,000 float tests, binary IPC framing, MCP server |
-| **Disclosed Templates** | `dirichlet/`<br/>`web/src/` | Pre-prepared synthetic testbed modeling Cloudflare Nov 18, 2025 outage and Astro documentation shell |
+| **Disclosed Templates** | `cloudflame/`<br/>`web/src/` | Pre-prepared synthetic testbed modeling Cloudflare Nov 18, 2025 outage and Astro documentation shell |
 
 ### Assets Built 100% During the Hackathon Build Window with IBM Bob 2.0
 
@@ -92,9 +92,9 @@ Every line of core project logic, AST analysis, and agent orchestration was synt
 
 In strict conformance with the lablab.ai organizer ruling, the following templates and baseline benchmarks were prepared prior to the build window and are fully disclosed:
 
-1. **Dirichlet Testbed (`dirichlet/`)**:
+1. **Cloudflame Testbed (`cloudflame/`)**:
    - A synthetic microservice architecture modeling the Cloudflare November 18, 2025 outage cascade.
-   - Includes ClickHouse DDL schema migrations, a Python feature pipeline, and a Rust Pingora/FL2-style L7 reverse proxy (`crates/dirichlet-proxy`).
+   - Includes ClickHouse DDL schema migrations, a Python feature pipeline, and a Rust Pingora/FL2-style L7 reverse proxy (`crates/cloudflame-proxy`).
    - Serves as the concrete patient against which Stokes executes invariant verification and autonomous remediation.
 
 2. **Web UI Presentation Shell (`web/`)**:

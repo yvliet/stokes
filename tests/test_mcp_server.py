@@ -242,7 +242,7 @@ async def test_mcp_tool_call_verify_patch_safe(mcp_server):
             "name": "stokes_verify_patch",
             "arguments": {
                 "patch_content": safe_patch,
-                "target_file": "crates/dirichlet-proxy/src/buffer.rs",
+                "target_file": "crates/cloudflame-proxy/src/buffer.rs",
             },
         },
     }
@@ -266,7 +266,7 @@ async def test_mcp_tool_call_verify_patch_rejected(mcp_server):
             "name": "stokes_verify_patch",
             "arguments": {
                 "patch_content": panicking_patch,
-                "target_file": "crates/dirichlet-proxy/src/buffer.rs",
+                "target_file": "crates/cloudflame-proxy/src/buffer.rs",
             },
         },
     }

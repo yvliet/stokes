@@ -55,8 +55,8 @@ _CATCH_UNWIND = re.compile(
 # ─── Remediation Diffs ────────────────────────────────────────────────────────
 
 _RUST_DEFENSIVE_BOUNDS_DIFF = """\
---- a/crates/dirichlet-proxy/src/engine/feature_ingest.rs
-+++ b/crates/dirichlet-proxy/src/engine/feature_ingest.rs
+--- a/crates/cloudflame-proxy/src/engine/feature_ingest.rs
++++ b/crates/cloudflame-proxy/src/engine/feature_ingest.rs
 @@ -42,5 +42,16 @@
 -    let mut features: [Feature; 200] = payload.as_slice().try_into().unwrap();
 +    // Stokes INVARIANT_1: Defensive bounds validation & contract error propagation
@@ -75,8 +75,8 @@ _RUST_DEFENSIVE_BOUNDS_DIFF = """\
 """
 
 _RUST_DUAL_ZONE_DIFF = """\
---- a/crates/dirichlet-proxy/src/engine/feature_ingest.rs
-+++ b/crates/dirichlet-proxy/src/engine/feature_ingest.rs
+--- a/crates/cloudflame-proxy/src/engine/feature_ingest.rs
++++ b/crates/cloudflame-proxy/src/engine/feature_ingest.rs
 @@ -42,5 +42,14 @@
 -    let mut features: [Feature; 200] = payload.as_slice().try_into().unwrap();
 +    // Stokes INVARIANT_1: Zero-allocation Dual-Zone priority degradation
@@ -93,8 +93,8 @@ _RUST_DUAL_ZONE_DIFF = """\
 """
 
 _RUST_ARC_SWAP_DIFF = """\
---- a/crates/dirichlet-proxy/src/lib.rs
-+++ b/crates/dirichlet-proxy/src/lib.rs
+--- a/crates/cloudflame-proxy/src/lib.rs
++++ b/crates/cloudflame-proxy/src/lib.rs
 @@ -1,4 +1,16 @@
 +use arc_swap::ArcSwap;
 +use std::sync::Arc;

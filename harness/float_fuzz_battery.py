@@ -17,7 +17,7 @@ def sanitize_signal_float(val: float, fail_secure_default: float = 100.0) -> flo
     """
     Fail-secure float sanitization (Python reference implementation).
 
-    Mirrors the Rust implementation in crates/dirichlet-proxy/src/engine/traffic_evaluator.rs:
+    Mirrors the Rust implementation in crates/cloudflame-proxy/src/engine/traffic_evaluator.rs:
       - Finite and not subnormal → clamp to [0.0, 100.0]
       - NaN, ±Infinity, subnormal → return fail_secure_default (100.0)
 

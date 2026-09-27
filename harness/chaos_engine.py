@@ -83,7 +83,7 @@ class ChaosEngine:
         """
         Simulate a shard database going offline or partially unavailable.
 
-        In the Dirichlet model, when shard_r0 or shard_r1 goes offline,
+        In the Cloudflame model, when shard_r0 or shard_r1 goes offline,
         the unscoped system.columns query silently drops its 40 columns,
         potentially causing inconsistent cardinality between edge nodes.
         """
@@ -164,9 +164,9 @@ class ChaosEngine:
         self._burst_events.append(event)
         return event
 
-    def run_dirichlet_scenario(self) -> dict[str, Any]:
+    def run_cloudflame_scenario(self) -> dict[str, Any]:
         """
-        Run the full Dirichlet incident scenario simulation.
+        Run the full Cloudflame incident scenario simulation.
 
         Models the Cloudflare November 18, 2025 outage cascade:
         1. Schema migration grants shard table access

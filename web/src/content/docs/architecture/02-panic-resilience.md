@@ -27,7 +27,7 @@ While eliminating unhandled panics satisfies compiler linters and eliminates cra
 ## The Two-Tier Runtime Reference Model
 ---
 
-In the open-source Dirichlet proxy case study (modeling high-throughput edge systems), resilience is achieved through a **Two-Tier Runtime Reference Model**:
+In the open-source Cloudflame proxy case study (modeling high-throughput edge systems), resilience is achieved through a **Two-Tier Runtime Reference Model**:
 
 Architecture divides into two decoupled execution tiers: a zero-allocation hot Data Plane executing microsecond packet evaluation via `TieredBuffer` in-place quickselect, and an asynchronous Control Plane handling background catalog synchronization, schema hash verification, and wait-free `ArcSwap` configuration reloads.
 
@@ -42,7 +42,7 @@ High-throughput packet paths cannot invoke heap allocators (`malloc`, `jemalloc`
 To maintain sub-10ns execution speeds while safely accepting payloads exceeding baseline expectations, the data plane employs a **Two-Tier Bounded Intake Buffer** (`TieredBuffer`):
 
 ```rust
-// crates/dirichlet-proxy/src/engine/tiered_buffer.rs: Pure Stack Two-Tier Bounded Deserializer
+// crates/cloudflame-proxy/src/engine/tiered_buffer.rs: Pure Stack Two-Tier Bounded Deserializer
 use std::mem::MaybeUninit;
 
 pub const DEFAULT_FAST_CAPACITY: usize = 200;
@@ -108,7 +108,7 @@ impl<T: Copy, const N: usize, const SPILL: usize> TieredBuffer<T, N, SPILL> {
 
 ### Microarchitectural Benchmark: Stack vs. Heap Allocation
 
-Micro-benchmarking on Intel Xeon cores via Criterion (`crates/dirichlet-proxy/benches/ingest_benchmark.rs`) confirms the microarchitectural cost of unhedged heap allocations on the packet path:
+Micro-benchmarking on Intel Xeon cores via Criterion (`crates/cloudflame-proxy/benches/ingest_benchmark.rs`) confirms the microarchitectural cost of unhedged heap allocations on the packet path:
 
 | Ingestion Strategy | Latency | Heap Allocation | Microarchitectural Characteristics |
 | :--- | :--- | :--- | :--- |

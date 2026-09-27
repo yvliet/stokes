@@ -79,7 +79,7 @@ class TestBoundaryDiscovery:
         assert any(not f.get("bounded") for f in proto_fields)
 
     @pytest.mark.asyncio
-    async def test_scan_computes_risk_ratio_for_dirichlet(self, tmp_path):
+    async def test_scan_computes_risk_ratio_for_cloudflame(self, tmp_path):
         """Risk ratio for unscoped SQL + Rust buffer must be >= 1.0."""
         (tmp_path / "schema.sql").write_text(
             "SELECT name FROM system.columns WHERE table = 'events';\n"
@@ -126,16 +126,16 @@ class TestBoundaryDiscovery:
         assert contracts.get("stokes_version") == "0.2.0"
 
     @pytest.mark.asyncio
-    async def test_scan_dirichlet_workspace(self):
-        """Full scan of dirichlet workspace must detect known violations."""
-        dirichlet_path = Path(__file__).parent.parent.parent / "dirichlet"
-        if not dirichlet_path.exists():
-            pytest.skip("dirichlet workspace not found")
+    async def test_scan_cloudflame_workspace(self):
+        """Full scan of cloudflame workspace must detect known violations."""
+        cloudflame_path = Path(__file__).parent.parent.parent / "cloudflame"
+        if not cloudflame_path.exists():
+            pytest.skip("cloudflame workspace not found")
 
-        disc = BoundaryDiscovery(str(dirichlet_path))
+        disc = BoundaryDiscovery(str(cloudflame_path))
         contracts = await disc.scan()
 
-        # Dirichlet must have at least one downstream buffer
+        # Cloudflame must have at least one downstream buffer
         assert len(contracts["downstream_buffers"]) > 0 or True  # May need Rust scan
 
 

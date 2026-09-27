@@ -136,7 +136,7 @@ Sample tool response:
     "content": [
       {
         "type": "text",
-        "text": "STOKES BOUNDARY VERIFICATION REPORT\nWorkspace: /workspace/dirichlet\nPeak Cardinality Risk Ratio: 1.40 (FATAL CONTRACT DRIFT)\nViolations: [LINT-001: Unscoped system.columns reflection query in services/feature-pipeline/catalog_sync.py, LINT-004: Fixed stack buffer [Feature; 200] overflow in crates/dirichlet-proxy/src/engine/feature_ingest.rs]\nRecommendation: Run synthesize_buffer or scope ClickHouse reflection query."
+        "text": "STOKES BOUNDARY VERIFICATION REPORT\nWorkspace: /workspace/cloudflame\nPeak Cardinality Risk Ratio: 1.40 (FATAL CONTRACT DRIFT)\nViolations: [LINT-001: Unscoped system.columns reflection query in services/feature-pipeline/catalog_sync.py, LINT-004: Fixed stack buffer [Feature; 200] overflow in crates/cloudflame-proxy/src/engine/feature_ingest.rs]\nRecommendation: Run synthesize_buffer or scope ClickHouse reflection query."
       }
     ]
   }
@@ -192,7 +192,7 @@ Sample output:
     {
       "id": "rust_proxy_intake",
       "tier": "edge_proxy",
-      "file": "crates/dirichlet-proxy/src/engine/feature_ingest.rs",
+      "file": "crates/cloudflame-proxy/src/engine/feature_ingest.rs",
       "buffer_type": "[Feature; 200]",
       "capacity": 200
     }

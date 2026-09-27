@@ -131,4 +131,4 @@ Stokes is engineered exclusively by **Yuliet Li (`yvliet`)**.
 - **Maintainer**: Yuliet Li (`yvliet`)
 - **License**: MIT License
 - **Target Runtimes**: SQL (ClickHouse, PostgreSQL), Python 3.11+, Rust 1.80+, Protobuf v3/v2
-- **Flagship Benchmark**: Dirichlet Proxy (Cloudflare Nov 18, 2025 Incident Model)
+- **Flagship Benchmark**: Cloudflame Proxy (Cloudflare Nov 18, 2025 Incident Model)

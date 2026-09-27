@@ -59,7 +59,7 @@ class StokesVerifyAgent(ActorBase):
             v = self._make_diagnostic(
                 invariant_id="INVARIANT_1_INFALLIBLE_INTAKE",
                 lint_rule="LINT-005",
-                target_file="crates/dirichlet-proxy/src/engine/traffic_evaluator.rs",
+                target_file="crates/cloudflame-proxy/src/engine/traffic_evaluator.rs",
                 start_line=1,
                 start_col=0,
                 end_line=1,
@@ -72,8 +72,8 @@ class StokesVerifyAgent(ActorBase):
                     f"reached the evaluator without fail-secure defaults."
                 ),
                 unified_diff=(
-                    "--- a/crates/dirichlet-proxy/src/engine/traffic_evaluator.rs\n"
-                    "+++ b/crates/dirichlet-proxy/src/engine/traffic_evaluator.rs\n"
+                    "--- a/crates/cloudflame-proxy/src/engine/traffic_evaluator.rs\n"
+                    "+++ b/crates/cloudflame-proxy/src/engine/traffic_evaluator.rs\n"
                     "@@ -N,3 +N,6 @@\n"
                     "+pub fn sanitize_signal_float(val: f32, fail_secure_default: f32) -> f32 {\n"
                     "+    if val.is_finite() && !val.is_subnormal() { val.clamp(0.0, 100.0) }\n"

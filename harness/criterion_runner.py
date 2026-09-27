@@ -1,7 +1,7 @@
 """
 stokes/harness/criterion_runner.py
 Criterion benchmark parser & comparator.
-Reads Criterion JSON output from dirichlet target/criterion/ directory.
+Reads Criterion JSON output from cloudflame target/criterion/ directory.
 GitHub: yvliet
 """
 
@@ -12,9 +12,9 @@ from pathlib import Path
 from typing import Any
 
 
-# ─── Reference Benchmarks (from Dirichlet target/criterion/) ─────────────────
+# ─── Reference Benchmarks (from Cloudflame target/criterion/) ─────────────────
 
-# These are the authoritative measured values from the Dirichlet Criterion suite.
+# These are the authoritative measured values from the Cloudflame Criterion suite.
 # In-place select_nth_unstable_by: 7.66 ns (vs 29.74 ns heap Vec::sort)
 REFERENCE_INPLACE_NS = 7.66
 REFERENCE_HEAP_NS = 29.74
@@ -27,7 +27,7 @@ class CriterionRunner:
     """
     Criterion benchmark parser and comparator.
 
-    Reads Criterion benchmark JSON output from the dirichlet Rust crate's
+    Reads Criterion benchmark JSON output from the cloudflame Rust crate's
     target/criterion/ directory and extracts:
     - in_place_select_nth latency (ns)
     - heap_allocated_vec latency (ns)
@@ -38,9 +38,9 @@ class CriterionRunner:
     """
 
     CRITERION_PATH_CANDIDATES = [
-        "crates/dirichlet-proxy/target/criterion/feature_ingestion",
+        "crates/cloudflame-proxy/target/criterion/feature_ingestion",
         "target/criterion/feature_ingestion",
-        "../dirichlet/crates/dirichlet-proxy/target/criterion/feature_ingestion",
+        "../cloudflame/crates/cloudflame-proxy/target/criterion/feature_ingestion",
     ]
 
     def __init__(self, workspace: str) -> None:

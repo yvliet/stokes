@@ -77,7 +77,7 @@ The machine-authoritative lockfile (`stokes.lock`) records the SHA-256 digest of
   "generated_by": "stokes-engine v0.2.0-hardened",
   "author": "yvliet",
   "contracts": {
-    "dirichlet.l7_features": {
+    "cloudflame.l7_features": {
       "channel_id": "analytics_to_edge_l7",
       "upstream": {
         "repository": "github.com/org/repo-analytics-ddl",
@@ -95,7 +95,7 @@ The machine-authoritative lockfile (`stokes.lock`) records the SHA-256 digest of
       "downstream": {
         "repository": "github.com/org/repo-edge-proxy",
         "commit": "3c2a1b0f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b",
-        "file": "crates/dirichlet-proxy/src/engine/feature_ingest.rs",
+        "file": "crates/cloudflame-proxy/src/engine/feature_ingest.rs",
         "ast_digest": "sha256:1a4f89d3e5b7c9102837465abdf0123456789abcdef0123456789abcdef01234",
         "buffer_capacity": 512,
         "max_intake_bytes": 5242880
@@ -221,7 +221,7 @@ name: Stokes Downstream Boundary Verification Gate
 on:
   pull_request:
     paths:
-      - 'crates/dirichlet-proxy/**'
+      - 'crates/cloudflame-proxy/**'
       - 'stokes.toml'
       - 'stokes.lock'
   push:

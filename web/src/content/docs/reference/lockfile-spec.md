@@ -28,9 +28,9 @@ The `stokes.lock` file is serialized in canonical JSON (or equivalent TOML). All
   "$schema": "https://stokes.dev/schemas/v0.2.0/lockfile.json",
   "stokes_version": "0.2.0",
   "generated_at": "2026-09-26T12:00:00.000000+00:00",
-  "target_repository": "crates/dirichlet-proxy",
+  "target_repository": "crates/cloudflame-proxy",
   "schema_digests": {
-    "crates/dirichlet-proxy/src/engine/feature_ingest.rs": "sha256:7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069",
+    "crates/cloudflame-proxy/src/engine/feature_ingest.rs": "sha256:7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069",
     "migrations/001_bot_signals.sql": "sha256:4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a",
     "services/feature-pipeline/catalog_sync.py": "sha256:ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d"
   },
@@ -92,7 +92,7 @@ The `stokes.lock` file is serialized in canonical JSON (or equivalent TOML). All
 | :--- | :--- | :--- | :--- |
 | `fuzz_cases_passed` | Integer | Tests | Number of randomized IEEE-754 property fuzz cases that passed. |
 | `fuzz_cases_total` | Integer | Tests | Total property fuzz cases executed (default: 10,000). |
-| `criterion_inplace_ns` | Float | Nanoseconds | Measured latency of stack intake deserialization (Dirichlet benchmark). |
+| `criterion_inplace_ns` | Float | Nanoseconds | Measured latency of stack intake deserialization (Cloudflame benchmark). |
 | `criterion_heap_ns` | Float | Nanoseconds | Baseline latency of dynamic heap allocation (`Vec<Feature>`). |
 | `float_vectors_sanitized` | Integer | Vectors | Number of adversarial IEEE-754 values (NaN, $\pm\infty$, subnormals) sanitized. |
 | `violations_detected` | Integer | Count | Invariant breaches detected during static analysis. |
@@ -253,14 +253,14 @@ def compute_normalized_schema_digest(
 
 In multi-repo organizations, different teams modify schemas simultaneously:
 - Analytics team adds fraud signals to ClickHouse DDL (`migrations/001_bot_signals.sql`).
-- Edge systems team refactors the proxy buffer in Rust (`crates/dirichlet-proxy`).
+- Edge systems team refactors the proxy buffer in Rust (`crates/cloudflame-proxy`).
 
 If both pull requests modify `stokes.lock`, git merge conflicts can occur on the `master_digest` or `schema_digests` fields:
 
 ```text
 <<<<<<< HEAD (Branch: edge-proxy-expand-capacity)
     "downstream_capacity": 512,
-    "crates/dirichlet-proxy/src/engine/feature_ingest.rs": "sha256:aaaa...",
+    "crates/cloudflame-proxy/src/engine/feature_ingest.rs": "sha256:aaaa...",
 =======
     "observed_upstream_cardinality": 280,
     "migrations/001_bot_signals.sql": "sha256:bbbb...",

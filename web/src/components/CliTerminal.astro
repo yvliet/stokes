@@ -181,7 +181,7 @@
           <!-- Interactive Patch Proposal -->
           <div class="mt-3 rounded border border-amber-500/30 bg-amber-500/5 p-3 space-y-2">
             <div class="flex items-center justify-between text-xs">
-              <span class="font-medium text-amber-600 dark:text-amber-400">suggested fix: crates/dirichlet-proxy/src/buffer.rs</span>
+              <span class="font-medium text-amber-600 dark:text-amber-400">suggested fix: crates/cloudflame-proxy/src/buffer.rs</span>
               <span class="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono">zero-panic verified</span>
             </div>
             <div class="text-xs text-muted-foreground font-mono font-light bg-background/60 p-2 rounded border border-border/30">
@@ -252,7 +252,7 @@
             </div>
             <div class="flex items-center gap-2">
               <span class="text-emerald-500 font-bold">✓</span>
-              <span>crates/dirichlet-proxy/src/buffer.rs     == sha256:b9f271d4... (normalized AST buffer &amp; error enum)</span>
+              <span>crates/cloudflame-proxy/src/buffer.rs     == sha256:b9f271d4... (normalized AST buffer &amp; error enum)</span>
             </div>
             <div class="flex items-center gap-2">
               <span class="text-emerald-500 font-bold">✓</span>
@@ -277,12 +277,12 @@
         <div id="tab-codegen" class="tab-content space-y-3 hidden">
           <div class="flex items-center gap-2 text-foreground font-medium pb-2 border-b border-border/30">
             <span class="text-emerald-500 select-none">$</span>
-            <span>stokes codegen --consumer crates/dirichlet-proxy/src/lib.rs --write</span>
+            <span>stokes codegen --consumer crates/cloudflame-proxy/src/lib.rs --write</span>
             <span class="text-muted-foreground/40 ml-auto text-xs hidden sm:inline">synthesis · zero-heap tiered buffer</span>
           </div>
 
           <div class="space-y-1 font-mono text-xs">
-            <div class="text-muted-foreground">[stokes-codegen] Inspecting target AST: crates/dirichlet-proxy/src/lib.rs</div>
+            <div class="text-muted-foreground">[stokes-codegen] Inspecting target AST: crates/cloudflame-proxy/src/lib.rs</div>
             <div class="text-muted-foreground">[stokes-codegen] Detected unbounded slice ingestion [.try_into().unwrap()]</div>
             <div class="text-emerald-500 font-semibold">[stokes-codegen] Synthesizing certified TieredBuffer&lt;FeatureDescriptor, 200, 312&gt;</div>
             <div class="text-foreground/90 pl-3 border-l-2 border-emerald-500/40 my-2 space-y-1">

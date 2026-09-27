@@ -183,7 +183,7 @@ mask = [
 Downstream compiled consumers enforce Field Masking directly in memory without heap allocations. Feature IDs are validated against a static bitmask or sorted array:
 
 ```rust
-// crates/dirichlet-proxy/src/engine/projection_mask.rs
+// crates/cloudflame-proxy/src/engine/projection_mask.rs
 //! Zero-allocation Field Mask validation for edge feature ingestion.
 //! Author: Yuliet Li (yvliet)
 
@@ -245,7 +245,7 @@ pub fn ingest_with_projection_mask(
 ## Production Patch: Eliminating Shard Column Leakage
 ---
 
-The following real production diff demonstrates how Stokes remediates `LINT-001` and `LINT-006` in the Dirichlet benchmark ETL worker.
+The following real production diff demonstrates how Stokes remediates `LINT-001` and `LINT-006` in the Cloudflame benchmark ETL worker.
 
 ### Unified Diff: `services/feature-pipeline/catalog_sync.py`
 

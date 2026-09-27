@@ -181,7 +181,7 @@ class TestInvariantSynthesizerOutageReality:
             "downstream_capacity": 200,
             "cardinality_risk_ratio": 1.4,
             "downstream_buffers": [{
-                "file": "crates/dirichlet-proxy/src/engine.rs",
+                "file": "crates/cloudflame-proxy/src/engine.rs",
                 "line": 42,
                 "type": "[Feature; 200]",
                 "capacity": 200,
