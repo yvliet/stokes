@@ -25,7 +25,7 @@ export const OnThisPageOutline: React.FC<OnThisPageOutlineProps> = React.memo(({
         <span>on this page</span>
       </div>
 
-      <nav className="flex-1 overflow-y-auto space-y-0.5 pr-2 sidebar-hover-scrollbar">
+      <nav className="flex-1 overflow-y-auto pr-1 sidebar-hover-scrollbar">
         {headings.map((heading) => {
           const isActive = activeHeadingId === heading.id;
           const indent = heading.level > 2 ? (heading.level - 2) * 14 + 4 : 0;
@@ -39,7 +39,7 @@ export const OnThisPageOutline: React.FC<OnThisPageOutlineProps> = React.memo(({
                 onSelectHeading(heading.id);
               }}
               style={{ paddingLeft: `${indent}px` }}
-              className={`group relative text-left text-[13px] font-sans py-1 pr-1 cursor-pointer leading-[1.35] transition-colors no-underline block whitespace-normal break-words ${
+              className={`group relative text-left text-[13px] font-sans py-1 pr-1 cursor-pointer leading-[1.35] transition-none no-underline block whitespace-normal break-words bg-transparent ${
                 isActive
                   ? 'text-foreground font-medium'
                   : 'text-muted-foreground hover:text-foreground font-normal'
@@ -51,11 +51,7 @@ export const OnThisPageOutline: React.FC<OnThisPageOutlineProps> = React.memo(({
                   <span
                     key={idx}
                     style={{ left: `${idx * 14 + 3}px` }}
-                    className={`absolute top-0 bottom-0 pointer-events-none transition-colors ${
-                      isActive && idx === heading.level - 3
-                        ? 'bg-foreground w-[1.5px] z-10'
-                        : 'bg-border/40 dark:bg-[#3a3a3a] w-[1px]'
-                    }`}
+                    className="absolute top-0 bottom-0 border-l border-border/40 dark:border-[#3a3a3a] pointer-events-none"
                   />
                 ))}
 

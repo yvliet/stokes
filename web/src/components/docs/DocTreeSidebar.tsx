@@ -129,10 +129,10 @@ export const DocTreeSidebar: React.FC<DocTreeSidebarProps> = React.memo(({
                 {/* Collapsible Category Section Header with Chevron */}
                 <div
                   onClick={() => toggleCategory(cat.id)}
-                  className="group flex items-center justify-between px-1 py-1 rounded-md cursor-pointer select-none text-[11px] font-sans font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
+                  className="group flex items-center justify-between px-1.5 py-1 cursor-pointer select-none text-[11px] font-sans font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-none bg-transparent"
                 >
                   <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                    <span className="w-4 h-4 flex items-center justify-center text-muted-foreground/70 group-hover:text-foreground shrink-0 transition-transform">
+                    <span className="w-4 h-4 flex items-center justify-center text-muted-foreground/70 group-hover:text-foreground shrink-0">
                       <svg
                         viewBox="0 0 24 24"
                         width="11"
@@ -142,7 +142,7 @@ export const DocTreeSidebar: React.FC<DocTreeSidebarProps> = React.memo(({
                         strokeWidth="2.5"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        className={`transition-transform duration-150 ${isOpen ? 'rotate-90' : 'rotate-0'}`}
+                        className={`transition-none ${isOpen ? 'rotate-90' : 'rotate-0'}`}
                       >
                         <path d="M9 18l6-6-6-6" />
                       </svg>
@@ -154,9 +154,9 @@ export const DocTreeSidebar: React.FC<DocTreeSidebarProps> = React.memo(({
                   </span>
                 </div>
 
-                {/* Continuous Vertical Tree Guideline Rail (Noether logic: ml-[14px] pl-[14px] under chevron center) */}
+                {/* Continuous Vertical Tree Guideline Rail (Noether logic: centered at 14px directly under chevron center) */}
                 {isOpen && (
-                  <ul className="relative flex flex-col border-l border-border/40 dark:border-[#3a3a3a] ml-[14px] pl-[14px] space-y-0.5 my-1 list-none p-0 m-0">
+                  <ul className="relative flex flex-col border-l border-border/40 dark:border-[#3a3a3a] ml-[14px] pl-[14px] my-0.5 list-none p-0 m-0">
                     {cat.items.map((item) => {
                       const isActive = activeDocId === item.id || activeDocId === item.slug;
 
@@ -169,26 +169,25 @@ export const DocTreeSidebar: React.FC<DocTreeSidebarProps> = React.memo(({
                               onSelectDoc(item);
                               onClose?.();
                             }}
-                            className={`group relative flex items-start py-1.5 px-2 rounded-md text-[13px] font-sans transition-colors text-left cursor-pointer no-underline ${
+                            className={`group relative flex items-start py-1 pr-2 text-[13px] font-sans transition-none text-left cursor-pointer no-underline bg-transparent ${
                               isActive
                                 ? 'text-foreground font-medium'
                                 : 'text-muted-foreground hover:text-foreground font-normal'
                             }`}
                           >
-                            {/* Left vertical guideline rail indicator */}
+                            {/* Left vertical guideline rail indicator - strictly 1px overlaying guideline */}
                             <span
                               style={{
-                                left: -14.5,
-                                width: 1.5,
+                                left: -15,
                               }}
-                              className={`absolute top-0 bottom-0 pointer-events-none transition-colors ${
+                              className={`absolute top-0 bottom-0 border-l pointer-events-none transition-none ${
                                 isActive
-                                  ? 'bg-foreground z-10'
-                                  : 'bg-transparent group-hover:bg-muted-foreground/40 z-10'
+                                  ? 'border-foreground z-10'
+                                  : 'border-transparent group-hover:border-muted-foreground/60 z-10'
                               }`}
                             />
 
-                            <span className="flex-1 min-w-0 text-[13px] leading-snug font-normal whitespace-normal break-words lowercase">
+                            <span className="flex-1 min-w-0 text-[13px] leading-[1.35] font-normal whitespace-normal break-words lowercase">
                               {item.title}
                             </span>
                           </a>
