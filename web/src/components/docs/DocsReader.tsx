@@ -200,15 +200,15 @@ export function renderInline(text: string): string {
     return `<a href="${src}" target="_blank" rel="noopener noreferrer" class="inline-block cursor-zoom-in" title="${caption}"><img src="${src}" alt="${alt || ''}" class="rounded-lg border border-border/50 inline-block max-h-80 align-middle my-2 shadow-sm transition-all hover:border-foreground/40" loading="lazy" /></a>`;
   });
 
-  // 5. Obsidian Wikilinks: [[Target|Label]] or [[Target]] with Noether accent
+  // 5. Obsidian Wikilinks: [[Target|Label]] or [[Target]]
   processed = processed
     .replace(
       /\[\[([^\]|]+)\|([^\]]+)\]\]/g,
-      '<a href="#$1" data-wikilink="$1" class="internal-link text-[#eb584d] hover:text-[#d94338] underline underline-offset-2 font-normal cursor-pointer transition-colors">$2</a>'
+      '<a href="#$1" data-wikilink="$1" class="internal-link underline underline-offset-2 text-foreground hover:text-primary font-normal cursor-pointer transition-colors">$2</a>'
     )
     .replace(
       /\[\[([^\]]+)\]\]/g,
-      '<a href="#$1" data-wikilink="$1" class="internal-link text-[#eb584d] hover:text-[#d94338] underline underline-offset-2 font-normal cursor-pointer transition-colors">$1</a>'
+      '<a href="#$1" data-wikilink="$1" class="internal-link underline underline-offset-2 text-foreground hover:text-primary font-normal cursor-pointer transition-colors">$1</a>'
     );
 
   // 6. Markdown Links [text](url)
