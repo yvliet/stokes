@@ -113,17 +113,18 @@ export function resolveDocImagePath(rawPath: string): string {
   // Strip leading relative path segments (./ or ../)
   const clean = trimmed.replace(/^(\.\.?\/)+/, '');
 
-  if (clean.includes('lablab_organizer_')) {
+  if (clean.includes('lablab_') || clean.includes('compliance')) {
     const filename = clean.split('/').pop() || clean;
     return `/docs/compliance/${filename}`;
   }
   if (
-    clean.includes('session_0') ||
+    clean.includes('session_') ||
     clean.includes('core_engine') ||
     clean.includes('dark_mode') ||
     clean.includes('tree_subagents') ||
     clean.includes('pypi_package') ||
-    clean.includes('github_publish')
+    clean.includes('github_publish') ||
+    clean.includes('bob_sessions')
   ) {
     const filename = clean.split('/').pop() || clean;
     return `/bob_sessions/${filename}`;
