@@ -1,6 +1,8 @@
 ---
-title: "Architecture Vision & Design Principles"
-description: "Why single-language compilers fail across multi-tier distributed pipelines and the design principles behind Stokes."
+title: "02. Architecture Vision & Design Principles"
+summary: "Why single-language compilers fail across multi-tier distributed pipelines and the design principles behind Stokes."
+lastUpdated: "last updated 1 day ago"
+readTime: "5 min read"
 author: "Yuliet Li (yvliet)"
 license: "MIT"
 ---
@@ -11,37 +13,29 @@ Modern hyperscale cloud architectures are polyglot by necessity. Relational and 
 
 However, decoupling systems into specialized linguistic tiers creates an architectural fault line: **the untyped cross-boundary seam**.
 
+```mermaid
+flowchart TD
+  subgraph SQL["SQL Translation Unit (ClickHouse DDL)"]
+    S1["migrations/004_stats.sql<br/>system.columns: 280 rows emitted"]
+    S2["sqlfluff: PASS"]
+  end
+  subgraph PY["Python Runtime AST (ETL Feature Worker)"]
+    P1["services/etl/worker.py<br/>Dynamic dict: 280 items serialized"]
+    P2["mypy / ruff: PASS"]
+  end
+  subgraph RS["Rust Compilation Unit (Edge Ingress Proxy)"]
+    R1["crates/proxy/src/intake.rs<br/>Stack buffer: [Feature; 200]<br/>slice.try_into().unwrap()"]
+    R2["rustc / clippy: PASS"]
+  end
+  SQL -->|Column projection| PY
+  PY -->|KV payload transport| RS
+  RS --> Fatal["THE SYSTEMIC VERIFICATION VOID<br/>Cardinality(SQL: 280) > Capacity(Rust: 200)<br/>Result: TryFromSliceError Panic!"]
+  style Fatal stroke:#ef4444,stroke-width:2px
 ```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                        THE CROSS-BOUNDARY COMPILER VOID                                │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                        │
-│   SQL Translation Unit         Python Runtime AST               Rust Compilation Unit  │
-│   (Analytical Engine)          (ETL Feature Extractor)          (Edge Reverse Proxy)   │
-│                                                                                        │
-│   ┌────────────────────┐       ┌────────────────────┐          ┌────────────────────┐  │
-│   │ ClickHouse DDL     │       │ worker.py          │          │ ingress.rs         │  │
-│   │ system.columns     │       │ dict packing       │          │ [Feature; 200]     │  │
-│   │ 280 rows           │       │ payload = [...]    │          │ slice.try_into()   │  │
-│   └─────────┬──────────┘       └─────────┬──────────┘          └─────────┬──────────┘  │
-│             │                            │                               │             │
-│             ▼                            ▼                               ▼             │
-│   ┌────────────────────┐       ┌────────────────────┐          ┌────────────────────┐  │
-│   │ sqlfluff           │       │ mypy / ruff        │          │ rustc / clippy     │  │
-│   │ Status: PASS       │       │ Status: PASS       │          │ Status: PASS       │  │
-│   └────────────────────┘       └────────────────────┘          └────────────────────┘  │
-│             │                            │                               │             │
-│             └────────────────────────────┼───────────────────────────────┘             │
-│                                          ▼                                             │
-│                           THE SYSTEMIC VERIFICATION VOID                               │
-│                   No compiler checks: Cardinality(SQL) <= Buffer(Rust)                 │
-│                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────┘
-```
+
+## 1. The Systemic Void Across Polyglot Tiers
 
 ---
-
-## The Systemic Void Across Polyglot Tiers
 
 Consider a typical production incident path observed in large-scale edge networks:
 
@@ -49,14 +43,14 @@ Consider a typical production incident path observed in large-scale edge network
    A data engineering team provisions internal shard tables (`signals_shard_r0`, `signals_shard_r1`) for an offline analytics experiment. The DDL script executes without errors. The migration passes continuous integration under SQL linters (`sqlfluff`, `sqllineage`).
 
 2. **Feature Extraction Pipeline (Python ETL)**:
-   A background worker queries database metadata using dynamic reflection (`SELECT name FROM system.columns WHERE table LIKE 'signals%'`). Because the query omits database qualification, it reflects 280 columns instead of the 200 canonical signals. Python serializes these 280 fields into an untyped dictionary and writes it to a high-speed distributed key-value store (e.g., Redis or Quicksilver). `mypy` and `pytest` report zero defects because dynamic dictionaries conform to `dict[str, Any]`.
+   A background worker queries database metadata using dynamic reflection (`SELECT name FROM system.columns WHERE table LIKE 'signals%'`). Because the query omits database qualification, it reflects 280 columns instead of the 200 canonical signals. Python serializes these 280 fields into an untyped dictionary and writes it to a high-speed distributed key-value store (such as Redis or Quicksilver). `mypy` and `pytest` report zero defects because dynamic dictionaries conform to `dict[str, Any]`.
 
 3. **Edge Ingress Proxy (Rust L7 Engine)**:
    A fleet of edge proxies ingests the key-value configuration. To process millions of requests per second under strict 5-microsecond budgets, the proxy avoids dynamic heap allocations on the packet path, decoding features directly into a fixed-size stack array: `[Feature; 200]`. Converting the 280-element slice via `.try_into().unwrap()` triggers an immediate `TryFromSliceError` panic. Worker threads abort, epoll event loops collapse, and the entire edge fleet enters synchronized crash loops.
 
----
+## 2. Why Single-Language Linters Provide False Confidence
 
-## Why Single-Language Linters Provide False Confidence
+---
 
 The fundamental design flaw in modern verification tooling is **isolation**. Each linter is mathematically sound only within its own closed-world assumption:
 
@@ -70,38 +64,19 @@ The fundamental design flaw in modern verification tooling is **isolation**. Eac
 Single-language linters yield false confidence because they verify syntax rather than architectural reachability. When every individual test suite in a polyglot repository reports 100% green status, the system as a whole can still be mathematically guaranteed to fail upon first contact in production.
 
 > [!NOTE]
-> The bug in a cross-boundary incident does not exist in the SQL repository, the Python repository, or the Rust repository. It exists exclusively in the mathematical cardinality relationship between tiers:
+> The defect in a cross-boundary incident does not exist in the SQL repository, the Python repository, or the Rust repository. It exists exclusively in the mathematical cardinality relationship between tiers:
 >
 > $$\mathcal{C}_{\text{upstream}} > \mathcal{B}_{\text{downstream}}$$
 
----
+## 3. Core Architectural Principles of Stokes
 
-## Core Architectural Principles of Stokes
+---
 
 Stokes is designed around three foundational systems engineering principles:
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                        STOKES CORE PRINCIPLES                          │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                        │
-│  1. Declarative Manifests vs. Intrusive IDLs                           │
-│     - Zero intrusive code generation                                   │
-│     - Preserves native idioms (#[repr(C)], dict, SQL views)            │
-│     - Derives contracts directly from source code ASTs                 │
-│                                                                        │
-│  2. Zero-Runtime Overhead in Production                                │
-│     - Pure static verification in CI (< 38ms)                          │
-│     - Zero agent daemons or sidecars in production binaries            │
-│     - L7 data plane retains sub-10ns stack allocation                  │
-│                                                                        │
-│  3. Tolerant Readers & Staged Rollout Coordination                     │
-│     - Consumer Expands First deployment order                          │
-│     - Downstream buffer capacity >= Upstream projection cardinality    │
-│     - Elimination of poly-repo merge deadlocks                         │
-│                                                                        │
-└────────────────────────────────────────────────────────────────────────┘
-```
+- **Declarative Manifests vs. Intrusive IDLs**: Zero intrusive code generation; preserves native idioms (`#[repr(C)]`, dynamic dictionaries, SQL views) while deriving contracts directly from source code ASTs.
+- **Zero-Runtime Overhead in Production**: Pure static verification in CI (< 38ms) with zero agent daemons or sidecars in production binaries. The L7 data plane retains sub-10ns stack allocation.
+- **Tolerant Readers & Staged Rollout Coordination**: Enforces a strict Consumer Expands First deployment order ($\mathcal{B}_{\text{downstream}} \ge \mathcal{C}_{\text{upstream}}$), eliminating circular merge deadlocks across poly-repo architectures.
 
 ### 1. Declarative Manifests vs. Intrusive IDLs
 
@@ -134,7 +109,7 @@ ast_query = "rust_slice_unwrap_query"
 buffer_capacity = 200
 ```
 
-Stokes reads your existing source code ASTs directly. You do not rewrite your database tables, rewrite your Python extractors into gRPC servers, or replace your Rust structs with bloated generated code.
+Stokes reads your existing source code ASTs directly. You do not rewrite your database tables, rewrite your Python extractors into gRPC servers, or replace your Rust structs with generated code.
 
 ### 2. Zero-Runtime Overhead in Production
 
@@ -144,16 +119,10 @@ Stokes enforces a strict separation of concerns:
 - **Compile-Time Static Analysis**: Stokes executes in continuous integration as an AST gate (`stokes verify --strict`), terminating in under 38 milliseconds.
 - **Production Data Plane**: Zero Stokes code is linked into production application binaries. Production edge proxies retain sub-10ns stack allocations, 25 contiguous cache lines, and zero pointer indirections.
 
-```
-+-------------------------------------------------------------------------+
-| VERIFICATION TIMELINE                                                   |
-|                                                                         |
-| Pull Request Phase (CI Gate)        Production Packet Path (Data Plane) |
-| [Stokes CLI: Tree-sitter AST]       [Direct L7 Intake: Rust / C++]      |
-| Latency: < 38 ms                    Latency: < 10 ns (Zero Stokes Code) |
-| Output: stokes.lock Verified        Throughput: Millions of reqs/sec    |
-+-------------------------------------------------------------------------+
-```
+| Phase | Runtime Environment | Latency Profile | Verification Mechanism |
+|---|---|---|---|
+| **Pull Request (CI Gate)** | GitHub Actions / GitLab CI | < 38 ms | Tree-sitter AST traversal, cardinality proofs, `stokes.lock` validation |
+| **Data Plane (Production)** | Edge Reverse Proxy (Rust / C++) | < 10 ns (Zero Stokes Code) | Native fixed-size stack buffers, zero dynamic heap allocations |
 
 ### 3. Tolerant Readers & Staged Rollout Coordination
 
@@ -163,25 +132,30 @@ In microservice environments with decoupled git repositories, enforcing cross-bo
 
 Stokes formalizes the **Consumer Expands First (Tolerant Reader)** deployment protocol:
 
-```
-Step 1: Downstream Expansion (PR 101 - Edge Proxy Repository)
-  - Buffer expanded: [Feature; 200] → [Feature; 512]
-  - Upstream production emission remains: 200
-  - Invariant evaluation: 200 <= 512 (Risk = 0.39 <= 1.0)
-  - Result: CI PASSES. PR merges and deploys to production fleet.
+```mermaid
+sequenceDiagram
+  autonumber
+  participant Edge as Edge Proxy Repo (Consumer)
+  participant Stokes as Stokes CI Gate
+  participant Analytics as Analytics Repo (Producer)
+  participant Prod as Production Fleet
 
-Step 2: Upstream Emission Expansion (PR 102 - Analytics Repository)
-  - ClickHouse DDL & Python extractor emission expanded: 200 → 280
-  - Downstream active fleet capacity is now: 512
-  - Invariant evaluation: 280 <= 512 (Risk = 0.55 <= 1.0)
-  - Result: CI PASSES. PR merges safely without production downtime.
+  Note over Edge: Step 1: Downstream Buffer Expansion
+  Edge->>Stokes: PR 101: Expand buffer to [Feature; 512]
+  Stokes-->>Edge: Invariant check: 200 <= 512 (Risk = 0.39 <= 1.0) -> PASS
+  Edge->>Prod: Merge & Deploy to edge fleet
+
+  Note over Analytics: Step 2: Upstream Emission Expansion
+  Analytics->>Stokes: PR 102: Expand ClickHouse DDL & worker to 280
+  Stokes-->>Analytics: Invariant check: 280 <= 512 (Risk = 0.55 <= 1.0) -> PASS
+  Analytics->>Prod: Merge & Deploy without downtime
 ```
 
 By verifying that consumer capacity is always greater than or equal to producer cardinality ($\mathcal{B}_{\text{downstream}} \ge \mathcal{C}_{\text{upstream}}$), Stokes enables autonomous poly-repo progression without risking runtime boundary crashes.
 
----
+## 4. Architectural Comparison Matrix
 
-## Architectural Comparison Matrix
+---
 
 | Capability | Traditional Linters (`mypy`, `clippy`) | Traditional IDLs (`protobuf`, `grpc`) | Dynamic Taint Analysis (`codeql`) | Stokes Platform |
 |---|---|---|---|---|

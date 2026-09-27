@@ -1,8 +1,11 @@
 ---
 title: "Stokes Multi-Language AST Analysis Engine"
 description: "Tree-sitter S-expression queries, zero-dependency regex fallback grammars, and language-agnostic boundary digest normalization across SQL, Protobuf, Python, and Rust."
-author: "Yuliet Li (yvliet)"
-license: "MIT"
+category: "Engines"
+order: 1
+lastUpdated: "2026-03-24"
+readTime: "8 min read"
+author: "Yuliet Li"
 ---
 
 # Stokes Multi-Language AST Analysis Engine
@@ -17,46 +20,47 @@ None of these single-language compilers have the semantic capability to cross la
 
 The **Stokes AST Analysis Engine** bridges this semantic gap by analyzing multi-language syntax trees, evaluating cross-boundary dataflow reachability, and normalizing disparate language representations into canonical, language-agnostic boundary digests.
 
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                        STOKES MULTI-LANGUAGE AST ENGINE PIPELINE                       │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                        │
-│   [SQL DDL / Queries]    [Protobuf Schemas]     [Python ETL Files]    [Rust Edge Proxy]│
-│   001_bot_signals.sql    signals.proto          extractor.py          feature_ingest.rs│
-│            │                     │                     │                     │         │
-│            ▼                     ▼                     ▼                     ▼         │
-│   ┌────────────────────────────────────────────────────────────────────────────────┐   │
-│   │ Tree-sitter Polyglot Parser Layer (Incremental C Grammars)                     │   │
-│   │ (Fallback: Deterministic Zero-Dependency Regex AST Traversal)                  │   │
-│   └──────────────────────────────────────┬─────────────────────────────────────────┘   │
-│                                          │                                             │
-│                                          ▼                                             │
-│   ┌────────────────────────────────────────────────────────────────────────────────┐   │
-│   │ S-Expression Tree Queries & Boundary Extraction                                │   │
-│   │ - sql_catalog_query.scm      ──► Detects unscoped system.columns reflection    │   │
-│   │ - proto_repeated_query.scm   ──► Detects unbounded repeated message fields     │   │
-│   │ - python_extractor_query.scm ──► Detects unconstrained slice payload expansion │   │
-│   │ - rust_slice_unwrap_query.scm──► Detects fatal try_into().unwrap() buffer panics│   │
-│   └──────────────────────────────────────┬─────────────────────────────────────────┘   │
-│                                          │                                             │
-│                                          ▼                                             │
-│   ┌────────────────────────────────────────────────────────────────────────────────┐   │
-│   │ Language-Agnostic Boundary Normalization (Boundary IR)                         │   │
-│   │ Canonical Primitive Types: UInt32 ↔ uint32 ↔ int ↔ u32                         │   │
-│   │ Canonical Boundary Digest: SHA-256(canonical_ast_repr)                         │   │
-│   └──────────────────────────────────────┬─────────────────────────────────────────┘   │
-│                                          │                                             │
-│                                          ▼                                             │
-│                        Directed Reachability Graph G = (V, E)                          │
-│                      Evaluates: N_max (280) > M_downstream (200)                       │
-│                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph Inputs["Multi-Language Inputs"]
+        SQL["SQL DDL / Queries<br/>001_bot_signals.sql"]
+        Proto["Protobuf Schemas<br/>signals.proto"]
+        Py["Python ETL Files<br/>extractor.py"]
+        Rs["Rust Edge Proxy<br/>feature_ingest.rs"]
+    end
+
+    subgraph Parser["Tree-sitter Polyglot Parser Layer"]
+        C_Grammars["Incremental C Grammars<br/>(Fallback: Deterministic Zero-Dependency Regex Traversal)"]
+    end
+
+    subgraph SExpr["S-Expression Tree Queries & Boundary Extraction"]
+        Q_SQL["sql_catalog_query.scm → Detects unscoped system.columns reflection"]
+        Q_Proto["proto_repeated_query.scm → Detects unbounded repeated message fields"]
+        Q_Py["python_extractor_query.scm → Detects unconstrained slice payload expansion"]
+        Q_Rs["rust_slice_unwrap_query.scm → Detects fatal try_into().unwrap() buffer panics"]
+    end
+
+    subgraph BIR["Language-Agnostic Boundary Normalization (Boundary IR)"]
+        Types["Canonical Primitive Types: UInt32 ↔ uint32 ↔ int ↔ u32"]
+        Digests["Canonical Boundary Digest: SHA-256(canonical_ast_repr)"]
+    end
+
+    Graph["Directed Reachability Graph G = (V, E)<br/>Evaluates: N_max (280) > M_downstream (200)"]
+
+    Inputs --> Parser
+    Parser --> SExpr
+    SExpr --> BIR
+    BIR --> Graph
+
+    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
+    classDef highlight fill:#1c2333,stroke:#3b82f6,color:#93c5fd;
+    class Inputs,Graph highlight;
 ```
 
 ---
 
 ## Polyglot Parsing Strategy: Native Tree-sitter & Regex Fallback
+---
 
 To provide production-grade speed without fragile external runtime dependencies, the engine implements a dual-mode parser architecture:
 
@@ -125,6 +129,7 @@ class TreeSitterLoader:
 ---
 
 ## Tree-sitter S-Expression Queries Across Languages
+---
 
 The core engine uses Tree-sitter S-expression query files (`.scm`) to capture structural patterns that represent cross-boundary vulnerabilities.
 
@@ -217,6 +222,7 @@ Locates direct conversions from dynamic slices to fixed stack arrays via `.try_i
 ---
 
 ## Normalizing ASTs to Language-Agnostic Boundary Digests
+---
 
 Because boundary interfaces communicate across programming languages, the engine translates AST nodes into an intermediate representation: **Boundary Intermediate Representation (BIR)**.
 
@@ -295,6 +301,7 @@ class BoundaryInterfaceIR:
 ---
 
 ## Directed Reachability Graph Construction
+---
 
 Once the AST engine extracts all boundary nodes and computes their digests, it constructs the **Topological Reachability Graph** $\mathcal{G} = (\mathcal{V}, \mathcal{E})$:
 
@@ -327,6 +334,7 @@ class ReachabilityGraph:
 ---
 
 ## Performance Characteristics
+---
 
 | Metric | Stokes Multi-Language AST Engine | Monolithic Compiler Invocation (`rustc` + `mypy` + `sqlfluff`) |
 | :--- | :--- | :--- |
@@ -336,4 +344,4 @@ class ReachabilityGraph:
 | **Cross-Boundary Visibility** | **100% (Unified BIR Graph)** | 0% (Context Blind Silos) |
 | **External Dependencies** | **0 (Built-in regex fallback)** | Python, Cargo, Rustc, LLVM |
 
-By abstracting language-specific syntaxes into unified Boundary IR nodes and calculating deterministic cryptographic digests, the Stokes AST Engine proves cross-boundary memory safety in single-digit milliseconds.
+By abstracting language-specific syntaxes into unified Boundary IR nodes and calculating deterministic cryptographic digests, the Stokes AST Engine proves cross-boundary memory safety in single-digit milliseconds. Explore how subagents orchestrate this in [[subagent-swarm|Subagent Swarm]] and verify invariants with the [[verification-harness|Verification Harness]].

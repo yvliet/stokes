@@ -1,8 +1,11 @@
 ---
 title: "The Dirichlet Benchmark & Incident Reproduction Testbed"
 description: "Forensic breakdown and zero-drop mitigation of the Cloudflare November 18, 2025 outage reproduction across ClickHouse, Python ETL, and Pingora Rust proxy."
-author: "Yuliet Li (yvliet)"
-license: "MIT"
+category: "Engines"
+order: 4
+lastUpdated: "2026-03-24"
+readTime: "9 min read"
+author: "Yuliet Li"
 ---
 
 # The Dirichlet Benchmark & Incident Reproduction Testbed
@@ -11,34 +14,40 @@ On November 18, 2025, a global cloud network experienced a severe multi-hour out
 
 To validate Stokes under real-world systems conditions, the **Dirichlet Testbed** was constructed: a standalone, production-faithful incident reproduction modeling the exact three-tier architecture that failed during the November 18, 2025 event.
 
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                        DIRICHLET INCIDENT ARCHITECTURE TOPOLOGY                        │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                        │
-│   [Tier 1: SQL Analytics]      [Tier 2: Python Worker]      [Tier 3: Rust L7 Proxy]    │
-│   ClickHouse DDL Migrations    ETL Feature Extractor        Edge Ingress Proxy         │
-│   dirichlet/migrations/        dirichlet/services/          dirichlet/crates/proxy/    │
-│            │                            │                             │                │
-│            ▼                            ▼                             ▼                │
-│   001_bot_signals.sql           catalog_sync.py              feature_ingest.rs         │
-│   002_shard_definitions.sql     extractor.py                 [Feature; 200] Buffer     │
-│            │                            │                             │                │
-│   system.columns emitted:       JSON payload emitted:        slice.try_into().unwrap() │
-│   200 (base) + 80 (shards)      features.json (280 items)    EXPECTS <= 200 SLOTS      │
-│   = 280 rows                            │                             │                │
-│            │                            │                             │                │
-│            └────────────►───────────────┴──────────────►──────────────┘                │
-│                                                                                        │
-│   FATAL CRASH COLLISION: 280 Features > 200 Fixed Array Slots                          │
-│   Result: Worker thread panic, epoll failure, cascading global restart storms         │
-│                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph Tier1["Tier 1: SQL Analytics (ClickHouse DDL)"]
+        DDL1["001_bot_signals.sql: 200 base signals"]
+        DDL2["002_shard_definitions.sql: 80 shard metadata cols"]
+        DDL1 --> EmittedCols["system.columns emits 280 rows"]
+        DDL2 --> EmittedCols
+    end
+
+    subgraph Tier2["Tier 2: Python Worker (ETL Extractor)"]
+        Sync["catalog_sync.py: Unscoped reflection"]
+        Extract["extractor.py: Unbounded loop"]
+        Payload["features.json payload: 280 items emitted"]
+        Sync --> Extract --> Payload
+    end
+
+    subgraph Tier3["Tier 3: Rust L7 Proxy (Pingora-Style)"]
+        Ingest["feature_ingest.rs: [Feature; 200] stack buffer"]
+        Panic["slice.try_into().unwrap() EXPECTS <= 200 SLOTS<br/>280 > 200 → FATAL TryFromSliceError PANIC"]
+        Ingest --> Panic
+    end
+
+    EmittedCols --> Sync
+    Payload --> Ingest
+
+    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
+    classDef danger fill:#3b1e1e,stroke:#ef4444,color:#fca5a5;
+    class Panic danger;
 ```
 
 ---
 
 ## Component Architecture Breakdown
+---
 
 The Dirichlet testbed mirrors the real-world software stack across three distinct tiers:
 
@@ -70,6 +79,7 @@ Located in `dirichlet/crates/dirichlet-proxy/`:
 ---
 
 ## Step-by-Step Incident Crash Reproduction
+---
 
 The Dirichlet testbed allows executing the complete, reproducible failure sequence from baseline stability to global process collapse:
 
@@ -132,35 +142,36 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ---
 
 ## Stokes Zero-Drop Remediation
+---
 
 When Stokes audits the Dirichlet testbed, the subagent swarm detects the cross-boundary contract drift and applies the **Dual-Zone Memory Remediation**.
 
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                        STOKES DUAL-ZONE MEMORY REMEDIATION                             │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                        │
-│   Incoming Unbounded Payload: 280 Features                                             │
-│   ├── 200 Core Signals (Priority 200..255)                                             │
-│   └── 80 Shadow Shard Columns (Priority 0)                                             │
-│                                                                                        │
-│                                │                                                       │
-│                                ▼ In-Place Partitioning (7.66 ns)                       │
-│                                                                                        │
-│   ┌────────────────────────────────────────┬────────────────────────────────────────┐  │
-│   │        ZONE 0: CORE RESERVED           │       ZONE 1: DYNAMIC ADAPTIVE         │  │
-│   │         (Slots 0 .. 127)               │          (Slots 128 .. 199)            │  │
-│   ├────────────────────────────────────────┼────────────────────────────────────────┤  │
-│   │ Capacity: 128 Slots (1,024 Bytes)      │ Capacity: 72 Slots (576 Bytes)         │  │
-│   │ Priority: >= 200 (Core Security Rules) │ Priority: 0 .. 199 (Tier-2 Signals)    │  │
-│   │ Eviction: IMMUNE TO EVICTION           │ Eviction: In-Place Quickselect         │  │
-│   │ Status: Guaranteed 100% Active         │ Status: Lowest Priority Shed First     │  │
-│   └────────────────────────────────────────┴────────────────────────────────────────┘  │
-│                                                                                        │
-│   Excess 80 Shadow Features (Priority 0) shed via zero-allocation slice truncation     │
-│   Total Active Buffer: Exactly 200 Features (1,600 Bytes, 0 B Heap Allocation)         │
-│                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────┘
+| Allocation Zone | Capacity | Priority Envelope | Eviction & Operational Status |
+| :--- | :--- | :--- | :--- |
+| **Zone 0: Core Reserved** | 128 Slots (1,024 Bytes) | `priority >= 200` (Core Rules) | **Immune to eviction**. Guaranteed 100% active in register. |
+| **Zone 1: Dynamic Adaptive** | 72 Slots (576 Bytes) | `0 <= priority <= 199` (Tier-2 Signals) | In-place quickselect (`select_nth_unstable_by`). Lowest priority shed first. |
+| **Shed Elements** | 80 Excess Slots | `priority == 0` (Shard columns) | Shed via zero-allocation slice truncation. 0 Bytes heap overhead. |
+
+```mermaid
+flowchart TD
+    Payload["Incoming Unbounded Payload: 280 Features<br/>- 200 Core Signals (Priority 200..255)<br/>- 80 Shadow Shard Columns (Priority 0)"]
+    
+    Part["In-Place Partitioning (7.66 ns)"]
+    
+    subgraph ActiveBuffer["Total Active Buffer: Exactly 200 Features (1,600 Bytes)"]
+        Z0["Zone 0: Core Reserved (Slots 0..127)<br/>Capacity: 128 Slots (1,024 B)<br/>Status: Immune to Eviction"]
+        Z1["Zone 1: Dynamic Adaptive (Slots 128..199)<br/>Capacity: 72 Slots (576 B)<br/>Status: Lowest Priority Shed First"]
+    end
+
+    Excess["Excess 80 Shadow Features (Priority 0)<br/>Shed via zero-allocation slice truncation (0 B Heap Allocation)"]
+
+    Payload --> Part
+    Part --> ActiveBuffer
+    Part -.->|Dropped| Excess
+
+    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
+    classDef safe fill:#132d21,stroke:#10b981,color:#a7f3d0;
+    class ActiveBuffer safe;
 ```
 
 ### 1. In-Place Quickselect Partitioning
@@ -248,6 +259,7 @@ impl ConfigMesh {
 ---
 
 ## Empirical Benchmark & Verification Results
+---
 
 Running the Dirichlet test suite before and after applying Stokes verification confirms complete mitigation:
 
@@ -260,4 +272,4 @@ Running the Dirichlet test suite before and after applying Stokes verification c
 | **Zone 0 Core Signal Retention** | 0% (Proxy Dead) | **100% Retained (Immune to Eviction)** |
 | **Global 502 Outage Risk** | Catastrophic Fleet Blackout | **Zero Drops (Mathematical Guarantee)** |
 
-By verifying boundaries at compile time with Stokes and enforcing Dual-Zone memory partitioning at runtime, the Dirichlet testbed demonstrates that distributed multi-tier pipelines can survive large-scale upstream schema drift without a single dropped packet.
+By verifying boundaries at compile time with Stokes and enforcing Dual-Zone memory partitioning at runtime, the Dirichlet testbed demonstrates that distributed multi-tier pipelines can survive large-scale upstream schema drift without a single dropped packet. Read the foundational analysis in [[01-untyped-seams|Untyped Seams]] and [[02-panic-resilience|Panic Resilience]].

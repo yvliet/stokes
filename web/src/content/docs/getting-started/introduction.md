@@ -1,6 +1,8 @@
 ---
-title: "Introduction to Stokes"
-description: "Cross-boundary systems invariant verification engine and autonomous multi-agent synthesis."
+title: "01. Introduction & Overview"
+summary: "Cross-boundary systems invariant verification engine and autonomous multi-agent synthesis."
+lastUpdated: "last updated 1 day ago"
+readTime: "4 min read"
 author: "Yuliet Li (yvliet)"
 license: "MIT"
 ---
@@ -11,34 +13,31 @@ Stokes is a cross-boundary systems invariant verification engine designed for po
 
 Modern cloud infrastructure does not break within single-language silos; it breaks at the untyped seams connecting analytical databases, asynchronous event pipelines, dynamic extractors, and low-latency edge proxies. Stokes detects, models, and prevents these failures at compile time in CI and during automated pull request gates.
 
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                        CROSS-BOUNDARY COMPILER BLINDNESS SEAM                          │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                        │
-│   [Analytical DDL: SQL]      [Feature Extractor: Python]      [Edge Reverse Proxy: Rust]│
-│   migrations/004_stats.sql    services/etl/worker.py           crates/proxy/src/intake.rs│
-│            │                             │                                  │          │
-│            ▼                             ▼                                  ▼          │
-│     ClickHouse Schema             Dynamic Dict                     [Feature; 200]      │
-│     280 Columns Emitted           280 Items Serialized             Fixed Stack Array   │
-│            │                             │                                  │          │
-│       sqlfluff: PASS                mypy: PASS                         rustc: PASS     │
-│            │                             │                                  │          │
-│            └──────────────►──────────────┴────────────────►─────────────────┘          │
-│                                                                                        │
-│   FATAL RUNTIME COLLISION: Mathematical Boundary Breach (280 features > 200 buffer)    │
-│   Result: TryFromSliceError panic / 100% 502 Bad Gateway blackout across edge fleet    │
-│                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+  subgraph SQL["Tier 1: SQL Analytics (ClickHouse DDL)"]
+    S1["migrations/004_stats.sql<br/>280 columns emitted"]
+    S2["sqlfluff: PASS"]
+  end
+  subgraph PY["Tier 2: Feature Extractor (Python Worker)"]
+    P1["services/etl/worker.py<br/>280 items serialized"]
+    P2["mypy: PASS"]
+  end
+  subgraph RS["Tier 3: Reverse Proxy (Rust Edge)"]
+    R1["crates/proxy/src/intake.rs<br/>Stack buffer: [Feature; 200]"]
+    R2["rustc: PASS<br/>TryFromSliceError PANIC!"]
+  end
+  SQL -->|Untyped Seam 1: Column rows| PY
+  PY -->|Untyped Seam 2: KV Mesh| RS
+  style RS stroke:#ef4444,stroke-width:2px
 ```
 
 > [!IMPORTANT]
 > Compilers are blind to external systems boundaries. `sqlfluff` verifies valid SQL syntax. `mypy` verifies Python type annotations. `rustc` enforces borrow semantics and memory safety within local compilation units. None of these tools can observe that a SQL schema modification emits 280 fields into an edge proxy stack buffer allocated for 200 elements.
 
----
+## 1. The Context Blindness Principle
 
-## The Context Blindness Principle
+---
 
 In multi-tier microservice architectures, data contracts span heterogeneous technologies:
 1. **Tier 1 (Analytical Catalog)**: Databases like ClickHouse, PostgreSQL, or Snowflake execute DDL migrations and export table columns via virtual introspection tables (`system.columns`, `information_schema`).
@@ -51,27 +50,17 @@ $$\text{Visibility}(\text{Compiler}_i) \cap \text{Domain}(\text{Compiler}_j) = \
 
 Stokes solves Context Blindness by lifting interface signatures from isolated abstract syntax trees (ASTs) into a unified, sparse **Interface Boundary Compatibility Graph**.
 
----
+## 2. Core System Architecture
 
-## Core System Architecture
+---
 
 Stokes delivers cross-boundary verification and autonomous repair sharing a unified semantic core:
 
-```
-                                  ┌───────────────────────────┐
-                                  │      Stokes Core Engine   │
-                                  │ (Semantic AST Extraction) │
-                                  └─────────────┬─────────────┘
-                                                │
-                       ┌────────────────────────┴────────────────────────┐
-                       ▼                                                 ▼
-        ┌─────────────────────────────┐                   ┌─────────────────────────────┐
-        │    Next-Gen Systems Linter  │                   │ Autonomous Agent Synthesis  │
-        │ - Sub-38ms CI execution gate│                   │ - Multi-agent bridge (Bob)  │
-        │ - Sparse boundary graph     │                   │ - Certified TieredBuffer    │
-        │ - stokes.lock verification  │                   │ - Unified diff generation   │
-        │ - Native MCP agent server   │                   │ - Zero runtime panic patch  │
-        └─────────────────────────────┘                   └─────────────────────────────┘
+```mermaid
+flowchart TD
+  Core["Stokes Core Engine<br/>(Semantic AST Extraction)"]
+  Core --> Linter["Next-Gen Systems Linter<br/>- Sub-38ms CI execution gate<br/>- Sparse boundary graph<br/>- stokes.lock verification<br/>- Native MCP agent server"]
+  Core --> Synthesis["Autonomous Agent Synthesis<br/>- Multi-agent bridge (Bob)<br/>- Certified TieredBuffer<br/>- Unified diff generation<br/>- Zero runtime panic patch"]
 ```
 
 ### 1. Next-Gen Systems Linter (< 38ms Gate)
@@ -81,16 +70,15 @@ The Stokes command-line engine runs as a zero-dependency static analysis gate in
 - **Microsecond Graph Resolution**: Verifies cardinality bounds, alignment constraints, and type projections across boundaries in under 1 millisecond.
 - **Lockfile Enforcement**: Compares semantic AST digests against `stokes.lock`, failing PRs with non-zero exit codes if unhedged breaking changes occur.
 
-```
-Execution Budget (38ms CI Target):
-  Phase 1: Tree-sitter C-parsing (boundary files)      →  8.2 ms
-  Phase 2: Boundary signature filtering                →  6.4 ms
-  Phase 3: Sparse boundary graph evaluation            →  0.8 ms
-  Phase 4: AST normalization & canonicalization        → 12.1 ms
-  Phase 5: SHA-256 digest computation & lockfile check →  4.5 ms
-  Phase 6: Terminal output & process exit              →  3.2 ms
-  Total Execution Latency                              → 35.2 ms
-```
+| Pipeline Phase | Description | Latency Target |
+|---|---|---|
+| **Phase 1** | Tree-sitter C-parsing (boundary files) | 8.2 ms |
+| **Phase 2** | Boundary signature filtering | 6.4 ms |
+| **Phase 3** | Sparse boundary graph evaluation | 0.8 ms |
+| **Phase 4** | AST normalization & canonicalization | 12.1 ms |
+| **Phase 5** | SHA-256 digest computation & lockfile check | 4.5 ms |
+| **Phase 6** | Terminal output & process exit | 3.2 ms |
+| **Total** | Full CI verification cycle | 35.2 ms |
 
 ### 2. Autonomous Multi-Agent Invariant Synthesis
 Stokes connects boundary analysis directly to AI coding workflows:
@@ -98,9 +86,9 @@ Stokes connects boundary analysis directly to AI coding workflows:
 - **Certified Buffer Synthesis (`stokes codegen`)**: Synthesizes verified `TieredBuffer<T, INLINE, SPILL>` implementations with $< 1\text{ ns}$ inline evaluation and zero runtime panics.
 - **Native MCP Protocol (`stokes mcp`)**: Full JSON-RPC 2.0 stdio server providing IDE agents with live boundary contracts, AST diagnostics, and verified patch simulation.
 
----
+## 3. The Cardinality Invariant
 
-## The Cardinality Invariant
+---
 
 The primary mathematical invariant enforced by Stokes across all system boundaries is the **Cardinality Decision Invariant**:
 
@@ -110,19 +98,18 @@ Where:
 - $\mathcal{C}_{\text{upstream}}$ is the maximum potential cardinality emitted by upstream queries, reflection loops, or unbounded message fields.
 - $\mathcal{B}_{\text{downstream}}$ is the physical buffer capacity of downstream consumer memory allocations.
 
-```
-Boundary Invariant Conditions:
-  Risk <= 1.0 AND Upstream Bounded  →  INVARIANT SATISFIED (Contract Verified)
-  Risk > 1.0 (Finite Overflow)      →  FATAL CONTRACT DRIFT (Reachable Panic)
-  Risk = Infinity (Unbounded Wire)  →  UNBOUNDED CAPACITY HAZARD (OOM / Denial of Service)
-```
+| Condition | Mathematical Invariant | System Status | Operational Outcome |
+|---|---|---|---|
+| **Case 1** | $\text{Risk} \le 1.0$ (Bounded Upstream) | Invariant Satisfied | Safe memory allocation; continuous packet intake. |
+| **Case 2** | $\text{Risk} > 1.0$ (Finite Overflow) | Fatal Contract Drift | Reachable panic or 100% 502 Bad Gateway drop. |
+| **Case 3** | $\text{Risk} = \infty$ (Unbounded Wire) | Unbounded Hazard | Memory exhaustion (OOM) or denial of service risk. |
 
 > [!WARNING]
 > When upstream cardinality $\mathcal{C}_{\text{upstream}} = 280$ and downstream capacity $\mathcal{B}_{\text{downstream}} = 200$, $\text{Risk} = 1.40 > 1.0$. Downstream conversion via direct slice slicing or `.try_into().unwrap()` is mathematically guaranteed to panic at runtime under production load.
 
----
+## 4. Core Diagnostic Rules
 
-## Core Diagnostic Rules
+---
 
 Stokes evaluates five diagnostic rules across heterogeneous boundaries:
 
@@ -134,9 +121,9 @@ Stokes evaluates five diagnostic rules across heterogeneous boundaries:
 | `LINT-004` | FATAL | Direct `.try_into().unwrap()` on fixed stack buffer | Immediate `TryFromSliceError` panic or 502 Bad Gateway drop when upstream cardinality exceeds buffer size $N$. |
 | `LINT-005` | WARNING | Heap allocations on microsecond intake hot path | Cache line evictions degrading latency from sub-10ns register evaluation to microsecond tail spikes. |
 
----
+## 5. Multi-Agent Verification Architecture
 
-## Multi-Agent Verification Architecture
+---
 
 Stokes couples static verification with an autonomous multi-agent core. Built on the IBM Bob 2.0 runtime, Stokes orchestrates five specialized language subagents communicating over length-prefixed binary sockets:
 
@@ -146,34 +133,22 @@ Stokes couples static verification with an autonomous multi-agent core. Built on
 - `stokes-rust`: Rust syn/Tree-sitter parser identifying fixed stack buffer unwraps and cache-unfriendly allocations.
 - `stokes-verify`: Verification harness running property tests and synthesizing verified unified diff patches.
 
+```mermaid
+flowchart TD
+  Orch["Stokes Orchestrator (IBM Bob 2.0 Swarm)"]
+  Orch -->|Length-Prefixed Binary IPC| SQL["stokes-sql"]
+  Orch -->|Length-Prefixed Binary IPC| PY["stokes-python"]
+  Orch -->|Length-Prefixed Binary IPC| RS["stokes-rust"]
+  Orch -->|Length-Prefixed Binary IPC| VER["stokes-verify"]
+  SQL -->|Streaming Event Bus| TUI["ANSI Multi-Line TUI (60 FPS Render Tick)"]
+  PY -->|Streaming Event Bus| TUI
+  RS -->|Streaming Event Bus| TUI
+  VER -->|Streaming Event Bus| TUI
 ```
-┌────────────────────────────────────────────────────────────────────────┐
-│                    IBM BOB 2.0 MULTI-AGENT ORCHESTRATION               │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                        │
-│                      ┌──────────────────────┐                          │
-│                      │  Stokes Orchestrator │                          │
-│                      └──────────┬───────────┘                          │
-│                                 │ Length-Prefixed Binary Wire (IPC)    │
-│            ┌──────────────┬─────┴────────┬──────────────┐              │
-│            ▼              ▼              ▼              ▼              │
-│     ┌─────────────┐┌─────────────┐┌─────────────┐┌─────────────┐       │
-│     │ stokes-sql  ││stokes-python││ stokes-rust ││stokes-verify│       │
-│     └──────┬──────┘└──────┬──────┘└──────┬──────┘└──────┬──────┘       │
-│            │              │              │              │              │
-│            └──────────────┴──────┬───────┴──────────────┘              │
-│                                  ▼ Streaming Event Bus                 │
-│                      ┌──────────────────────┐                          │
-│                      │ ANSI Multi-Line TUI  │                          │
-│                      │ 60 FPS Render Tick   │                          │
-│                      └──────────────────────┘                          │
-│                                                                        │
-└────────────────────────────────────────────────────────────────────────┘
-```
+
+## 6. Author & Attribution
 
 ---
-
-## Author & Attribution
 
 Stokes is engineered exclusively by **Yuliet Li (`yvliet`)**.
 

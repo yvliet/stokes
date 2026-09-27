@@ -1,4 +1,5 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import katex from 'katex';
 import {
   CopyIcon,
   CheckIcon,
@@ -12,8 +13,16 @@ import {
   WarningCircleIcon,
   ShieldWarningIcon,
 } from './Icons.tsx';
-import type { DocItem, TocHeading } from '../../data/docsContent.ts';
+import {
+  DOCS_TREE,
+  flattenDocs,
+  findDocBySlug,
+  type DocItem,
+  type TocHeading,
+} from '../../data/docsContent.ts';
 import { highlightCode } from './syntaxHighlighter.ts';
+import { MermaidBlock } from './MermaidBlock.tsx';
+import { WikilinkHoverPreview } from './WikilinkHoverPreview.tsx';
 
 export interface DocsReaderProps {
   doc: DocItem;
@@ -32,52 +41,157 @@ export function slugify(text: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-// Split markdown table rows while protecting escaped pipes and inline code
-function splitTableRow(line: string): string[] {
-  const parts: string[] = [];
-  let current = '';
-  let inCode = false;
+// Split markdown table rows while protecting escaped pipes, inline code, and math
+export function splitTableRow(line: string): string[] {
+  const placeholders: string[] = [];
+  const placeholder = (idx: number) => `\x00PIPE_${idx}\x00`;
 
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    if (char === '`') {
-      inCode = !inCode;
-      current += char;
-    } else if (char === '|' && !inCode) {
-      parts.push(current.trim());
-      current = '';
-    } else {
-      current += char;
-    }
+  // Protect escaped pipes \|
+  let protectedLine = line.replace(/\\\|/g, () => {
+    const token = placeholder(placeholders.length);
+    placeholders.push('|');
+    return token;
+  });
+
+  // Protect code spans
+  protectedLine = protectedLine.replace(/(`+)([\s\S]*?)\1/g, (match) => {
+    const token = placeholder(placeholders.length);
+    placeholders.push(match);
+    return token;
+  });
+
+  // Protect math spans ($...$)
+  protectedLine = protectedLine.replace(/(?<!\\)\$(?!\s)([^\$\r\n]+?)(?<!\s)(?<!\\)\$/g, (match) => {
+    const token = placeholder(placeholders.length);
+    placeholders.push(match);
+    return token;
+  });
+
+  const rawCells = protectedLine.split('|');
+
+  let startIndex = 0;
+  let endIndex = rawCells.length;
+  if (rawCells.length > 0 && rawCells[0].trim() === '') {
+    startIndex = 1;
   }
-  parts.push(current.trim());
+  if (rawCells.length > startIndex && rawCells[rawCells.length - 1].trim() === '') {
+    endIndex = rawCells.length - 1;
+  }
 
-  // Drop leading/trailing empty cells if standard markdown table format `| a | b |`
-  if (parts.length > 0 && parts[0] === '') parts.shift();
-  if (parts.length > 0 && parts[parts.length - 1] === '') parts.pop();
-  return parts;
+  return rawCells.slice(startIndex, endIndex).map((cell) => {
+    let restored = cell.trim();
+    for (let i = 0; i < placeholders.length; i++) {
+      restored = restored.replace(new RegExp(`\x00PIPE_${i}\x00`, 'g'), () => placeholders[i]);
+    }
+    return restored;
+  });
 }
 
-// Render inline markdown tokens (bold, italic, code, links)
-function renderInline(text: string): string {
-  let escaped = text
+// Safe KaTeX renderer resilient against SSR/ESM/CJS interop and syntax anomalies
+export function safeRenderKaTeX(tex: string, displayMode: boolean): string {
+  try {
+    const k = (katex as any)?.default || katex;
+    if (k && typeof k.renderToString === 'function') {
+      return k.renderToString(tex, {
+        displayMode,
+        throwOnError: false,
+      });
+    }
+  } catch {
+    // Graceful fallback on syntax or KaTeX execution error
+  }
+  return '';
+}
+
+// Render inline markdown tokens (bold, italic, code, KaTeX math, wikilinks, links)
+export function renderInline(text: string): string {
+  // 1. Protect inline code spans
+  const codeTokens: string[] = [];
+  const codePlaceholder = (idx: number) => `\x01CODE_${idx}\x02`;
+
+  let processed = text.replace(/(`+)([\s\S]*?)\1/g, (_, __, content) => {
+    let codeText = content;
+    if (codeText.length >= 2 && codeText.startsWith(' ') && codeText.endsWith(' ') && codeText.trim().length > 0) {
+      codeText = codeText.slice(1, -1);
+    }
+    const escaped = codeText
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    const html = `<code class="px-1.5 py-0.5 rounded text-[0.875em] font-mono bg-muted/60 text-foreground border border-border/50">${escaped}</code>`;
+    const token = codePlaceholder(codeTokens.length);
+    codeTokens.push(html);
+    return token;
+  });
+
+  // 2. KaTeX inline math: $...$
+  const mathTokens: string[] = [];
+  const mathPlaceholder = (idx: number) => `\x01MATH_${idx}\x02`;
+
+  processed = processed.replace(/(?<!\\)\$(?!\s)([^\$\r\n]+?)(?<!\s)(?<!\\)\$/g, (match, tex) => {
+    const trimmed = tex.trim();
+    if (!trimmed) return match;
+    const rendered = safeRenderKaTeX(trimmed, false);
+    if (rendered) {
+      const token = mathPlaceholder(mathTokens.length);
+      mathTokens.push(rendered);
+      return token;
+    }
+    return match;
+  });
+
+  // 3. Escape HTML
+  processed = processed
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 
-  // Inline code `code`
-  escaped = escaped.replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded text-[0.875em] font-mono bg-muted/60 text-foreground border border-border/50">$1</code>');
+  // 4. Embedded image wikilinks ![[image.png|alt]] or ![[image.png]]
+  processed = processed.replace(/!\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_, target, opt) => {
+    const isWidth = opt && /^\d+$/.test(opt.trim());
+    const widthStyle = isWidth ? `style="max-width:${opt.trim()}px"` : '';
+    const alt = isWidth || !opt ? target.trim() : opt.trim();
+    const src = target.trim().startsWith('http') || target.trim().startsWith('/') ? target.trim() : `/${target.trim()}`;
+    return `<img src="${src}" alt="${alt}" ${widthStyle} class="rounded-lg border border-border/50 inline-block max-h-48 align-middle my-2" />`;
+  });
 
-  // Bold **text**
-  escaped = escaped.replace(/\*\*([^*]+)\*\*/g, '<strong class="font-medium text-foreground">$1</strong>');
+  // 5. Obsidian Wikilinks: [[Target|Label]] or [[Target]] with Noether accent
+  processed = processed
+    .replace(
+      /\[\[([^\]|]+)\|([^\]]+)\]\]/g,
+      '<a href="#$1" data-wikilink="$1" class="internal-link text-[#eb584d] hover:text-[#d94338] underline underline-offset-2 font-normal cursor-pointer transition-colors">$2</a>'
+    )
+    .replace(
+      /\[\[([^\]]+)\]\]/g,
+      '<a href="#$1" data-wikilink="$1" class="internal-link text-[#eb584d] hover:text-[#d94338] underline underline-offset-2 font-normal cursor-pointer transition-colors">$1</a>'
+    );
 
-  // Italic *text*
-  escaped = escaped.replace(/\*([^*]+)\*/g, '<em class="italic text-foreground/90">$1</em>');
+  // 6. Markdown Links [text](url)
+  processed = processed.replace(
+    /\[([^\]]+)\]\(([^)]+)\)/g,
+    '<a href="$2" class="underline underline-offset-2 text-foreground hover:text-primary font-normal transition-colors">$1</a>'
+  );
 
-  // Links [text](url)
-  escaped = escaped.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="underline underline-offset-2 text-black dark:text-white hover:opacity-80 font-normal transition-opacity">$1</a>');
+  // 7. Bold **text**
+  processed = processed.replace(/\*\*([^*]+)\*\*/g, '<strong class="font-medium text-foreground">$1</strong>');
 
-  return escaped;
+  // 8. Italic *text*
+  processed = processed.replace(/\*([^*]+)\*/g, '<em class="italic text-foreground/90">$1</em>');
+
+  // 9. Strikethrough ~~text~~
+  processed = processed.replace(/~~([^~]+)~~/g, '<del class="line-through text-muted-foreground">$1</del>');
+
+  // 10. Restore math tokens
+  for (let mIdx = 0; mIdx < mathTokens.length; mIdx++) {
+    processed = processed.replace(mathPlaceholder(mIdx), () => mathTokens[mIdx]);
+  }
+
+  // 11. Restore code tokens
+  for (let cIdx = 0; cIdx < codeTokens.length; cIdx++) {
+    processed = processed.replace(codePlaceholder(cIdx), () => codeTokens[cIdx]);
+  }
+
+  return processed;
 }
 
 export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
@@ -89,11 +203,203 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
 }) => {
   const [copiedPage, setCopiedPage] = useState(false);
   const [copiedCodeIdx, setCopiedCodeIdx] = useState<number | null>(null);
+  const [copiedHeadingId, setCopiedHeadingId] = useState<string | null>(null);
   const articleRef = useRef<HTMLElement>(null);
+  const contentContainerRef = useRef<HTMLDivElement>(null);
+
+  const allDocs = useMemo(() => flattenDocs(DOCS_TREE), []);
+
+  // Helper to normalize strings for robust wikilink comparison
+  const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+  // Lookup doc by wikilink target with alias, title, id, slug fallback
+  const findDocByTarget = useCallback((target: string): DocItem | null => {
+    const cleanTarget = target.split('#')[0].replace(/&amp;/g, '&').trim();
+    if (!cleanTarget) return null;
+    const lowerTarget = cleanTarget.toLowerCase();
+    const normTarget = normalize(cleanTarget);
+
+    for (const item of allDocs) {
+      if (
+        item.id.toLowerCase() === lowerTarget ||
+        item.title.toLowerCase() === lowerTarget ||
+        item.slug.toLowerCase() === lowerTarget ||
+        normalize(item.id) === normTarget ||
+        normalize(item.title) === normTarget ||
+        normalize(item.slug) === normTarget
+      ) {
+        return item;
+      }
+    }
+
+    // Substring fallback
+    for (const item of allDocs) {
+      const itemTitleNorm = normalize(item.title);
+      const itemIdNorm = normalize(item.id);
+      if (
+        itemTitleNorm.includes(normTarget) ||
+        normTarget.includes(itemTitleNorm) ||
+        itemIdNorm.includes(normTarget) ||
+        normTarget.includes(itemIdNorm)
+      ) {
+        return item;
+      }
+    }
+
+    return null;
+  }, [allDocs]);
+
+  // Click delegation for internal wikilinks and hash links
+  const handleContentClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const target = (e.target as HTMLElement).closest('a.internal-link');
+    if (target) {
+      const rawTarget = target.getAttribute('data-wikilink');
+      if (rawTarget) {
+        e.preventDefault();
+        const [docTarget, anchor] = rawTarget.split('#');
+        const match = findDocByTarget(docTarget);
+        if (match) {
+          onSelectDoc(match);
+          if (anchor) {
+            setTimeout(() => {
+              const el = document.getElementById(slugify(anchor));
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }, 80);
+          }
+        } else {
+          window.location.hash = slugify(docTarget);
+        }
+      }
+    }
+  }, [findDocByTarget, onSelectDoc]);
+
+  // Hover preview state & timers for internal wikilinks
+  const [hoverPreview, setHoverPreview] = useState<{
+    targetDoc: DocItem | null;
+    targetTitle: string;
+    anchorRect: DOMRect;
+  } | null>(null);
+
+  const hoverOpenTimerRef = useRef<any>(null);
+  const hoverCloseTimerRef = useRef<any>(null);
+  const hoveredLinkRef = useRef<HTMLElement | null>(null);
+  const isMouseOverPreviewRef = useRef<boolean>(false);
+
+  const clearHoverTimers = useCallback(() => {
+    if (hoverOpenTimerRef.current) {
+      clearTimeout(hoverOpenTimerRef.current);
+      hoverOpenTimerRef.current = null;
+    }
+    if (hoverCloseTimerRef.current) {
+      clearTimeout(hoverCloseTimerRef.current);
+      hoverCloseTimerRef.current = null;
+    }
+  }, []);
+
+  const handleCloseHoverPreview = useCallback(() => {
+    clearHoverTimers();
+    isMouseOverPreviewRef.current = false;
+    hoveredLinkRef.current = null;
+    setHoverPreview(null);
+  }, [clearHoverTimers]);
+
+  const handleContentMouseOver = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const targetElem = e.target as HTMLElement | null;
+    if (!targetElem) return;
+
+    if (targetElem.closest('[data-wikilink-hover-preview="true"]')) return;
+
+    const link = targetElem.closest('a.internal-link[data-wikilink]') as HTMLElement | null;
+    if (!link) return;
+
+    if (hoveredLinkRef.current === link) {
+      if (hoverCloseTimerRef.current) {
+        clearTimeout(hoverCloseTimerRef.current);
+        hoverCloseTimerRef.current = null;
+      }
+      return;
+    }
+
+    clearHoverTimers();
+    hoveredLinkRef.current = link;
+
+    const rawTarget = link.getAttribute('data-wikilink');
+    if (!rawTarget) return;
+
+    const [docTarget] = rawTarget.split('#');
+    const match = findDocByTarget(docTarget);
+
+    hoverOpenTimerRef.current = setTimeout(() => {
+      if (!link.isConnected) return;
+      if (hoveredLinkRef.current !== link) return;
+
+      const rect = link.getBoundingClientRect();
+      setHoverPreview({
+        targetDoc: match,
+        targetTitle: docTarget,
+        anchorRect: rect,
+      });
+    }, 250);
+  }, [clearHoverTimers, findDocByTarget]);
+
+  const handleContentMouseOut = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!hoveredLinkRef.current) return;
+
+    const relatedTarget = e.relatedTarget as Node | null;
+    if (relatedTarget && hoveredLinkRef.current.contains(relatedTarget)) {
+      return;
+    }
+
+    if (hoverOpenTimerRef.current) {
+      clearTimeout(hoverOpenTimerRef.current);
+      hoverOpenTimerRef.current = null;
+    }
+
+    if (relatedTarget && (relatedTarget as HTMLElement).closest?.('[data-wikilink-hover-preview="true"]')) {
+      return;
+    }
+
+    if (!isMouseOverPreviewRef.current) {
+      if (hoverCloseTimerRef.current) {
+        clearTimeout(hoverCloseTimerRef.current);
+        hoverCloseTimerRef.current = null;
+      }
+      setHoverPreview(null);
+      hoveredLinkRef.current = null;
+    }
+  }, []);
+
+  const handleMouseEnterPreview = useCallback(() => {
+    isMouseOverPreviewRef.current = true;
+    if (hoverCloseTimerRef.current) {
+      clearTimeout(hoverCloseTimerRef.current);
+      hoverCloseTimerRef.current = null;
+    }
+  }, []);
+
+  const handleMouseLeavePreview = useCallback((e?: React.MouseEvent) => {
+    isMouseOverPreviewRef.current = false;
+    if (hoverCloseTimerRef.current) {
+      clearTimeout(hoverCloseTimerRef.current);
+      hoverCloseTimerRef.current = null;
+    }
+    const relatedTarget = e?.relatedTarget as Node | null;
+    if (relatedTarget && hoveredLinkRef.current && hoveredLinkRef.current.contains(relatedTarget)) {
+      return;
+    }
+    setHoverPreview(null);
+    hoveredLinkRef.current = null;
+  }, []);
+
+  useEffect(() => {
+    handleCloseHoverPreview();
+  }, [doc.id, handleCloseHoverPreview]);
 
   // Parse document content into structured blocks
   const { blocks, headings } = useMemo(() => {
-    const rawLines = doc.content.replace(/\r\n/g, '\n').split('\n');
+    // Strip leading frontmatter defensively if present
+    const cleanContent = doc.content.replace(/^---[\s\S]*?---\n*/, '');
+    const rawLines = cleanContent.replace(/\r\n/g, '\n').split('\n');
     const extractedHeadings: TocHeading[] = [];
     const parsedBlocks: React.ReactNode[] = [];
 
@@ -106,8 +412,16 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
 
       // Skip document top title H1 if it repeats doc.title
       if (trimmed.startsWith('# ') && !trimmed.startsWith('## ')) {
-        i++;
-        continue;
+        const rawTitle = trimmed.slice(2).trim();
+        // If it duplicates or is close to doc.title, skip to avoid double rendering
+        if (
+          rawTitle.toLowerCase() === doc.title.toLowerCase() ||
+          rawTitle.toLowerCase() === doc.id.toLowerCase() ||
+          rawTitle.toLowerCase() === doc.slug.toLowerCase()
+        ) {
+          i++;
+          continue;
+        }
       }
 
       // Horizontal Rule
@@ -116,6 +430,91 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
           <hr key={`hr-${i}`} className="border-t border-border/40 my-8" />
         );
         i++;
+        continue;
+      }
+
+      // Embedded Image Wikilink Block: ![[image.png]] or ![[image.png|caption/width]]
+      const blockImgMatch = trimmed.match(/^!\[\[([^\]|]+)(?:\|([^\]]+))?\]\]$/);
+      if (blockImgMatch) {
+        const rawPath = blockImgMatch[1].trim();
+        const option = blockImgMatch[2]?.trim() || '';
+        const isWidth = /^\d+$/.test(option);
+        const width = isWidth ? parseInt(option, 10) : undefined;
+        const caption = isWidth ? '' : option;
+        const src = rawPath.startsWith('http') || rawPath.startsWith('/') ? rawPath : `/${rawPath}`;
+
+        parsedBlocks.push(
+          <figure key={`embed-img-${i}`} className="my-6 flex flex-col items-center">
+            <img
+              src={src}
+              alt={caption || rawPath}
+              style={width ? { maxWidth: `${width}px` } : undefined}
+              className="rounded-xl border border-border/50 max-w-full h-auto shadow-md"
+            />
+            {caption && <figcaption className="mt-2 text-xs text-muted-foreground">{caption}</figcaption>}
+          </figure>
+        );
+        i++;
+        continue;
+      }
+
+      // Display Math Blocks ($$ ... $$)
+      const singleLineMath = trimmed.match(/^\$\$(.+?)\$\$$/);
+      if (singleLineMath) {
+        const mathCode = singleLineMath[1].trim();
+        try {
+          const html = katex.renderToString(mathCode, { displayMode: true, throwOnError: false });
+          parsedBlocks.push(
+            <div
+              key={`math-${i}`}
+              className="my-5 overflow-x-auto py-3.5 px-4 rounded-xl bg-[#141414] border border-border/40 text-center"
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          );
+        } catch {
+          parsedBlocks.push(
+            <div key={`math-${i}`} className="my-5 p-4 rounded-xl bg-[#141414] border border-border/40 text-center font-mono text-xs text-red-400">
+              {mathCode}
+            </div>
+          );
+        }
+        i++;
+        continue;
+      }
+
+      if (trimmed === '$$' || (trimmed.startsWith('$$') && !trimmed.slice(2).includes('$$'))) {
+        const mathLines: string[] = [];
+        const rest = trimmed.slice(2).trim();
+        if (rest) mathLines.push(rest);
+        i++;
+
+        while (i < rawLines.length && !rawLines[i].trim().endsWith('$$')) {
+          mathLines.push(rawLines[i]);
+          i++;
+        }
+        if (i < rawLines.length) {
+          const ending = rawLines[i].trim().replace(/\$\$$/, '').trim();
+          if (ending) mathLines.push(ending);
+          i++;
+        }
+
+        const mathCode = mathLines.join('\n').trim();
+        const html = safeRenderKaTeX(mathCode, true);
+        if (html) {
+          parsedBlocks.push(
+            <div
+              key={`math-${i}`}
+              className="my-5 overflow-x-auto py-3.5 px-4 rounded-xl bg-[#141414] border border-border/40 text-center"
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          );
+        } else {
+          parsedBlocks.push(
+            <div key={`math-${i}`} className="my-5 p-4 rounded-xl bg-[#141414] border border-border/40 text-center font-mono text-xs text-red-400">
+              {mathCode}
+            </div>
+          );
+        }
         continue;
       }
 
@@ -130,6 +529,15 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
         }
         i++; // skip closing ```
         const rawCode = codeLines.join('\n');
+
+        // Mermaid Diagram Dispatch
+        if (lang.toLowerCase() === 'mermaid') {
+          parsedBlocks.push(
+            <MermaidBlock key={`mermaid-${i}`} code={rawCode} />
+          );
+          continue;
+        }
+
         const highlighted = highlightCode(rawCode, lang);
         const thisCodeIdx = codeIndexCounter++;
 
@@ -175,7 +583,7 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
 
       // GitHub Callout > [!TYPE]
       if (trimmed.startsWith('> [!')) {
-        const calloutMatch = trimmed.match(/^>\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*(.*)$/i);
+        const calloutMatch = trimmed.match(/^>\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION|INFO|SUCCESS|DANGER)\]\s*(.*)$/i);
         if (calloutMatch) {
           const type = calloutMatch[1].toUpperCase();
           const inlineTitle = calloutMatch[2];
@@ -218,7 +626,7 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
               icon: WarningCircleIcon,
               title: 'Warning',
             };
-          } else if (type === 'CAUTION') {
+          } else if (type === 'CAUTION' || type === 'DANGER') {
             style = {
               border: 'border-rose-500/40',
               bg: 'bg-rose-500/5',
@@ -288,20 +696,34 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
 
         if (level === 2) {
           parsedBlocks.push(
-            <div key={`h2-${i}`} className="pt-10 pb-2.5 border-b border-border/30 mb-4 text-left">
+            <div key={`h2-${i}`} className="pt-8 pb-1 text-left">
               <h2
                 id={id}
-                className="group flex items-center gap-2 text-2xl sm:text-3xl font-serif font-light text-foreground tracking-tight lowercase scroll-mt-24"
+                className="group flex items-center gap-2 text-2xl sm:text-3xl font-serif font-light text-foreground tracking-tight scroll-mt-24"
               >
                 <span dangerouslySetInnerHTML={{ __html: renderInline(text) }} />
-                <a
-                  href={`#${id}`}
-                  className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground transition-opacity"
-                  aria-label="Permalink"
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.location.hash = id;
+                    navigator.clipboard.writeText(window.location.href);
+                    setCopiedHeadingId(id);
+                    setTimeout(() => setCopiedHeadingId(null), 1500);
+                  }}
+                  className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground transition-opacity p-0.5"
+                  aria-label="Copy section link"
+                  title="Copy link to section"
                 >
-                  <LinkIcon size={16} />
-                </a>
+                  {copiedHeadingId === id ? (
+                    <CheckIcon size={16} className="text-emerald-400" />
+                  ) : (
+                    <LinkIcon size={16} />
+                  )}
+                </button>
               </h2>
+              {/* Subtle website section divider line matching technical-docs rule */}
+              <hr className="border-0 border-t border-border/40 my-3" />
             </div>
           );
         } else if (level === 3) {
@@ -309,7 +731,7 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
             <h3
               key={`h3-${i}`}
               id={id}
-              className="pt-7 pb-1.5 text-lg sm:text-xl font-serif font-light text-foreground tracking-tight lowercase scroll-mt-24 text-left"
+              className="pt-6 pb-1 text-lg sm:text-xl font-serif font-light text-foreground tracking-tight scroll-mt-24 text-left"
             >
               <span dangerouslySetInnerHTML={{ __html: renderInline(text) }} />
             </h3>
@@ -344,21 +766,21 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
           parsedBlocks.push(
             <div
               key={`table-${i}`}
-              className="my-6 rounded-xl border border-border/60 bg-card/40 overflow-hidden text-sm font-sans overflow-x-auto"
+              className="my-6 rounded-xl border border-border/60 bg-card/40 overflow-hidden text-sm font-sans overflow-x-auto shadow-sm"
             >
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-border/60 bg-muted/40 text-foreground font-medium">
+                  <tr className="border-b border-border/60 bg-muted/40">
                     {headers.map((h, hIdx) => (
                       <th
                         key={hIdx}
-                        className="py-3 px-4 font-sans text-xs uppercase tracking-wider text-muted-foreground"
+                        className="py-3 px-4 font-medium text-foreground text-xs uppercase tracking-wider"
                         dangerouslySetInnerHTML={{ __html: renderInline(h) }}
                       />
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border/30">
+                <tbody className="divide-y divide-border/40">
                   {rows.map((row, rIdx) => (
                     <tr
                       key={rIdx}
@@ -367,7 +789,7 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
                       {row.map((cell, cIdx) => (
                         <td
                           key={cIdx}
-                          className="py-3 px-4 text-sm sm:text-base text-foreground/90 font-light"
+                          className="py-2.5 px-4 text-foreground/80 font-light"
                           dangerouslySetInnerHTML={{ __html: renderInline(cell) }}
                         />
                       ))}
@@ -441,7 +863,7 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
     }
 
     return { blocks: parsedBlocks, headings: extractedHeadings };
-  }, [doc.content, copiedCodeIdx]);
+  }, [doc.content, doc.title, doc.id, doc.slug, copiedCodeIdx, copiedHeadingId]);
 
   // Report extracted headings to parent outline
   useEffect(() => {
@@ -455,8 +877,14 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
   };
 
   return (
-    <article ref={articleRef} className="w-full min-w-0 text-left">
-      {/* Top Document Header Bar */}
+    <article
+      ref={articleRef}
+      className="w-full min-w-0 text-left"
+      onClick={handleContentClick}
+      onMouseOver={handleContentMouseOver}
+      onMouseOut={handleContentMouseOut}
+    >
+      {/* Top Document Header Bar (Retained with metadata pills, title & summary) */}
       <div className="space-y-4 border-b border-border/40 pb-6 mb-8 text-left">
         <div className="flex flex-wrap items-center justify-between gap-4">
           {/* Metadata pill badge */}
@@ -471,92 +899,100 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
                 <span>{doc.readTime}</span>
               </>
             )}
+            {doc.license && (
+              <>
+                <span>·</span>
+                <span className="uppercase text-[11px] px-2 py-0.5 rounded border border-border/40 bg-muted/20">
+                  {doc.license}
+                </span>
+              </>
+            )}
           </div>
 
-          {/* Copy page action button */}
+          {/* Quick Copy Page action */}
           <button
             type="button"
             onClick={handleCopyPage}
-            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-border/60 bg-card/60 hover:bg-accent text-xs font-sans text-foreground transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground px-2.5 py-1 rounded-md border border-border/50 hover:bg-muted/40 transition-colors cursor-pointer"
+            title="Copy document markdown to clipboard"
           >
             {copiedPage ? (
               <>
                 <CheckIcon size={13} className="text-emerald-500" />
-                <span className="text-emerald-500 font-medium">page copied</span>
+                <span className="text-emerald-500 font-medium">copied</span>
               </>
             ) : (
               <>
-                <CopyIcon size={13} className="text-muted-foreground" />
+                <CopyIcon size={13} />
                 <span>copy page</span>
               </>
             )}
           </button>
         </div>
 
-        {/* Document Title */}
-        <h1 className="text-3xl sm:text-4xl font-serif font-light text-foreground tracking-tight lowercase">
+        {/* Dynamic Title and Summary */}
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal tracking-tight text-foreground font-sans lowercase">
           {doc.title}
         </h1>
-
-        {/* Lead summary paragraph if available */}
         {doc.summary && (
-          <p className="text-sm sm:text-base text-muted-foreground font-light leading-relaxed max-w-4xl lowercase">
+          <p className="text-base sm:text-lg text-muted-foreground font-light leading-relaxed">
             {doc.summary}
           </p>
         )}
       </div>
 
-      {/* Main Document Content */}
-      <div className="space-y-6 text-sm sm:text-base font-light text-foreground/90 leading-relaxed">
+      {/* Rendered Markdown Blocks (Clean prose without raw frontmatter) */}
+      <div ref={contentContainerRef} className="space-y-1">
         {blocks}
       </div>
 
-      {/* Bottom Prev / Next Navigation Cards */}
+      {/* Sequential Footer Navigation */}
       <div className="mt-16 pt-8 border-t border-border/40 grid grid-cols-1 sm:grid-cols-2 gap-4">
         {prevDoc ? (
-          <a
-            href={`#${prevDoc.slug}`}
-            onClick={(e) => {
-              e.preventDefault();
-              onSelectDoc(prevDoc);
-            }}
-            className="flex flex-col items-start p-4 rounded-xl border border-border/60 bg-card/40 hover:bg-accent/40 hover:border-border transition-all text-left group cursor-pointer no-underline"
+          <button
+            type="button"
+            onClick={() => onSelectDoc(prevDoc)}
+            className="flex flex-col items-start p-4 rounded-xl border border-border/50 hover:border-foreground/30 hover:bg-muted/20 transition-all text-left cursor-pointer group"
           >
-            <span className="flex items-center gap-1 text-xs font-sans text-muted-foreground group-hover:text-foreground">
+            <span className="flex items-center gap-1 text-xs text-muted-foreground mb-1 group-hover:-translate-x-0.5 transition-transform">
               <ArrowLeftIcon size={12} />
               <span>previous</span>
             </span>
-            <span className="mt-1 text-sm sm:text-base font-serif font-light text-foreground lowercase">
+            <span className="text-sm font-medium text-foreground lowercase">
               {prevDoc.title}
             </span>
-          </a>
-        ) : (
-          <div />
-        )}
+          </button>
+        ) : <div />}
 
-        {nextDoc ? (
-          <a
-            href={`#${nextDoc.slug}`}
-            onClick={(e) => {
-              e.preventDefault();
-              onSelectDoc(nextDoc);
-            }}
-            className="flex flex-col items-end p-4 rounded-xl border border-border/60 bg-card/40 hover:bg-accent/40 hover:border-border transition-all text-right group cursor-pointer ml-auto w-full sm:w-auto no-underline"
+        {nextDoc && (
+          <button
+            type="button"
+            onClick={() => onSelectDoc(nextDoc)}
+            className="flex flex-col items-end p-4 rounded-xl border border-border/50 hover:border-foreground/30 hover:bg-muted/20 transition-all text-right cursor-pointer group"
           >
-            <span className="flex items-center gap-1 text-xs font-sans text-muted-foreground group-hover:text-foreground">
+            <span className="flex items-center gap-1 text-xs text-muted-foreground mb-1 group-hover:translate-x-0.5 transition-transform">
               <span>next</span>
               <ArrowRightIcon size={12} />
             </span>
-            <span className="mt-1 text-sm sm:text-base font-serif font-light text-foreground lowercase">
+            <span className="text-sm font-medium text-foreground lowercase">
               {nextDoc.title}
             </span>
-          </a>
-        ) : (
-          <div />
+          </button>
         )}
       </div>
+
+      {/* Floating Wikilink Hover Preview Popover */}
+      {hoverPreview && (
+        <WikilinkHoverPreview
+          targetDoc={hoverPreview.targetDoc}
+          targetTitle={hoverPreview.targetTitle}
+          anchorRect={hoverPreview.anchorRect}
+          onSelectDoc={onSelectDoc}
+          onClose={handleCloseHoverPreview}
+          onMouseEnter={handleMouseEnterPreview}
+          onMouseLeave={handleMouseLeavePreview}
+        />
+      )}
     </article>
   );
 });
-
-DocsReader.displayName = 'DocsReader';

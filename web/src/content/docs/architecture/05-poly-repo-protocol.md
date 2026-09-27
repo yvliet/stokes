@@ -1,30 +1,32 @@
 ---
 title: "Poly-Repo Contract Coordination & Version Skew Prevention"
 description: "Mathematical choreography of distributed deployments, Downstream-First capacity expansion, cross-repo cryptographic digests, and eliminating merge deadlocks."
-author: "Yuliet Li (yvliet)"
-license: "MIT"
+category: "Architecture"
+order: 5
+lastUpdated: "2026-03-24"
+readTime: "9 min read"
+author: "Yuliet Li"
 ---
 
 # Poly-Repo Contract Coordination & Version Skew Prevention
 
 In enterprise microservice and edge topologies, multi-tier storage pipelines rarely reside inside a single monolithic repository. Analytical database migrations (ClickHouse, Snowflake), stream processors (Python, Flink), and ingress reverse proxies (Rust, C++) typically live in distinct code repositories maintained by decoupled teams:
 
-```
-┌───────────────────────┐       ┌───────────────────────┐       ┌───────────────────────┐
-│  repo-analytics-ddl   │       │  repo-feature-worker  │       │   repo-edge-proxy     │
-│  (ClickHouse Schemas) │       │  (Python ETL Engine)  │       │   (Rust L7 Proxy)     │
-│                       │       │                       │       │                       │
-│  git: commits / tags  │       │  git: commits / tags  │       │  git: commits / tags  │
-└──────────┬────────────┘       └──────────┬────────────┘       └──────────┬────────────┘
-           │                               │                               │
-           ▼                               ▼                               ▼
-    Release Train 1                 Release Train 2                 Release Train 3
-   (Bi-weekly Friday)              (Daily Continuous)              (Weekly Canary)
-           │                               │                               │
-           └───────────────────────►───────┴───────────────►───────────────┘
-                                           ▼
-                         TEMPORAL DISTRIBUTED SKEW WINDOW
-                   Upstream emits 280 cols → Downstream buffer is 200
+```mermaid
+flowchart TD
+    subgraph Repos["Decoupled Repositories & Release Trains"]
+        R1["repo-analytics-ddl<br/>ClickHouse Schemas<br/>Bi-weekly Friday Release"]
+        R2["repo-feature-worker<br/>Python ETL Engine<br/>Daily Continuous Release"]
+        R3["repo-edge-proxy<br/>Rust L7 Proxy<br/>Weekly Canary Release"]
+    end
+
+    R1 -->|Schema changes| Skew["Temporal Distributed Skew Window<br/>Upstream emits 280 cols → Downstream buffer is 200"]
+    R2 --> Skew
+    Skew -->|Buffer overflow!| R3
+
+    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
+    classDef danger fill:#3b1e1e,stroke:#ef4444,color:#fca5a5;
+    class Skew danger;
 ```
 
 When repositories release on independent schedules, version skew is not an anomaly. It is the steady-state operating condition of the system. Without formal contract coordination across repository boundaries, ordinary schema expansions trigger catastrophic edge panics.
@@ -34,6 +36,7 @@ Stokes formalizes poly-repo contract coordination through mathematical deploymen
 ---
 
 ## The Downstream-First Deployment Sequence
+---
 
 Distributed contract safety requires enforcing a strict temporal invariant across production rollouts:
 
@@ -49,52 +52,23 @@ Violating this ordering produces an immediate buffer overflow or slice unwrap fa
 
 Consider expanding a fraud detection pipeline from 200 canonical features to 280 features. The expansion requires three distinct phases across the repositories:
 
-```
-Phase 0: Baseline State
-  repo-analytics-ddl:  Cardinality = 200
-  repo-edge-proxy:     Capacity    = 200
-  Risk Ratio:          200 / 200 = 1.00 (SAFE)
+- **Phase 0 (Baseline State)**: `repo-analytics-ddl` cardinality = 200; `repo-edge-proxy` capacity = 200. Risk ratio: $200 / 200 = 1.00$ (Safe).
+- **Step 1 (Downstream Expansion)**: `repo-edge-proxy` deploys first. Capacity = 512 (Expanded buffer); upstream cardinality = 200 (Unchanged). Risk ratio: $200 / 512 = 0.39$ (Safe).
+- **Step 2 (Upstream Migration)**: `repo-analytics-ddl` deploys second. Schema cardinality = 280; downstream capacity = 512 (Active). Risk ratio: $280 / 512 = 0.55$ (Safe).
+- **Step 3 (Downstream Compaction)**: `repo-edge-proxy` compacts last (Optional). Capacity = 280; upstream cardinality = 280. Risk ratio: $280 / 280 = 1.00$ (Optimal).
 
-Step 1: Downstream Expansion (repo-edge-proxy deploys FIRST)
-  repo-edge-proxy:     Capacity    = 512 (Expanded Buffer)
-  repo-analytics-ddl:  Cardinality = 200 (Unchanged)
-  Risk Ratio:          200 / 512 = 0.39 (SAFE)
-
-Step 2: Upstream Migration (repo-analytics-ddl deploys SECOND)
-  repo-analytics-ddl:  Cardinality = 280 (Expanded Schema)
-  repo-edge-proxy:     Capacity    = 512 (Active)
-  Risk Ratio:          280 / 512 = 0.55 (SAFE)
-
-Step 3: Downstream Compaction (repo-edge-proxy compacts LAST, Optional)
-  repo-edge-proxy:     Capacity    = 280 (Tightened Buffer)
-  repo-analytics-ddl:  Cardinality = 280 (Active)
-  Risk Ratio:          280 / 280 = 1.00 (OPTIMAL)
-```
-
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                      DOWNSTREAM-FIRST VS. UPSTREAM-FIRST TIMELINE                      │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                        │
-│   DOWNSTREAM-FIRST SEQUENCE (VERIFIED & SAFE)                                          │
-│   t0: Downstream: 200, Upstream: 200 ──► Risk = 1.00                                   │
-│   t1: Downstream deploys 512 slots   ──► Risk = 200 / 512 = 0.39 (Capacity Lead)       │
-│   t2: Upstream emits 280 features    ──► Risk = 280 / 512 = 0.55 (Safe Ingestion)     │
-│                                                                                        │
-│   UPSTREAM-FIRST SEQUENCE (FATAL CONTRACT DRIFT)                                       │
-│   t0: Downstream: 200, Upstream: 200 ──► Risk = 1.00                                   │
-│   t1: Upstream emits 280 features    ──► Risk = 280 / 200 = 1.40 ──► PANIC / CRASH    │
-│   t2: Downstream never reaches prod  ──► Entire fleet crashes in restart loops         │
-│                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────┘
-```
+| Sequence Strategy | Timeline & State Transitions | Outcome & Risk Evaluation |
+| :--- | :--- | :--- |
+| **Downstream-First Sequence** *(Verified & Safe)* | $t_0$: Downstream = 200, Upstream = 200<br/>$t_1$: Downstream deploys 512 slots<br/>$t_2$: Upstream emits 280 features | Risk at $t_1$: $200 / 512 = 0.39$ (Capacity lead)<br/>Risk at $t_2$: $280 / 512 = 0.55$ (Safe intake)<br/>**Zero downtime, zero packet loss** |
+| **Upstream-First Sequence** *(Fatal Contract Drift)* | $t_0$: Downstream = 200, Upstream = 200<br/>$t_1$: Upstream emits 280 features<br/>$t_2$: Downstream never finishes deploy | Risk at $t_1$: $280 / 200 = 1.40$ `→` **Panic / Crash**<br/>Entire edge fleet crashes in restart loops before downstream patch reaches production |
 
 > [!CAUTION]
 > If the upstream producer merges and deploys first, the downstream consumer immediately receives a payload of cardinality 280 while operating with a buffer of 200. Any call to `slice.try_into().unwrap()` causes an unrecoverable panic, taking down the edge proxy before the downstream patch can ever be released.
 
 ---
 
-## Cross-Repo AST Digest Hashing in `stokes.lock`
+## Cross-Repo AST Digest Hashing in stokes.lock
+---
 
 To enforce contract compatibility across decoupled git repositories without requiring shared submodules or mono-repo synchronization, Stokes computes deterministic cryptographic digests directly from language ASTs.
 
@@ -147,8 +121,16 @@ Raw source code file hashes (such as `git hash-object` or `sha256sum file.rs`) a
 
 Stokes extracts boundary nodes via Tree-sitter, strips trivia (comments, whitespace, documentation attributes), normalizes types to canonical primitives, and serializes the AST into a canonical S-expression before hashing:
 
-```
-Raw Source Code ──► Tree-sitter Parse ──► Filter Boundary Nodes ──► Canonical IR ──► SHA-256 Digest
+```mermaid
+flowchart LR
+    A["Raw Source Code"] --> B["Tree-sitter Parse"]
+    B --> C["Filter Boundary Nodes"]
+    C --> D["Canonical IR"]
+    D --> E["SHA-256 Digest"]
+
+    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
+    classDef highlight fill:#1c2333,stroke:#3b82f6,color:#93c5fd;
+    class A,E highlight;
 ```
 
 If an upstream database engineer modifies comments or adds an unrelated index in `001_bot_signals.sql`, the normalized AST digest remains invariant. But if a column is added or a type changes from `UInt16` to `UInt64`, the digest mutates deterministically, invalidating downstream lockfiles.
@@ -156,30 +138,31 @@ If an upstream database engineer modifies comments or adds an unrelated index in
 ---
 
 ## Eliminating Circular Merge Deadlocks in Git Workflows
+---
 
 In a poly-repo environment enforced by strict CI gates, a classic circular dependency deadlock arises if not architected correctly:
 
 1. **Repo A (Consumer)** cannot merge its PR expanding buffer capacity to 512 because its CI gate checks `stokes.lock`, which requires an approved upstream contract from Repo B.
 2. **Repo B (Producer)** cannot merge its PR expanding cardinality to 280 because its CI gate checks `stokes.lock`, which rejects the merge because Repo A has not yet deployed capacity 512.
 
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                        THE POLY-REPO CIRCULAR MERGE DEADLOCK                           │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                        │
-│     repo-edge-proxy PR #412                       repo-analytics-ddl PR #89            │
-│   (Expand buffer from 200 to 512)               (Add 80 fraud feature columns)         │
-│                 │                                             │                        │
-│                 ▼ CI Check:                                   ▼ CI Check:              │
-│       stokes verify --strict                        stokes verify --strict             │
-│                 │                                             │                        │
-│                 ▼                                             ▼                        │
-│     BLOCKED: Upstream contract                   BLOCKED: Downstream proxy             │
-│     not published on main!                       not deployed to production!           │
-│                 │                                             │                        │
-│                 └────────────────► DEADLOCK ◄─────────────────┘                        │
-│                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph Deadlock["The Poly-Repo Circular Merge Deadlock"]
+        PR_Edge["repo-edge-proxy PR #412<br/>Expand buffer from 200 to 512"]
+        PR_DDL["repo-analytics-ddl PR #89<br/>Add 80 fraud feature columns"]
+
+        Gate_Edge["CI Gate: stokes verify --strict<br/>BLOCKED: Upstream contract not published on main!"]
+        Gate_DDL["CI Gate: stokes verify --strict<br/>BLOCKED: Downstream proxy not deployed to production!"]
+
+        PR_Edge --> Gate_Edge
+        PR_DDL --> Gate_DDL
+        Gate_Edge -.->|Deadlock| Gate_DDL
+        Gate_DDL -.->|Deadlock| Gate_Edge
+    end
+
+    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
+    classDef blocked fill:#3b1e1e,stroke:#ef4444,color:#fca5a5;
+    class Gate_Edge,Gate_DDL blocked;
 ```
 
 Stokes breaks this circular deadlock through the **2-Phase Semantic Staging Protocol**.
@@ -243,6 +226,7 @@ The upstream PR merges and deploys safely with zero circular dependency, zero ma
 ---
 
 ## Production CI Integration: Complete GitHub Actions Workflows
+---
 
 Below are complete, production-grade GitHub Actions workflows implementing the Downstream-First verification gate across both repositories.
 
@@ -364,14 +348,15 @@ jobs:
 ---
 
 ## Architectural Comparison Matrix
+---
 
 | Evaluation Dimension | Uncoordinated Poly-Repo | Git Submodules / Monorepo | Intrusive IDL (Protobuf/gRPC) | Stokes Poly-Repo Protocol |
 | :--- | :--- | :--- | :--- | :--- |
 | **Cross-Repo Type Safety** | None (Context Blind) | High (Manual Sync) | Medium (Schema Only) | **Mathematical Invariant** |
-| **Downstream Capacity Verification** | Zero | Zero (Ignores Buffer Sizes) | Zero (Repeated unbounded) | **Enforced ($C \le B$)** |
+| **Downstream Capacity Verification** | Zero | Zero (Ignores Buffer Sizes) | Zero (Repeated unbounded) | **Enforced ($\mathcal{C} \le \mathcal{B}$)** |
 | **Merge Deadlock Freedom** | High Deadlock Risk | High Merge Friction | Medium Friction | **Zero Deadlocks (2-Phase)** |
 | **Deployment Choreography** | Manual Runbooks | Rigid Lockstep Rollouts | Manual Choreography | **Automated via Staging Gates** |
 | **Runtime Overhead** | 0 ns | 0 ns | 150-800 ns per msg | **0 ns (Purely Compile/CI Gate)** |
 | **AST Digest Precision** | None | File Git-Hash (Fragile) | Protocol Hash | **Normalized Structural AST** |
 
-By formalizing cross-repo deployment sequencing and encoding buffer invariants directly into deterministic lockfiles, Stokes eliminates the single largest cause of distributed edge outages: silent version skew across decoupled engineering repositories.
+By formalizing cross-repo deployment sequencing and encoding buffer invariants directly into deterministic lockfiles, Stokes eliminates the single largest cause of distributed edge outages: silent version skew across decoupled engineering repositories. See [[06-projection-isolation|Projection Isolation]] and [[07-ci-mcp-gate|CI & MCP Gate]] for related mechanisms.

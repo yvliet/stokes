@@ -1,6 +1,8 @@
 ---
-title: "Quickstart & CLI Guide"
-description: "Installation, project initialization, boundary contract locking, and CI verification with Stokes."
+title: "03. Quickstart & CLI Guide"
+summary: "Installation, project initialization, boundary contract locking, and CI verification with Stokes."
+lastUpdated: "last updated 1 day ago"
+readTime: "3 min read"
 author: "Yuliet Li (yvliet)"
 license: "MIT"
 ---
@@ -9,32 +11,17 @@ license: "MIT"
 
 This guide walks through installing Stokes, initializing a cross-boundary workspace, establishing cryptographic boundary contracts, running deterministic CI verification, and configuring the native Model Context Protocol (MCP) server for local IDE coding agents.
 
+```mermaid
+flowchart TD
+  I["1. Install Binary<br/>curl -fsSL https://stokes.dev/install.sh | sh"] --> Init["2. Initialize Workspace<br/>stokes init (Discovers boundaries & generates stokes.toml)"]
+  Init --> Lock["3. Lock Boundary Contract<br/>stokes cert --output stokes.lock (Computes SHA-256 AST digests)"]
+  Lock --> CI["4. CI Verification Gate<br/>stokes verify --strict (Sub-38ms deterministic AST gate)"]
+  CI --> MCP["5. IDE Agent Loop<br/>stokes mcp (Exposes stdio JSON-RPC tools to Cursor/Claude)"]
 ```
-┌────────────────────────────────────────────────────────────────────────┐
-│                        STOKES ONBOARDING LIFECYCLE                     │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                        │
-│   1. Install Binary     curl -fsSL https://stokes.dev/install.sh | sh  │
-│          │                                                             │
-│          ▼                                                             │
-│   2. Initialize         stokes init                                    │
-│          │              (Discovers boundaries & generates stokes.toml) │
-│          ▼                                                             │
-│   3. Lock Contract      stokes cert --output stokes.lock               │
-│          │              (Computes SHA-256 AST normalizations)          │
-│          ▼                                                             │
-│   4. CI Verification    stokes verify --strict                         │
-│          │              (Runs sub-38ms deterministic AST gate)         │
-│          ▼                                                             │
-│   5. IDE Agent Loop     stokes mcp                                     │
-│                         (Exposes stdio JSON-RPC tools to Cursor/Claude)│
-│                                                                        │
-└────────────────────────────────────────────────────────────────────────┘
-```
-
----
 
 ## 1. Installation
+
+---
 
 Stokes is distributed as a standalone, zero-dependency native binary or as a Python package for developer environments.
 
@@ -65,9 +52,9 @@ stokes --version
 # stokes v0.2.0-hardened (rev: 3.0.0-ENTERPRISE)
 ```
 
----
-
 ## 2. Project Initialization
+
+---
 
 Navigate to the root of your polyglot project or monorepo and run `stokes init`:
 
@@ -92,9 +79,9 @@ Discovered boundaries:
 Generated stokes.toml with 1 bound channel.
 ```
 
----
-
 ## 3. Defining Cross-Boundary Contracts (`stokes.toml`)
+
+---
 
 The `stokes.toml` manifest defines the semantic bindings connecting upstream producers with downstream consumers across your architecture:
 
@@ -134,9 +121,9 @@ max_l1d_footprint_bytes = 32768
 > [!NOTE]
 > `stokes.toml` is a declarative verification manifest, not an Interface Definition Language (IDL). It generates zero code, adds zero serialization stubs, and imposes zero runtime overhead on your production binaries.
 
----
-
 ## 4. Cryptographic Boundary Locking (`stokes.lock`)
+
+---
 
 To prevent silent contract drift in polyglot teams, Stokes compiles semantic AST signatures into a deterministic, machine-authoritative lockfile: `stokes.lock`.
 
@@ -177,9 +164,9 @@ This generates `stokes.lock`, containing cryptographic SHA-256 digests of parsed
 > [!IMPORTANT]
 > The AST digests in `stokes.lock` are computed over normalized syntax representations: comments, whitespace, variable renamings, and internal implementation details are stripped before hashing. Only declared interface boundaries, table definitions, and fixed buffer capacities affect the digest.
 
----
-
 ## 5. Running Verification in CI (`stokes verify --strict`)
+
+---
 
 In CI/CD environments, Stokes acts as an uncompromising gatekeeper. Running `stokes verify --strict` parses all boundary files, checks the sparse boundary graph, evaluates the Cardinality Risk Ratio, and validates signatures against `stokes.lock`:
 
@@ -252,9 +239,9 @@ jobs:
         run: stokes verify --strict
 ```
 
----
-
 ## 6. Local Model Context Protocol (MCP) Server Launch
+
+---
 
 Stokes provides a built-in Model Context Protocol (MCP) server operating over standard input/output (`stdio`). This allows AI development tools such as Cursor, Windsurf, Claude Code, and IBM Bob 2.0 to inspect boundary contracts, run property tests, and synthesize zero-allocation patches natively within your editor.
 
@@ -304,22 +291,17 @@ When connected via MCP, the following tools are available to coding agents:
 - `stokes_remediate`: Dispatches automated AST repairs to synthesize safe Dual-Zone fallback routines.
 - `stokes_cert`: Cryptographically updates and re-signs `stokes.lock`.
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                        MCP SERVER TOOL INTERACTION                     │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                        │
-│   IDE Agent (Cursor / Claude)               Stokes MCP Server (stdio)  │
-│               │                                         │              │
-│               ├─────── callTool("stokes_verify") ──────►│              │
-│               │                                         │              │
-│               │◄────── { passed: false, risk: 1.40 } ───┤              │
-│               │                                         │              │
-│               ├─────── callTool("stokes_remediate") ───►│              │
-│               │                                         │              │
-│               │◄────── { unified_diff: "@@ -42,7 +42..."}              │
-│               │                                         │              │
-└────────────────────────────────────────────────────────────────────────┘
+```mermaid
+sequenceDiagram
+  autonumber
+  participant Agent as IDE Agent (Cursor / Claude)
+  participant MCP as Stokes MCP Server (stdio)
+
+  Agent->>MCP: callTool("stokes_verify", { channel: "bot_signals_v1" })
+  MCP-->>Agent: { passed: false, risk: 1.40, violation: "LINT-001" }
+
+  Agent->>MCP: callTool("stokes_remediate", { channel: "bot_signals_v1" })
+  MCP-->>Agent: { unified_diff: "@@ -42,7 +42 @@\n- buffer.try_into().unwrap()\n+ TieredBuffer::intake(slice)" }
 ```
 
 > [!TIP]

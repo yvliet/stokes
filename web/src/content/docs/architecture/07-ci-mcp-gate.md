@@ -1,57 +1,64 @@
 ---
 title: "Deterministic CI Gate & Native MCP Server"
 description: "Sub-38ms AST boundary verification in CI/CD pipelines and the native Model Context Protocol (MCP) server architecture empowering AI coding agents."
-author: "Yuliet Li (yvliet)"
-license: "MIT"
+category: "Architecture"
+order: 7
+lastUpdated: "2026-03-24"
+readTime: "8 min read"
+author: "Yuliet Li"
 ---
 
 # Deterministic CI Gate & Native MCP Server
 
 Modern systems development faces two compounding velocity challenges:
 1. **CI Pipeline Latency**: Integration tests that spin up ephemeral Docker containers or run end-to-end distributed clusters take minutes or hours. Engineers bypass or delay running these suites locally, allowing contract bugs to escape into production.
-2. **AI Agent Context Blindness**: Autonomous coding agents (Cursor, Claude Code, IBM Bob 2.0) generate polyglot code at superhuman speed, but they operate within isolated file prompts. An agent editing an analytical SQL migration has zero awareness that an edge proxy in another directory ingests that schema into a fixed 200-slot stack array.
+2. **AI Agent Context Blindness**: Autonomous coding agents (Cursor, Claude Code, IBM Bob 2.0) generate polyglot code at rapid speed, but they operate within isolated file prompts. An agent editing an analytical SQL migration has zero awareness that an edge proxy in another directory ingests that schema into a fixed 200-slot stack array.
 
 Stokes resolves both problems with a dual-capability architecture:
 - A **sub-38ms deterministic AST CI gate** (`stokes verify --strict`).
-- A **native Model Context Protocol (MCP) server** providing real-time boundary graphs directly to AI agents.
+- A **native Model Context Protocol (MCP)** server providing real-time boundary graphs directly to AI agents.
 
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                        STOKES VERIFICATION & MCP ARCHITECTURE                          │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                        │
-│   DEVELOPER WORKFLOW                                     AI CODING AGENT WORKFLOW      │
-│   (git push / PR / Local CLI)                            (Cursor, Claude Code, Bob 2.0)│
-│               │                                                        │               │
-│               ▼                                                        ▼               │
-│   ┌───────────────────────┐                              ┌─────────────────────────┐   │
-│   │ stokes verify --strict│                              │ Stokes Native MCP Server│   │
-│   │ Wall-Clock: < 38 ms   │                              │ (JSON-RPC 2.0 over stdio│   │
-│   └───────────┬───────────┘                              └─────────────┬───────────┘   │
-│               │                                                        │               │
-│               ├──────────────────────────┬─────────────────────────────┘               │
-│               ▼                          ▼                                             │
-│   ┌────────────────────────────────────────────────────────────────────────────────┐   │
-│   │ Stokes Cross-Boundary AST Engine                                               │   │
-│   │ - Incremental Tree-sitter Parsers (SQL, Proto, Py, Rs)                         │   │
-│   │ - Topological Reachability DAG: G = (V, E)                                     │   │
-│   │ - Cardinality Risk Evaluator: Risk = C_upstream / B_downstream                 │   │
-│   │ - Cryptographic Lockfile Verifier: SHA-256 AST Digests                         │   │
-│   └──────────────────────────────────────┬─────────────────────────────────────────┘   │
-│                                          │                                             │
-│                   ┌──────────────────────┴──────────────────────┐                      │
-│                   ▼                                             ▼                      │
-│      [Deterministic CI Result]                     [Real-Time Agent Guidance]          │
-│      Exit 0: Contracts Verified                    Tool: get_boundary_graph            │
-│      Exit 1: Contract Violation                    Tool: inspect_buffer_capacity       │
-│      Exit 2: Missing Manifest                      Tool: synthesize_remediation        │
-│                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph Clients["Entrypoints"]
+        Dev["Developer Workflow<br/>(git push / PR / Local CLI)"]
+        AI["AI Coding Agent Workflow<br/>(Cursor, Claude Code, Bob 2.0)"]
+    end
+
+    subgraph Gates["Stokes Ingestion Layer"]
+        CLI["stokes verify --strict<br/>Wall-Clock: < 38 ms"]
+        MCP["Stokes Native MCP Server<br/>JSON-RPC 2.0 over stdio"]
+    end
+
+    subgraph CoreEngine["Stokes Cross-Boundary AST Engine"]
+        TS["Tree-sitter Parsers (SQL, Proto, Py, Rs)"]
+        DAG["Topological Reachability DAG: G = (V, E)"]
+        Math["Cardinality Risk Evaluator: Risk = C_upstream / B_downstream"]
+        Lock["Cryptographic Lockfile Verifier: SHA-256 AST Digests"]
+    end
+
+    subgraph Outputs["Downstream Delivery"]
+        CI_Out["Deterministic CI Result<br/>Exit 0: Contracts Verified<br/>Exit 1: Contract Violation<br/>Exit 2: Missing Manifest"]
+        MCP_Out["Real-Time Agent Guidance<br/>Tool: get_boundary_graph<br/>Tool: inspect_buffer_capacity<br/>Tool: synthesize_remediation"]
+    end
+
+    Dev --> CLI
+    AI --> MCP
+    CLI --> CoreEngine
+    MCP --> CoreEngine
+    TS --> DAG --> Math --> Lock
+    CoreEngine --> CI_Out
+    CoreEngine --> MCP_Out
+
+    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
+    classDef highlight fill:#1c2333,stroke:#3b82f6,color:#93c5fd;
+    class Clients,CoreEngine highlight;
 ```
 
 ---
 
 ## Sub-38ms AST CI Verification Gate
+---
 
 Traditional integration tests execute actual container runtimes, compile binaries, and execute network calls to verify cross-service compatibility. Stokes operates entirely at the **Abstract Syntax Tree (AST)** layer.
 
@@ -65,22 +72,15 @@ stokes verify --strict
 
 Across enterprise codebases spanning 50,000 to 250,000 lines of code, `stokes verify --strict` completes in under 38 milliseconds:
 
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                     STOKES VERIFICATION PIPELINE LATENCY PROFILE                       │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                        │
-│  Phase 1: Manifest & Lockfile Intake (I/O)               │ 1.2 ms                      │
-│  Phase 2: Tree-sitter Incremental AST Traversal          │ 4.8 ms                      │
-│  Phase 3: Cross-Language Boundary Reachability (DAG)     │ 11.4 ms                     │
-│  Phase 4: Cardinality Risk Ratio & Buffer Invariant Math │ 0.8 ms                      │
-│  Phase 5: SHA-256 AST Cryptographic Digest Matching      │ 1.1 ms                      │
-│  Phase 6: Diagnostic Reporting & JSON Output Formatting  │ 1.3 ms                      │
-│                                                          ├──────────────────────────── │
-│  TOTAL END-TO-END EXECUTION LATENCY                      │ 20.6 ms  (Target: < 38 ms)  │
-│                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────┘
-```
+| Verification Phase | Latency Profile | Engine Mechanism |
+| :--- | :--- | :--- |
+| **Phase 1: Manifest & Lockfile Intake (I/O)** | `1.2 ms` | Memory-mapped read of `stokes.toml` and `stokes.lock` |
+| **Phase 2: Tree-sitter Incremental AST Traversal** | `4.8 ms` | Parallel multi-threaded grammar parsing |
+| **Phase 3: Cross-Language Boundary Reachability (DAG)** | `11.4 ms` | Directed graph traversal from schemas to buffers |
+| **Phase 4: Cardinality Risk Ratio & Invariant Math** | `0.8 ms` | Pure register arithmetic evaluating $\mathcal{C} \le \mathcal{B}$ |
+| **Phase 5: SHA-256 AST Cryptographic Digest Matching** | `1.1 ms` | Normalized S-expression hash verification |
+| **Phase 6: Diagnostic Reporting & JSON Output Formatting** | `1.3 ms` | SARIF and GitHub annotations rendering |
+| **Total End-to-End Latency** | **20.6 ms** | **Target: < 38 ms SLA strictly satisfied** |
 
 ### Deterministic Exit Code Contract
 
@@ -89,7 +89,7 @@ Stokes enforces standardized POSIX exit codes suitable for immediate integration
 | Exit Code | Semantic Status | Meaning & Remediation |
 | :---: | :--- | :--- |
 | `0` | **VERIFIED** | All cross-boundary invariants hold. Lockfile matches AST digests. Merge approved. |
-| `1` | **CONTRACT_VIOLATION** | Mathematical cardinality breach ($C > B$), wildcards detected, or float trap found. Merge blocked. |
+| `1` | **CONTRACT_VIOLATION** | Mathematical cardinality breach ($\mathcal{C} > \mathcal{B}$), wildcards detected, or float trap found. Merge blocked. |
 | `2` | **INVALID_CONFIGURATION** | Missing `stokes.toml`, malformed manifest, or corrupted `stokes.lock`. Run `stokes scan`. |
 | `3` | **FATAL_INTERNAL_ERROR** | System I/O error or unhandled parsing fault. |
 
@@ -139,6 +139,7 @@ jobs:
 ---
 
 ## Native Model Context Protocol (MCP) Server Architecture
+---
 
 As development shifts toward agentic software engineering, AI agents increasingly propose pull requests that span multiple service repositories.
 
@@ -146,36 +147,21 @@ When an AI agent modifies an upstream database schema, standard Language Server 
 
 To solve this, Stokes implements a native **Model Context Protocol (MCP)** server:
 
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                        MODEL CONTEXT PROTOCOL (MCP) INTERFACE                          │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                        │
-│   [AI Agent: Cursor / Claude Code / Bob 2.0]                                           │
-│       │                                                                                │
-│       │ 1. Agent asks: "Can I add 2 fraud feature columns to 001_bot_signals.sql?"     │
-│       ▼                                                                                │
-│   [Stokes Native MCP Server] (Listening on stdio or /tmp/stokes-mcp.sock)              │
-│       │                                                                                │
-│       │ 2. Invokes tool: inspect_buffer_capacity(channel="analytics_to_edge")          │
-│       ▼                                                                                │
-│   [Stokes Boundary Reachability Engine]                                                │
-│       │                                                                                │
-│       │ 3. Evaluates:                                                                  │
-│       │    Current Upstream Emitted: 200                                               │
-│       │    Proposed Expansion: 202                                                     │
-│       │    Downstream Edge Proxy Buffer: [Feature; 200] (Capacity: 200)                │
-│       │    Calculation: 202 > 200 ──► Risk Ratio = 1.01 (FATAL OVERFLOW)               │
-│       ▼                                                                                │
-│   [MCP Server Response to Agent]:                                                      │
-│       │                                                                                │
-│       │ "REJECTED: Adding 2 columns exceeds downstream buffer capacity (200).          │
-│       │  REQUIRED SEQUENCE: You must first expand crates/dirichlet-proxy to            │
-│       │  [Feature; 256] or configure a strict Field Mask before editing SQL DDL."      │
-│       ▼                                                                                │
-│   [AI Agent modifies downstream proxy first, then applies DDL migration]               │
-│                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Agent as AI Coding Agent (Cursor / Claude / Bob 2.0)
+    participant MCP as Stokes Native MCP Server
+    participant Engine as Boundary Reachability Engine
+    participant Proxy as Downstream Ingress Proxy
+
+    Agent->>MCP: tools/call: inspect_buffer_capacity(channel="analytics_to_edge")
+    MCP->>Engine: Evaluate proposed expansion: 200 → 202 columns
+    Engine->>Proxy: Inspect buffer allocation: [Feature; 200]
+    Proxy-->>Engine: Physical capacity = 200 slots
+    Engine-->>MCP: Cardinality overflow (202 > 200, Risk = 1.01)
+    MCP-->>Agent: REJECTED: Upstream expansion exceeds downstream buffer capacity.<br/>Required sequence: Expand downstream proxy buffer first!
+    Note over Agent: Agent expands downstream buffer to 256,<br/>then safely commits upstream SQL migration
 ```
 
 ### JSON-RPC 2.0 Protocol Implementation
@@ -223,31 +209,26 @@ The Stokes MCP server communicates via JSON-RPC 2.0 over standard input/output (
 ---
 
 ## MCP Tools & Resources Exposed by Stokes
+---
 
 Stokes exposes four specialized MCP tools and two live state resources to AI agents:
 
 ### Exposed MCP Tools
 
-1. `get_boundary_graph`:
-   - Returns the full topological DAG of services, analytical tables, Kafka topics, ETL pipelines, and reverse proxies.
-   - Includes active cardinalities, buffer allocations, and evaluated risk ratios.
-2. `inspect_buffer_capacity`:
-   - Accepts a `channel_id` or `symbol_name` and returns the physical downstream memory allocation (e.g. `[Feature; 200]`, 1,600 bytes, L1D cache saturation 4.8%).
-3. `verify_boundary_diff`:
-   - Evaluates a proposed code diff in-memory before writing to disk, computing the resulting cardinality shift and predicting whether any downstream consumer will panic.
-4. `synthesize_remediation`:
-   - Dispatches the IBM Bob 2.0 subagent swarm to synthesize a mathematically sound, zero-allocation Dual-Zone quickselect routine or Field Mask patch.
+- **`get_boundary_graph`**: Returns the full topological DAG of services, analytical tables, Kafka topics, ETL pipelines, and reverse proxies. Includes active cardinalities, buffer allocations, and evaluated risk ratios.
+- **`inspect_buffer_capacity`**: Accepts a `channel_id` or `symbol_name` and returns the physical downstream memory allocation (e.g. `[Feature; 200]`, 1,600 bytes, L1D cache saturation 4.8%).
+- **`verify_boundary_diff`**: Evaluates a proposed code diff in-memory before writing to disk, computing the resulting cardinality shift and predicting whether any downstream consumer will panic.
+- **`synthesize_remediation`**: Dispatches subagent swarms to synthesize a mathematically sound, zero-allocation Dual-Zone quickselect routine or Field Mask patch.
 
 ### Exposed MCP Resources
 
-1. `stokes://contracts/active`:
-   - Real-time JSON document reflecting active channel bindings and verified bounds.
-2. `stokes://diagnostics/live`:
-   - Stream of active cross-boundary linter warnings (`LINT-001` through `LINT-006`).
+- **`stokes://contracts/active`**: Real-time JSON document reflecting active channel bindings and verified bounds.
+- **`stokes://diagnostics/live`**: Stream of active cross-boundary linter warnings (`LINT-001` through `LINT-006`).
 
 ---
 
 ## Configuration & Agent Setup
+---
 
 Integrating Stokes with popular AI coding agents requires a single configuration block.
 
@@ -308,13 +289,14 @@ class BobStokesMCPBridge:
 ---
 
 ## Performance & Safety Comparison
+---
 
 | Feature | Legacy CI Linting | Static Analyzer (SonarQube) | Monorepo CI (Bazel) | Stokes CI Gate + Native MCP |
 | :--- | :--- | :--- | :--- | :--- |
 | **Execution Latency** | 2-5 minutes | 3-10 minutes | 45-120 seconds | **Sub-38 milliseconds** |
 | **Cross-Language Seam Analysis** | None (Siloed) | Superficial rules | Dependency graph only | **Semantic AST Reachability** |
-| **Physical Memory Awareness** | None | None | None | **Stack/Cache Line Bound ($C \le B$)** |
+| **Physical Memory Awareness** | None | None | None | **Stack/Cache Line Bound ($\mathcal{C} \le \mathcal{B}$)** |
 | **AI Agent Real-Time Feedback** | None (Post-commit) | None | None | **Native MCP JSON-RPC Server** |
 | **Cryptographic Lockfile** | None | None | None | **`stokes.lock` (SHA-256 ASTs)** |
 
-By pairing a sub-38ms deterministic CI verification gate with a native Model Context Protocol server, Stokes guarantees that both human developers and autonomous AI coding agents maintain mathematical contract invariants across polyglot systems boundaries.
+By pairing a sub-38ms deterministic CI verification gate with a native Model Context Protocol server, Stokes guarantees that both human developers and autonomous AI coding agents maintain mathematical contract invariants across polyglot systems boundaries. See [[mcp-protocol|MCP Protocol Reference]] and [[cli-reference|CLI Reference]] for detailed commands.

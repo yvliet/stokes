@@ -1,8 +1,11 @@
 ---
 title: "Projection Consumption Isolation & Field Mask Verification"
 description: "Eliminating wildcard projection hazards, isolating internal shard table leakage, and enforcing compile-time field mask verification across storage boundaries."
-author: "Yuliet Li (yvliet)"
-license: "MIT"
+category: "Architecture"
+order: 6
+lastUpdated: "2026-03-24"
+readTime: "8 min read"
+author: "Yuliet Li"
 ---
 
 # Projection Consumption Isolation & Field Mask Verification
@@ -13,30 +16,25 @@ In high-throughput storage pipelines, implicit projections typically manifest in
 1. Relational wildcard queries: `SELECT * FROM events` or `SELECT * FROM system.columns`.
 2. Unscoped catalog metadata reflection: scanning database tables using loose pattern matches like `WHERE table LIKE 'events%'`.
 
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                        IMPLICIT PROJECTION LEAKAGE ANATOMY                             │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                        │
-│   [ClickHouse Storage Engine]                                                          │
-│   Distributed Table: events                                                            │
-│     ├── Shard Replica 0: events_r0 (40 internal operational columns)                   │
-│     └── Shard Replica 1: events_r1 (40 internal operational columns)                   │
-│                                                                                        │
-│   Unqualified Catalog Query:                                                           │
-│   SELECT name FROM system.columns WHERE table LIKE 'events%';                          │
-│                                                                                        │
-│   Expected Projection:         200 Canonical Columns                                   │
-│   Actual Emitted Projection:   200 + 40 (r0) + 40 (r1) = 280 Columns                   │
-│                                                                                        │
-│                                │                                                       │
-│                                ▼ Untyped Wire Seam (JSON Payload)                      │
-│                                                                                        │
-│   [Downstream Edge Proxy Buffer: [Feature; 200]]                                       │
-│   Result: slice.try_into() unwraps 280 items into 200-slot buffer                      │
-│   ──► TryFromSliceError PANIC ──► Worker Crash Storm                                   │
-│                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph Storage["ClickHouse Storage Engine"]
+        DT["Distributed Table: events"]
+        S0["Shard Replica 0: events_r0<br/>(40 internal operational columns)"]
+        S1["Shard Replica 1: events_r1<br/>(40 internal operational columns)"]
+        DT --> S0
+        DT --> S1
+    end
+
+    Query["Unqualified Catalog Query:<br/>SELECT name FROM system.columns WHERE table LIKE 'events%';"]
+    Storage --> Query
+
+    Query --> Payload["Emitted Wire Payload: 280 Columns<br/>(200 canonical + 40 r0 + 40 r1)"]
+    Payload --> Buffer["Downstream Buffer: [Feature; 200]<br/>slice.try_into().unwrap() fails!<br/>Thread Panic → Process Crash Loop"]
+
+    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
+    classDef danger fill:#3b1e1e,stroke:#ef4444,color:#fca5a5;
+    class Buffer danger;
 ```
 
 When an analytical database expands its internal cluster architecture (for example, introducing distributed replica shards or auxiliary projection indices), an implicit query silently absorbs these operational columns into user-facing feature payloads.
@@ -46,6 +44,7 @@ Stokes eliminates this failure mode through **Projection Consumption Isolation (
 ---
 
 ## Physical Schema Leakage from Internal Shard Tables
+---
 
 To understand why traditional linters fail to catch projection drift, consider how distributed analytical databases organize physical storage on disk.
 
@@ -102,6 +101,7 @@ When this payload reaches the edge proxy, the downstream receiver expects at mos
 ---
 
 ## The Projection Consumption Isolation (PCI) Invariant
+---
 
 Stokes replaces implicit schema ingestion with the **Projection Consumption Isolation (PCI)** mathematical invariant:
 
@@ -117,33 +117,30 @@ Stokes replaces implicit schema ingestion with the **Projection Consumption Isol
 
 Under PCI, even if an upstream database emits 100,000 internal columns, the downstream extractor physically filters and accepts only the declared elements of $\mathcal{M}$, discarding unmasked columns before payload serialization.
 
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                        PROJECTION CONSUMPTION ISOLATION FLOW                           │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                        │
-│   Upstream Emitted: 280 Columns                                                        │
-│   [200 Canonical Features] + [40 events_r0 Columns] + [40 events_r1 Columns]           │
-│                                │                                                       │
-│                                ▼                                                       │
-│   ┌────────────────────────────────────────────────────────────────────────────────┐   │
-│   │ Stokes PCI Field Mask Gate (M_size = 200)                                      │   │
-│   │ Allowed: {bot_score, ja4_fingerprint, datacenter_asn, ...} [200 items]         │   │
-│   │ Rejected: {_shard_num, _replica_sync_token, _part_offset, ...} [80 items]      │   │
-│   └────────────────────────────────┬───────────────────────────────────────────────┘   │
-│                                    │                                                   │
-│                                    ▼ Output: Exactly 200 Features                      │
-│   ┌────────────────────────────────────────────────────────────────────────────────┐   │
-│   │ Downstream Fixed Stack Buffer: [Feature; 200] (1,600 Bytes)                    │   │
-│   │ slice.try_into() ──► 100% SUCCESS (Zero Panics, Invariant Preserved)           │   │
-│   └────────────────────────────────────────────────────────────────────────────────┘   │
-│                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    Upstream["Upstream Emitted: 280 Columns<br/>(200 Canonical + 40 events_r0 + 40 events_r1)"]
+    
+    subgraph MaskGate["Stokes PCI Field Mask Gate (|M| = 200)"]
+        Admit["Admit: {bot_score, ja4_fingerprint, datacenter_asn, ...} [200 items]"]
+        Reject["Drop: {_shard_num, _replica_sync_token, _part_offset, ...} [80 items]"]
+    end
+
+    Downstream["Downstream Fixed Stack Buffer: [Feature; 200]<br/>slice.try_into() → 100% Success (Zero Panics)"]
+
+    Upstream --> MaskGate
+    Admit --> Downstream
+    Reject -.->|Discarded before serialization| Dropped["Zero Memory Allocated"]
+
+    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
+    classDef safe fill:#132d21,stroke:#10b981,color:#a7f3d0;
+    class Downstream safe;
 ```
 
 ---
 
 ## Field Mask Verification Engine
+---
 
 Stokes verifies Projection Consumption Isolation statically at CI build time and dynamically at runtime boundaries.
 
@@ -254,6 +251,7 @@ pub fn ingest_with_projection_mask(
 ---
 
 ## Production Patch: Eliminating Shard Column Leakage
+---
 
 The following real production diff demonstrates how Stokes remediates `LINT-001` and `LINT-006` in the Dirichlet benchmark ETL worker.
 
@@ -299,25 +297,18 @@ The following real production diff demonstrates how Stokes remediates `LINT-001`
 
 ---
 
-## Diagnostic Rules Evaluated by `stokes audit`
+## Diagnostic Rules Evaluated by stokes audit
+---
 
 The Stokes verification engine executes two rules to validate Projection Consumption Isolation:
 
-### `LINT-001: Unbounded Upstream Catalog Reflection`
-- **Severity**: Fatal Error
-- **Trigger**: Database introspection queries (`system.columns`, `information_schema.columns`) lacking explicit table equality or database qualification.
-- **Risk**: Dynamic ingestion of internal shard replica tables, causing unexpected cardinality expansion.
-- **Remediation**: Injects strict database filter and replaces wildcards with qualified table names.
-
-### `LINT-006: Wildcard Projection Hazard`
-- **Severity**: Fatal Error
-- **Trigger**: `SELECT *` expressions in cross-boundary data extraction queries.
-- **Risk**: Upstream DDL schema expansions alter returned payload tuple length without downstream awareness.
-- **Remediation**: Subagent `stokes-sql` extracts schema definitions and rewrites the query with an explicit column projection list.
+- **`LINT-001: Unbounded Upstream Catalog Reflection`**: Fatal Error. Triggered by database introspection queries (`system.columns`, `information_schema.columns`) lacking explicit table equality or database qualification. Prevents dynamic ingestion of internal shard replica tables.
+- **`LINT-006: Wildcard Projection Hazard`**: Fatal Error. Triggered by `SELECT *` expressions in cross-boundary data extraction queries. Subagent `stokes-sql` extracts schema definitions and rewrites the query with an explicit column projection list.
 
 ---
 
 ## Architecture Comparison: Ingestion Security Models
+---
 
 | Projection Model | Downstream Immunity to Shard Leakage | Memory Allocation Overhead | Zero-Copy Compatibility | Static Verification Ease |
 | :--- | :--- | :--- | :--- | :--- |
@@ -326,4 +317,4 @@ The Stokes verification engine executes two rules to validate Projection Consump
 | **GraphQL Field Selection** | 100% (Client requests fields) | Heavy (AST Parsing per request) | Poor (Dynamic Dicts) | Complex Runtime |
 | **Stokes PCI & Field Masks** | **100% (Hardware Bound)** | **0 B (Static Bitmask / In-Place)** | **Optimal (Direct Stack Buffers)** | **Deterministic CI AST Check** |
 
-By enforcing Projection Consumption Isolation, Stokes guarantees that downstream services remain strictly insulated from upstream storage migrations, partition reorganizations, and internal shard expansions.
+By enforcing Projection Consumption Isolation, Stokes guarantees that downstream services remain strictly insulated from upstream storage migrations, partition reorganizations, and internal shard expansions. See [[07-ci-mcp-gate|CI & MCP Gate]] for running these rules in automated workflows.

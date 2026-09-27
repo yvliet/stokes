@@ -1,8 +1,11 @@
 ---
 title: "Verification, Fuzzing & Simulation Harness"
 description: "10,000-case IEEE-754 float fuzzing battery, Criterion micro-benchmark log parser, and RFC-2439 BGP route flap dampening simulator."
-author: "Yuliet Li (yvliet)"
-license: "MIT"
+category: "Engines"
+order: 3
+lastUpdated: "2026-03-24"
+readTime: "9 min read"
+author: "Yuliet Li"
 ---
 
 # Verification, Fuzzing & Simulation Harness
@@ -14,43 +17,35 @@ Static AST analysis proves that cross-boundary structural invariants hold at com
 
 The **Stokes Verification Harness** executes targeted dynamic tests, micro-benchmark parsing, and edge chaos simulations to validate resilience under extreme operating conditions.
 
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                        STOKES VERIFICATION HARNESS ARCHITECTURE                        │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                        │
-│   [Static AST Proofs]                                                                  │
-│            │                                                                           │
-│            ▼ Passed                                                                    │
-│   ┌────────────────────────────────────────────────────────────────────────────────┐   │
-│   │ Stokes Verification Harness (stokes/harness)                                   │   │
-│   │                                                                                │   │
-│   │ ┌──────────────────────────┐ ┌──────────────────────────┐ ┌──────────────────┐ │   │
-│   │ │ 10,000-Case IEEE-754     │ │ Criterion Benchmark      │ │ RFC-2439 BGP     │ │   │
-│   │ │ Float Fuzz Battery       │ │ Statistical Profiler     │ │ Route Flap Sim   │ │   │
-│   │ │                          │ │                          │ │                  │ │   │
-│   │ │ - Quiet / Signaling NaNs │ │ - target/criterion logs  │ │ - Penalty budget │ │   │
-│   │ │ - Subnormal Microcode    │ │ - 7.66 ns vs 29.74 ns    │ │ - 15m half-life  │ │   │
-│   │ │ - Fail-Secure (100.0)    │ │ - Mann-Whitney / K-S Test│ │ - Carrier Damp   │ │   │
-│   │ └──────────────────────────┘ └──────────────────────────┘ └──────────────────┘ │   │
-│   └──────────────────────────────────────┬─────────────────────────────────────────┘   │
-│                                          │                                             │
-│                                          ▼ Emits Attestation                           │
-│   ┌────────────────────────────────────────────────────────────────────────────────┐   │
-│   │ Machine-Authoritative stokes.lock & PR Review CONFORMANCE.md                   │   │
-│   └────────────────────────────────────────────────────────────────────────────────┘   │
-│                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    AST["Static AST Proofs (Passed)"] --> Harness["Stokes Verification Harness (stokes/harness)"]
+    
+    subgraph Batteries["Verification Engines"]
+        Fuzz["10,000-Case IEEE-754 Float Fuzz Battery<br/>- Quiet / Signaling NaNs<br/>- Subnormal Microcode Traps<br/>- Fail-Secure (100.0) Threshold"]
+        Bench["Criterion Benchmark Statistical Profiler<br/>- target/criterion logs<br/>- 7.66 ns vs 29.74 ns<br/>- Mann-Whitney / K-S Tail Test"]
+        BGP["RFC-2439 BGP Route Flap Simulator<br/>- Penalty budget tracking<br/>- 15m half-life decay<br/>- Carrier Dampening prevention"]
+    end
+
+    Harness --> Batteries
+    Batteries --> Attest["Machine-Authoritative stokes.lock & PR Review CONFORMANCE.md"]
+
+    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
+    classDef highlight fill:#1c2333,stroke:#3b82f6,color:#93c5fd;
+    class AST,Attest highlight;
 ```
 
 ---
 
 ## 10,000-Case IEEE-754 Float Fuzzing Battery
+---
 
 When high-throughput reverse proxies compute anti-bot threat scores using incoming feature values, floating-point arithmetic introduces severe security and availability risks:
 
 ### 1. The NaN Threat Bypass Trap
+
 In unpatched Rust or C++ code, casting non-finite floats directly to unsigned integers yields zero:
+
 ```rust
 // VULNERABLE: NaN casts to 0 in Rust
 let entropy_score: f32 = f32::NAN;
@@ -60,9 +55,11 @@ if threat_level < 50 {
     allow_request();
 }
 ```
+
 If an adversary injects HTTP headers designed to yield `NaN` during entropy calculations, the threat score collapses to zero, completely bypassing anti-bot filters (`MitigationAction::Pass`).
 
 ### 2. CPU Microcode Assist Traps (Subnormal Floats)
+
 Numbers with magnitude smaller than the minimum normal float ($2^{-126} \approx 1.1754944 \times 10^{-38}$) are **subnormal** (denormalized). Standard CPU hardware ALUs cannot process subnormal floats in single-cycle pipelines; they force the processor into microcode assist execution, slowing down arithmetic by **100x**. An attacker streaming subnormal floats can trigger CPU saturation and denial of service.
 
 ### Hardware-Level FTZ/DAZ Configuration
@@ -138,6 +135,7 @@ def run_battery(num_random_cases: int = 10000) -> dict[str, Any]:
 ---
 
 ## Statistical Criterion Benchmark Log Parser
+---
 
 High-throughput systems cannot tolerate latency regressions introduced by dynamic allocations. Stokes incorporates a native parser for Criterion benchmark JSON outputs.
 
@@ -145,29 +143,11 @@ High-throughput systems cannot tolerate latency regressions introduced by dynami
 
 In the Dirichlet benchmark testbed, Stokes compares the performance of unhardened heap allocations against hardened in-place partial sorting:
 
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                        CRITERION MICRO-BENCHMARK TIMINGS                               │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                        │
-│  Benchmark Target: 280 incoming feature descriptors partitioned to 200 active slots    │
-│                                                                                        │
-│  Method 1: Unhardened Heap Vector (Vec::sort_by)                                       │
-│    - Latency:           29.74 ns                                                       │
-│    - Heap Allocation:   17,600 Bytes (Allocates Vec, pushes items, frees Vec)          │
-│    - Cache Lines:       275 Cache Lines (53.7% of 32 KB L1D Cache)                     │
-│    - Allocator Lock:    Contends on jemalloc/mimalloc thread-local caches              │
-│                                                                                        │
-│  Method 2: Stokes Hardened In-Place Dual-Zone (select_nth_unstable_by)                 │
-│    - Latency:           7.66 ns                                                        │
-│    - Heap Allocation:   0 Bytes (Zero Allocations, 100% In-Place Stack Registers)     │
-│    - Cache Lines:       25 Contiguous Cache Lines (4.8% of 32 KB L1D Cache)            │
-│    - Allocator Lock:    Zero Allocator Invocations                                     │
-│                                                                                        │
-│  PERFORMANCE SPEEDUP:   3.88x FASTER (7.66 ns vs 29.74 ns) with ZERO HEAP OVERHEAD      │
-│                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────┘
-```
+| Ingestion Method | Latency (p50) | Heap Allocation | Cache Lines (64B) | L1D Occupancy | Allocator Lock Impact |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Method 1: Unhardened Heap Vector** (`Vec::sort_by`) | `29.74 ns` | 17,600 Bytes | 275 Cache Lines | 53.7% of 32 KB | Contends on jemalloc thread-local caches |
+| **Method 2: Stokes Hardened In-Place Dual-Zone** (`select_nth_unstable_by`) | **`7.66 ns`** | **0 Bytes** | **25 Contiguous Lines** | **4.8% of 32 KB** | **Zero allocator invocations** |
+| **Performance Difference** | **3.88x faster** | **100% Eliminated** | **90.9% Reduction** | **Minimal jitter** | Deterministic register execution |
 
 ### Automated Regression Budget Enforcement
 
@@ -201,6 +181,7 @@ Because network packet latencies follow heavy-tailed, non-Gaussian distributions
 ---
 
 ## RFC-2439 BGP Route Flap Dampening (RFD) Simulator
+---
 
 When an edge proxy panics due to an unhandled slice overflow, the process dies and drops its listening sockets. Upstream health checks fail, causing edge BGP daemons (BIRD, ExaBGP) to withdraw the node's Anycast IP prefix from Tier-1 transit carriers.
 
@@ -208,25 +189,12 @@ When an edge proxy panics due to an unhandled slice overflow, the process dies a
 
 Major Tier-1 transit carriers (Lumen AS3356, Arelion AS1299, Telia, NTT AS2914) enforce strict BGP Route Flap Dampening:
 
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                        RFC-2439 ROUTE FLAP PENALTY ACCUMULATION                        │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                        │
-│  Penalty (Points)                                                                      │
-│   3000 ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ │
-│          ▲ (Flap 2: Penalty = 2000 + 1000 = 3000)                                      │
-│   2000 ──┼─────────────────────────────────────── [CARRIER SUPPRESSION THRESHOLD]     │
-│          │                                         Prefix suppressed for 15-30 min!    │
-│   1000 ──┼─────────┐ (Flap 1: Penalty = 1000)      Global blackhole of Anycast traffic!│
-│          │         ▼ Exponential Decay (t_half = 15m)                                  │
-│    750 ──┼─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ [REUSE THRESHOLD]─ ─ ─ ─ ─ ─ ─ ─ ─ │
-│          │                                                                             │
-│      0 ──┴─────────┬───────────────────────────────► Time (Minutes)                    │
-│          0         15                              45                                  │
-│                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────┘
-```
+| State Parameter | Threshold Value | Carrier Action & Operational Impact |
+| :--- | :--- | :--- |
+| **Withdrawal Penalty ($P_{\text{withdraw}}$)** | 1,000 points per flap | Added immediately upon prefix withdrawal or link drop |
+| **Exponential Half-Life ($t_{\text{half}}$)** | 15 minutes (900s) | Penalty decays exponentially: $P(t) = P(0) \cdot 2^{-t / t_{\text{half}}}$ |
+| **Suppression Ceiling ($P_{\text{suppress}}$)** | 2,000 points | **Route Suppressed**: Prefix removed from global carrier routing tables for 15-30 minutes! |
+| **Reuse Threshold ($P_{\text{reuse}}$)** | 750 points | Route un-suppressed once accumulated penalties decay below this boundary |
 
 - Each prefix withdrawal adds $P_{\text{withdraw}} = 1,000$ penalty points.
 - Penalty decays exponentially with half-life $t_{\text{half}} = 15$ minutes ($900$ seconds):
@@ -259,27 +227,20 @@ class ChaosEngine:
 ```
 
 ### The Three Protective Tiers:
-1. **Tier 1: In-Memory L7 Degradation ($< 270\text{ ns}$)**:
-   - Overflow features are shed in-place via `select_nth_unstable_by`.
-   - Broken configurations trigger wait-free `ArcSwap` rollback to the Last-Known-Good state ($< 50\text{ ns}$).
-   - **Zero routing changes occur.**
-2. **Tier 2: Local L4 Load Balancer Draining ($< 500\text{ ms}$)**:
-   - For localized host crashes, the proxy fails its `/healthz` HTTP probe.
-   - Upstream L4 balancers (Maglev/Unimog) divert flows to healthy sibling nodes without touching BGP.
-3. **Tier 3: Carrier BGP Prepending (Controlled POP Evacuation)**:
-   - Invoked only for physical data center maintenance.
-   - The proxy commands the host BGP daemon to announce AS-Path prepends or RFC 8326 graceful shutdown.
-   - Tracks simulated RFD penalty budget ($P < 1,500$), preventing carrier route suppression.
+1. **Tier 1: In-Memory L7 Degradation ($< 270\text{ ns}$)**: Overflow features are shed in-place via `select_nth_unstable_by`. Broken configurations trigger wait-free `ArcSwap` rollback to the Last-Known-Good state ($< 50\text{ ns}$). Zero routing changes occur.
+2. **Tier 2: Local L4 Load Balancer Draining ($< 500\text{ ms}$)**: For localized host crashes, the proxy fails its `/healthz` HTTP probe. Upstream L4 balancers (Maglev/Unimog) divert flows to healthy sibling nodes without touching BGP.
+3. **Tier 3: Carrier BGP Prepending (Controlled POP Evacuation)**: Invoked only for physical data center maintenance. The proxy commands the host BGP daemon to announce AS-Path prepends or RFC 8326 graceful shutdown. Tracks simulated RFD penalty budget ($P < 1,500$), preventing carrier route suppression.
 
 ---
 
 ## Summary of Verification Guarantees
+---
 
 | Invariant Subsystem | Verification Tooling | Acceptance Criteria |
 | :--- | :--- | :--- |
 | **Float Sanitization** | `float_fuzz_battery.py` (10,000 cases) | 100% fail-secure to 100.0; zero NaN bypasses |
 | **Microarchitectural Speed** | `criterion_runner.py` (Criterion JSON) | $\le 7.66\text{ ns}$ in-place quickselect; 0 B heap alloc |
 | **Carrier BGP Stability** | `chaos_engine.py` (RFC-2439 simulator) | Simulated RFD penalty $< 1,500$; zero route dampening |
-| **Schema Bounds** | `stokes verify --strict` (AST engine) | Emitted cardinality $\le$ buffer capacity ($C \le B$) |
+| **Schema Bounds** | `stokes verify --strict` (AST engine) | Emitted cardinality $\le$ buffer capacity ($\mathcal{C} \le \mathcal{B}$) |
 
-By uniting microarchitectural benchmarks, IEEE-754 float fuzzing, and carrier-grade BGP flap simulation, the Stokes Verification Harness guarantees that low-latency systems maintain mathematical stability under production stress.
+By uniting microarchitectural benchmarks, IEEE-754 float fuzzing, and carrier-grade BGP flap simulation, the Stokes Verification Harness guarantees that low-latency systems maintain mathematical stability under production stress. See the [[dirichlet-case-study|Dirichlet Case Study]] for real-world benchmarking results and [[02-panic-resilience|Panic Resilience]] for the two-tier runtime model.

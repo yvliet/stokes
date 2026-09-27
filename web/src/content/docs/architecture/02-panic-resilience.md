@@ -1,8 +1,11 @@
 ---
 title: "Panic vs. 100% Error Rate & Two-Tier Resilience"
 description: "Why Clippy-safe error handling still causes total service blackouts and how the Two-Tier Runtime Reference Model achieves true resilience."
-author: "Yuliet Li (yvliet)"
-license: "MIT"
+category: "Architecture"
+order: 2
+lastUpdated: "2026-03-24"
+readTime: "7 min read"
+author: "Yuliet Li"
 ---
 
 # Panic vs. 100% Error Rate & Two-Tier Resilience
@@ -12,31 +15,10 @@ A frequent counterargument from systems reviewers encountering boundary panic vu
 
 While eliminating unhandled panics satisfies compiler linters and eliminates crash dumps, it does not prevent an outage. In mission-critical edge proxies, an unhandled capacity error on the packet path replaces a process crash with a **100% Error Rate Blackout**.
 
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                        CRASH VS. BLACKOUT OUTCOME COMPARISON                           │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                        │
-│   Scenario A: Panic on Unwrap (Unhardened)                                             │
-│   let features: [Feature; 200] = payload.try_into().unwrap();                          │
-│   ┌──────────────────────────────────────────────────────────────────────────────┐     │
-│   │ Outcome: Thread panic → SIGABRT → Process restarts → Supervisord flap        │     │
-│   │ Impact: 100% packet loss during crash loops.                                 │     │
-│   └──────────────────────────────────────────────────────────────────────────────┘     │
-│                                                                                        │
-│   Scenario B: Naive Clippy-Safe Match (False Sense of Security)                        │
-│   let features: [Feature; 200] = match payload.try_into() {                            │
-│       Ok(f) => f,                                                                      │
-│       Err(_) => return Err(ProxyError::CapacityMismatch),                              │
-│   };                                                                                   │
-│   ┌──────────────────────────────────────────────────────────────────────────────┐     │
-│   │ Outcome: 0 Panics, 0 Crashes, Clippy is 100% satisfied.                      │     │
-│   │ Impact: Every worker thread returns Err → 100% HTTP 502 Bad Gateway dropped. │     │
-│   │ Result: The global edge outage is identical in magnitude and duration!       │     │
-│   └──────────────────────────────────────────────────────────────────────────────┘     │
-│                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────┘
-```
+| Scenario | Code Pattern | Runtime Outcome | Operational Impact |
+| :--- | :--- | :--- | :--- |
+| **Scenario A: Panic on Unwrap** *(Unhardened)* | `let features: [Feature; 200] = payload.try_into().unwrap();` | Thread panic `→` `SIGABRT` `→` Process restarts `→` Supervisord flap | 100% packet loss during crash loops. Core dumps exhaust disk I/O. |
+| **Scenario B: Naive Match** *(False Sense of Security)* | `let features = match payload.try_into() { Ok(f) => f, Err(_) => return Err(ProxyError::CapacityMismatch), };` | 0 Panics, 0 Crashes, Clippy is 100% satisfied. | Every worker thread returns `Err` `→` 100% HTTP 502 Bad Gateway dropped. The global edge outage is identical in magnitude and duration. |
 
 > [!WARNING]
 > Replacing a panic with a rejected request without degradation logic merely transforms a process abort into a 502 Bad Gateway response. If every incoming request carries 280 features into a 200-capacity buffer, 100% of customer traffic is discarded. A resilient system must maintain availability through graceful degradation.
@@ -44,30 +26,42 @@ While eliminating unhandled panics satisfies compiler linters and eliminates cra
 ---
 
 ## The Two-Tier Runtime Reference Model
+---
 
 In the open-source Dirichlet proxy case study (modeling high-throughput edge systems), resilience is achieved through a **Two-Tier Runtime Reference Model**:
 
-```
-                                  ┌───────────────────────────┐
-                                  │   Incoming Edge Traffic   │
-                                  └─────────────┬─────────────┘
-                                                │
-                       ┌────────────────────────┴────────────────────────┐
-                       ▼                                                 ▼
-        ┌─────────────────────────────┐                   ┌─────────────────────────────┐
-        │   Data Plane (Hot Packet)   │                   │  Control Plane (Config)     │
-        │ - Microsecond packet path   │                   │ - Asynchronous catalog sync │
-        │ - TieredBuffer intake       │                   │ - Schema hash validation    │
-        │ - In-place quickselect      │                   │ - Wait-free ArcSwap reload  │
-        │ - Zero heap allocation      │                   │ - LKG rollback in < 50 ns   │
-        └─────────────────────────────┘                   └─────────────────────────────┘
+```mermaid
+flowchart TD
+    Traffic["Incoming Edge Traffic"]
+    
+    subgraph DataPlane["Data Plane (Hot Packet Path)"]
+        DP1["Microsecond packet path"]
+        DP2["TieredBuffer intake"]
+        DP3["In-place quickselect"]
+        DP4["Zero heap allocation"]
+    end
+
+    subgraph ControlPlane["Control Plane (Config Engine)"]
+        CP1["Asynchronous catalog sync"]
+        CP2["Schema hash validation"]
+        CP3["Wait-free ArcSwap reload"]
+        CP4["LKG rollback in < 50 ns"]
+    end
+
+    Traffic --> DataPlane
+    Traffic --> ControlPlane
+
+    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
+    classDef highlight fill:#1c2333,stroke:#3b82f6,color:#60a5fa;
+    class Traffic highlight;
 ```
 
-Stokes is strictly a static CI gate and MCP server; it injects zero code into customer binaries. However, Stokes actively verifies that architectures implement proper boundary capacities and degradation models.
+Stokes is strictly a static CI gate and MCP server; it injects zero code into customer binaries. However, Stokes actively verifies that boundary contracts match between upstream producers and downstream consumer capacities, as detailed in [[01-untyped-seams|Untyped Seams]] and [[03-boundary-graphs|Boundary Graphs]].
 
 ---
 
-## 1. Data Plane: High-Speed Inline `TieredBuffer`
+## 1. Data Plane: High-Speed Inline TieredBuffer
+---
 
 High-throughput packet paths cannot invoke heap allocators (`malloc`, `jemalloc`) during intake without incurring severe tail latency penalties and lock contention. 
 
@@ -142,54 +136,34 @@ impl<T: Copy, const N: usize, const SPILL: usize> TieredBuffer<T, N, SPILL> {
 
 Micro-benchmarking on Intel Xeon cores via Criterion (`crates/dirichlet-proxy/benches/ingest_benchmark.rs`) confirms the microarchitectural cost of unhedged heap allocations on the packet path:
 
-```
-Criterion Ingestion Benchmark Results:
-  TieredBuffer::ingest (Inline Stack Array)  →  7.66 ns  (0 B heap allocation)
-  Dynamic Vec<Feature> (Heap Allocation)     → 29.74 ns  (Requires malloc + drop)
-  Speedup Factor                             →  3.88x faster, deterministic tail
-```
+| Ingestion Strategy | Latency | Heap Allocation | Microarchitectural Characteristics |
+| :--- | :--- | :--- | :--- |
+| `TieredBuffer::ingest` *(Inline Stack Array)* | **7.66 ns** | 0 B | Zero syscalls, deterministic tail latency |
+| Dynamic `Vec<Feature>` *(Heap Allocation)* | **29.74 ns** | Dynamic | Requires `malloc` + `drop`, subject to allocator locks |
+| **Speedup Factor** | **3.88x faster** | **100% Eliminated** | Predictable p99.99 execution envelope |
 
-Furthermore, by packing features into 8-byte cache-aligned descriptors (`#[repr(C, align(8))]`), 200 active features occupy exactly 1,600 bytes. This requires only 25 cache lines (64 bytes each), consuming just 4.8% of the 32 KB L1D CPU cache.
+Furthermore, by packing features into 8-byte cache-aligned descriptors (`#[repr(C, align(8))]`), 200 active features occupy exactly 1,600 bytes. This requires only 25 cache lines (64 bytes each), consuming just 4.8% of the 32 KB L1D CPU cache:
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                        L1D CACHE OCCUPANCY COMPARISON                  │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                        │
-│   Unhardened Struct (Heap Strings & Pointers):                         │
-│   88 Bytes / Feature * 200 Features = 17,600 Bytes                     │
-│   Occupies 275 Cache Lines (53.7% of 32 KB L1D Cache)                  │
-│   Result: Frequent cache evictions, microsecond jitter spikes          │
-│                                                                        │
-│   Stokes-Hardened FeatureDescriptor:                                   │
-│   8 Bytes / Feature * 200 Features = 1,600 Bytes                       │
-│   Occupies 25 Contiguous Cache Lines (4.8% of 32 KB L1D Cache)         │
-│   Result: 100% L1D residency, sub-10ns register evaluation            │
-│                                                                        │
-└────────────────────────────────────────────────────────────────────────┘
-```
+| Layout Variant | Memory Footprint (200 Features) | Cache Lines (64B) | L1D Occupancy (32 KB Cache) | Impact on Packet Pipeline |
+| :--- | :--- | :--- | :--- | :--- |
+| **Unhardened Struct** *(Heap strings & pointers)* | 17,600 Bytes (88 B / feature) | 275 cache lines | 53.7% | Frequent cache evictions, microsecond tail spikes |
+| **Stokes Hardened** *(`FeatureDescriptor`)* | 1,600 Bytes (8 B / feature) | 25 contiguous lines | 4.8% | 100% L1D residency, sub-10ns register evaluation |
 
 ---
 
 ## 2. Dual-Zone In-Place Feature Shedding
+---
 
 If upstream schema expansion or an adversarial flood delivers 5,000 low-priority shadow features, the proxy must shed excess signals without allocating memory or dropping core security heuristics.
 
 Stokes formalizes **Dual-Zone Partitioning**:
 
-```
-Total Slots: MAX_ACTIVE_FEATURES = 200 (1,600 Bytes)
-
-┌──────────────────────────────────────┬──────────────────────────────────────┐
-│       ZONE 0: CORE RESERVED          │       ZONE 1: DYNAMIC ADAPTIVE       │
-│          (Slots 0 .. 127)            │          (Slots 128 .. 199)          │
-├──────────────────────────────────────┼──────────────────────────────────────┤
-│ Capacity: 128 Slots (1,024 Bytes)    │ Capacity: 72 Slots (576 Bytes)       │
-│ Priority: >= 200 (Core Heuristics)   │ Priority: 0 .. 199 (Tier-2 Signals)  │
-│ Eviction: IMMUNE TO EVICTION         │ Eviction: In-Place Quickselect       │
-│ Status: 100% Guaranteed Active       │ Status: Lowest Priority Shed First   │
-└──────────────────────────────────────┴──────────────────────────────────────┘
-```
+| Attribute | Zone 0: Core Reserved (Slots 0..127) | Zone 1: Dynamic Adaptive (Slots 128..199) |
+| :--- | :--- | :--- |
+| **Slot Allocation** | 128 Slots (1,024 Bytes) | 72 Slots (576 Bytes) |
+| **Priority Range** | `priority >= 200` (Core Security & Heuristics) | `0 <= priority <= 199` (Tier-2 Contextual Signals) |
+| **Eviction Policy** | **Immune to eviction** | **In-Place Quickselect** (`select_nth_unstable_by`) |
+| **Operational Status** | 100% Guaranteed Active | Lowest Priority Shed First during saturation |
 
 When payload cardinality exceeds buffer capacity, the proxy runs an in-place `select_nth_unstable_by` partitioning:
 
@@ -233,7 +207,8 @@ pub fn partition_dual_zone(
 
 ---
 
-## 3. Control Plane: Wait-Free LKG Rollback (`ArcSwap`)
+## 3. Control Plane: Wait-Free LKG Rollback (ArcSwap)
+---
 
 On the control plane, configuration reload routines ingest dynamic catalog updates from analytical stores. If a schema payload violates cryptographic digests or contains corrupt mappings, the control plane immediately executes a wait-free rollback to the **Last-Known-Good (LKG)** state.
 
@@ -287,26 +262,16 @@ impl ConfigManager {
 ---
 
 ## Why Compile-Time CI Verification Is Still Essential
+---
 
 Given that runtime architectures can implement `TieredBuffer` and `ArcSwap` LKG rollbacks, why is Stokes necessary in continuous integration?
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                   AIRBAGS VS. STEERING WHEELS ANALOGY                  │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                        │
-│   Runtime LKG Rollback = The Automobile Airbag                         │
-│   Stokes CI Gate       = The Vehicle Steering Wheel                    │
-│                                                                        │
-│   Relying solely on LKG rollback means every broken schema deploy      │
-│   crashes the car into a wall. The airbag prevents fatal injury,       │
-│   but the vehicle is damaged, alarms fire, and traffic halts.          │
-│                                                                        │
-│   Stokes steers around the wall during Pull Request CI before the      │
-│   car ever leaves the garage.                                          │
-│                                                                        │
-└────────────────────────────────────────────────────────────────────────┘
-```
+Consider the analogy between vehicle airbags and steering wheels:
+
+| Defensive Layer | Mechanism | Role in High-Availability Architecture |
+| :--- | :--- | :--- |
+| **Runtime LKG Rollback** | Automobile Airbag | Deploys on catastrophic impact. Prevents process crash, but features stall, alarms fire, and telemetry turns red. |
+| **Stokes CI Gate** | Steering Wheel | Steers around the obstacle during Pull Request CI before the change ever merges or deploys to production. |
 
 When an uncontracted schema drifts into production:
 1. **Feature Rollouts Abort**: The new feature addition that data engineering intended to release is rejected by edge nodes.
@@ -316,4 +281,4 @@ When an uncontracted schema drifts into production:
 
 You do not deploy broken SQL migrations simply because PostgreSQL has transactional `ROLLBACK`, and you do not push broken container images simply because Kubernetes has pod crash restart policies.
 
-Stokes shifts failure left into CI. By enforcing boundary contracts in under 38 milliseconds, Stokes blocks breaking changes before containers are built and before production rollbacks are ever provoked.
+Stokes shifts failure left into CI. By enforcing boundary contracts in under 38 milliseconds, Stokes blocks breaking changes before containers are built and before production rollbacks are ever provoked. See [[07-ci-mcp-gate|CI & MCP Gate]] for integration workflows.

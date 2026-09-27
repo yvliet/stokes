@@ -1,40 +1,47 @@
 ---
 title: "Hackathon Compliance & Asset Disclosure"
 description: "Formal compliance documentation: lablab.ai organizer ruling, clean delineation of build sprint assets vs pre-prepared templates, and IBM Bob token audit ledger."
-author: "Yuliet Li (yvliet)"
-license: "MIT"
+category: "Reference"
+order: 2
+lastUpdated: "2026-03-24"
+readTime: "7 min read"
+author: "Yuliet Li"
 ---
 
 # Hackathon Compliance & Asset Disclosure
 
 This document provides formal, comprehensive disclosure regarding compliance with the official IBM Bob 2.0 Hackathon regulations, sprint build window criteria, pre-prepared asset permissions, and token expenditure ledgers. Engineered by Yuliet Li (`yvliet`), Stokes maintains 100% transparent attribution.
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                        COMPLIANCE ARCHITECTURE AT A GLANCE             │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                        │
-│   [Official Organizer Ruling]                                          │
-│   lablab.ai Discord Message ID: 1553083130045268114                    │
-│   Permits pre-prepared synthetic sample code and demo UI templates     │
-│   when transparently disclosed and core Bob analysis is built in-sprint│
-│                                                                        │
-│         ┌───────────────────────────┴───────────────────────────┐      │
-│         ▼                                                       ▼      │
-│  [100% In-Sprint Build (Bob 2.0)]       [Disclosed Pre-Prepared Assets]│
-│  - CLI suite & ANSI 60 FPS renderer     - Dirichlet proxy testbed      │
-│  - 5-subagent autonomous swarm          - Astro presentation shell     │
-│  - Tree-sitter AST reachability engine                                 │
-│  - Length-prefixed binary IPC framing                                  │
-│  - 10,000-case float fuzzer & tests                                    │
-│  - Native MCP stdio JSON-RPC server                                    │
-│                                                                        │
-└────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    Ruling["Official Organizer Ruling<br/>lablab.ai Discord Message ID: 1553083130045268114<br/>Permits pre-prepared synthetic sample code and demo UI templates<br/>when transparently disclosed and core Bob analysis is built in-sprint"]
+    
+    subgraph InSprint["100% In-Sprint Build (Bob 2.0)"]
+        S1["CLI suite & ANSI 60 FPS renderer"]
+        S2["5-subagent autonomous swarm"]
+        S3["Tree-sitter AST reachability engine"]
+        S4["Length-prefixed binary IPC framing"]
+        S5["10,000-case float fuzzer & tests"]
+        S6["Native MCP stdio JSON-RPC server"]
+    end
+
+    subgraph Disclosed["Disclosed Pre-Prepared Assets"]
+        P1["Dirichlet proxy testbed"]
+        P2["Astro presentation shell"]
+    end
+
+    Ruling --> InSprint
+    Ruling --> Disclosed
+
+    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
+    classDef highlight fill:#1c2333,stroke:#3b82f6,color:#93c5fd;
+    class Ruling highlight;
 ```
 
 ---
 
 ## 1. Official Organizer Ruling
+---
 
 During the official hackathon question-and-answer period, the lablab.ai organizing team issued a formal ruling clarifying permissions regarding pre-prepared sample code, benchmarks, and UI presentation shells:
 
@@ -43,14 +50,14 @@ During the official hackathon question-and-answer period, the lablab.ai organizi
 ### Verification Metadata
 
 | Field | Detail |
-|---|---|
+| :--- | :--- |
 | **Speaker** | Hamza \| lablab.ai (`hamzaimran_8`) |
 | **Official Roles** | `lablab.ai team`, `Moderator`, `lablab.ai Mentor` |
 | **Platform** | Official Hackathon Discord Server |
 | **Channel** | `#ask-anything` |
 | **Message ID** | `1553083130045268114` |
 | **Timestamp** | September 25, 2026 at 23:37 WIB (UTC+7) |
-| **Reference Artifacts** | `stokes/docs/compliance/lablab_organizer_ruling_msg.png`<br>`stokes/docs/compliance/lablab_organizer_profile.png` |
+| **Reference Artifacts** | `stokes/docs/compliance/lablab_organizer_ruling_msg.png`<br/>`stokes/docs/compliance/lablab_organizer_profile.png` |
 
 > [!NOTE]
 > Per the organizer ruling, all core Stokes analysis, subagent orchestration, AST graph traversal, and verification engines were authored 100% from scratch inside the hackathon window using IBM Bob 2.0.
@@ -58,26 +65,14 @@ During the official hackathon question-and-answer period, the lablab.ai organizi
 ---
 
 ## 2. Scope & Delineation of Repository Assets
+---
 
-To guarantee complete auditability, the repository maintains an unambiguous separation between components built during the hackathon sprint and pre-prepared reference assets.
+To guarantee complete auditability, the repository maintains an unambiguous separation between components built during the hackathon sprint and pre-prepared reference assets:
 
-```
-stokes/
-├── 100% BUILT DURING HACKATHON BUILD WINDOW (IBM Bob 2.0)
-│   ├── cli/                   ← Terminal UI driver, ANSI overwriter, formatters, commands
-│   ├── subagents/             ← 5 specialized subagents, actor base, multiplexer
-│   ├── subagents/ast_engine/  ← Tree-sitter query engine & reachability graph
-│   ├── harness/               ← 10,000-case float fuzzer, Criterion parser, sandbox
-│   ├── mcp/                   ← Native Model Context Protocol stdio JSON-RPC server
-│   ├── tests/                 ← 111 unit & integration tests passing in 0.55s
-│   ├── AGENTS.md              ← Synthesized multi-agent contract policy
-│   ├── stokes.lock            ← Cryptographic normalized AST boundary lockfile
-│   └── CONFORMANCE.md         ← Human-readable PR attestation report
-│
-└── DISCLOSED PRE-PREPARED REFERENCE TEMPLATES & BENCHMARKS
-    ├── dirichlet/             ← Synthetic testbed modeling Cloudflare Nov 18, 2025 outage
-    └── web/src/               ← Staged Astro presentation layout and documentation shell
-```
+| Asset Category | File Tree Paths | Description & Authorship Origin |
+| :--- | :--- | :--- |
+| **100% In-Sprint Build** | `stokes/cli/`<br/>`stokes/subagents/`<br/>`stokes/harness/`<br/>`stokes/mcp/`<br/>`stokes/tests/` | Synthesized during sprint: CLI runner, 5 subagents, Tree-sitter AST queries, 10,000 float tests, binary IPC framing, MCP server |
+| **Disclosed Templates** | `dirichlet/`<br/>`web/src/` | Pre-prepared synthetic testbed modeling Cloudflare Nov 18, 2025 outage and Astro documentation shell |
 
 ### Assets Built 100% During the Hackathon Build Window with IBM Bob 2.0
 
@@ -132,22 +127,17 @@ In strict conformance with the lablab.ai organizer ruling, the following templat
 ---
 
 ## 3. IBM Bob 2.0 Token Audit Ledger
+---
 
 Stokes was developed through active collaboration with the IBM Bob 2.0 autonomous agent. Per hackathon guidelines, all Bob development tasks and token consumption metrics are recorded in an audit ledger:
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                        IBM BOB 2.0 TOKEN BURN DASHBOARD                │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                        │
-│  Total Hackathon Token Allocation : 40.000 Bobcoins                    │
-│  Bobcoins Burned to Date          : 35.064 Bobcoins (Active Burn)      │
-│  Remaining Allocated Tokens       :  4.936 Bobcoins                    │
-│  Audited Intermediate Sessions    : 5 Checkpoints                      │
-│  Sprint Status                    : Verified Production Release        │
-│                                                                        │
-└────────────────────────────────────────────────────────────────────────┘
-```
+| Audit Parameter | Ledger Value |
+| :--- | :--- |
+| **Total Hackathon Token Allocation** | `40.000 Bobcoins` |
+| **Bobcoins Burned to Date** | `35.064 Bobcoins` (Active Burn) |
+| **Remaining Allocated Tokens** | `4.936 Bobcoins` |
+| **Audited Intermediate Sessions** | `5 Checkpoints` |
+| **Sprint Status** | **Verified Production Release** |
 
 ### Interim Task Session Ledger
 
@@ -162,6 +152,7 @@ Stokes was developed through active collaboration with the IBM Bob 2.0 autonomou
 ---
 
 ## 4. Session Breakdown & Audit Details
+---
 
 ### Session 01: Core Verification Engine & Multi-Agent Scaffolding
 - **Task ID**: `eca6a6d36cbe730f5c1064bc5f7970e4`
@@ -239,6 +230,7 @@ Stokes was developed through active collaboration with the IBM Bob 2.0 autonomou
 ---
 
 ## 5. Verification & Attestation
+---
 
 This compliance document serves as the binding attribution statement for Project Stokes in the IBM Bob 2.0 Hackathon.
 
@@ -247,3 +239,5 @@ This compliance document serves as the binding attribution statement for Project
 - **PyPI Release**: [https://pypi.org/project/stokes/](https://pypi.org/project/stokes/)
 - **Live Documentation**: [https://stokes.dev](https://stokes.dev)
 - **Compliance Status**: FULLY CONFORMANT WITH ORGANIZER RULING
+
+For technical tool reference, see [[cli-reference|CLI Reference]] and [[mcp-protocol|MCP Protocol Reference]].

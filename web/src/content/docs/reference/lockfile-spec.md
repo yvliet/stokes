@@ -1,8 +1,11 @@
 ---
 title: "Stokes Lockfile Specification (stokes.lock)"
 description: "Formal specification of the stokes.lock schema: deterministic AST hashing, comment and whitespace normalization, and poly-repo merge resolution."
-author: "Yuliet Li (yvliet)"
-license: "MIT"
+category: "Reference"
+order: 3
+lastUpdated: "2026-03-24"
+readTime: "9 min read"
+author: "Yuliet Li"
 ---
 
 # Stokes Lockfile Specification (`stokes.lock`)
@@ -11,35 +14,22 @@ The `stokes.lock` file is the machine-authoritative cryptographic contract manif
 
 Unlike human-written markdown attestations (`CONFORMANCE.md`) or mutable configuration manifests (`stokes.yaml`), `stokes.lock` is evaluated deterministically by CI gates (`stokes verify --strict`). If upstream schema reflections or downstream intake capacities drift from the recorded contract, CI fails in under 38 milliseconds, preventing production deployment.
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                        TWO-TIER CONTRACT LIFECYCLE                     │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                        │
-│   [Compiler ASTs: SQL / Python / Rust]                                 │
-│                   │                                                    │
-│                   ▼ Normalized AST Extraction                          │
-│   ┌────────────────────────────────┐                                   │
-│   │   Deterministic AST Hasher     │                                   │
-│   │   - Comment & whitespace strip │                                   │
-│   │   - Projection Isolation filter│                                   │
-│   │   - Canonical token sort       │                                   │
-│   └───────────────┬────────────────┘                                   │
-│                   │                                                    │
-│         ┌─────────┴─────────┐                                          │
-│         ▼                   ▼                                          │
-│  [Machine Tier]      [Human Tier]                                      │
-│  stokes.lock         CONFORMANCE.md                                    │
-│  - JSON / TOML       - Markdown report                                 │
-│  - SHA-256 digests   - Capacity margins & tables                       │
-│  - CI gate enforced  - Pull request review artifact                    │
-│                                                                        │
-└────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    AST["Compiler ASTs: SQL / Python / Rust"] --> Hasher["Deterministic AST Hasher<br/>- Comment & whitespace strip<br/>- Projection Isolation filter<br/>- Canonical token sort"]
+    
+    Hasher --> Machine["Machine Tier: stokes.lock<br/>- JSON / TOML<br/>- SHA-256 digests<br/>- CI gate enforced"]
+    Hasher --> Human["Human Tier: CONFORMANCE.md<br/>- Markdown report<br/>- Capacity margins & tables<br/>- Pull request review artifact"]
+
+    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
+    classDef highlight fill:#1c2333,stroke:#3b82f6,color:#93c5fd;
+    class AST,Hasher highlight;
 ```
 
 ---
 
 ## Complete Schema Specification
+---
 
 The `stokes.lock` file is serialized in canonical JSON (or equivalent TOML). All object keys are sorted lexicographically, and floating-point values are rounded to four decimal places to ensure cross-platform reproducibility.
 
@@ -86,11 +76,12 @@ The `stokes.lock` file is serialized in canonical JSON (or equivalent TOML). All
 ---
 
 ## Schema Field Definitions
+---
 
 ### Top-Level Metadata
 
 | Field | Type | Description |
-|---|---|---|
+| :--- | :--- | :--- |
 | `stokes_version` | String | Semantic version of the Stokes engine that compiled the lockfile. |
 | `generated_at` | String (ISO-8601 UTC) | Exact UTC timestamp of lockfile generation. |
 | `target_repository` | String | Relative workspace path or canonical package identifier. |
@@ -100,7 +91,7 @@ The `stokes.lock` file is serialized in canonical JSON (or equivalent TOML). All
 ### `boundary_contracts` Object
 
 | Field | Type | Unit | Description |
-|---|---|---|---|
+| :--- | :--- | :--- | :--- |
 | `max_active_features` | Integer | Slots | Maximum number of active signals admitted into the evaluation engine. |
 | `downstream_capacity` | Integer | Slots | Physical capacity of the downstream memory buffer allocation. |
 | `max_canonical_columns` | Integer | Columns | Strict upper bound on canonical database table columns. |
@@ -112,7 +103,7 @@ The `stokes.lock` file is serialized in canonical JSON (or equivalent TOML). All
 ### `verification_results` Object
 
 | Field | Type | Unit | Description |
-|---|---|---|---|
+| :--- | :--- | :--- | :--- |
 | `fuzz_cases_passed` | Integer | Tests | Number of randomized IEEE-754 property fuzz cases that passed. |
 | `fuzz_cases_total` | Integer | Tests | Total property fuzz cases executed (default: 10,000). |
 | `criterion_inplace_ns` | Float | Nanoseconds | Measured latency of stack intake deserialization (Dirichlet benchmark). |
@@ -125,28 +116,23 @@ The `stokes.lock` file is serialized in canonical JSON (or equivalent TOML). All
 ---
 
 ## Deterministic AST Hashing Algorithm
+---
 
 The core innovation in `stokes.lock` is **Semantic AST Hashing**. If a developer refactors code using `rustfmt`, runs `black` on Python scripts, adds internal comments, or renames private helper functions, standard file hashers (such as Git tree hashes or `sha256sum`) change, breaking CI.
 
 Stokes computes digests exclusively over **canonical interface signatures**, discarding non-contract syntax:
 
-```
-Source Code File
-       │
-       ▼ Lexical Comment Stripping (-- , // , /* ... */ , #)
-Stripped Token Stream
-       │
-       ▼ Grammar-Specific AST Traversal (Tree-sitter / Python ast)
-Interface AST Signature Nodes
-       │
-       ▼ Projection Consumption Isolation (Exclude unconsumed columns)
-Filtered Contract Tuples
-       │
-       ▼ Canonical JSON Serialization (sort_keys=True, separators=(',', ':'))
-Canonical UTF-8 Byte Stream
-       │
-       ▼ SHA-256 Cryptographic Hash
-Deterministic Digest: sha256:<64 hex characters>
+```mermaid
+flowchart TD
+    Src["Source Code File"] --> Strip["Lexical Comment Stripping (-- , // , /* ... */ , #)"]
+    Strip --> Parse["Grammar-Specific AST Traversal (Tree-sitter / Python ast)"]
+    Parse --> PCI["Projection Consumption Isolation (Exclude unconsumed columns)"]
+    PCI --> Canon["Canonical JSON Serialization (sort_keys=True, separators=(',', ':'))"]
+    Canon --> SHA["SHA-256 Cryptographic Hash → sha256:<64 hex characters>"]
+
+    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
+    classDef highlight fill:#1c2333,stroke:#3b82f6,color:#93c5fd;
+    class Src,SHA highlight;
 ```
 
 ### Language Normalization Rules
@@ -180,27 +166,29 @@ Deterministic Digest: sha256:<64 hex characters>
 ---
 
 ## Projection Consumption Isolation
+---
 
 A critical challenge in cross-boundary verification is **Contract Drift Lockout**: if a database engineer adds an internal column (`admin_notes VARCHAR`) to an analytical table for an offline business dashboard, a naive hash of the database DDL breaks downstream edge proxy CI checks, even though the proxy never consumes that column.
 
-Stokes implements **Projection Consumption Isolation**:
+Stokes implements **Projection Consumption Isolation**, detailed in [[06-projection-isolation|Projection Isolation]]:
 
-```
-ClickHouse Table: bot_signals
-  ├── feature_001 ... feature_200 (Projected into Edge Proxy)
-  └── offline_bi_metric           (Internal BI Column, Not Projected)
+```mermaid
+flowchart TD
+    subgraph ClickHouse["ClickHouse Table: bot_signals"]
+        Cons["feature_001 ... feature_200<br/>(Projected into Edge Proxy)"]
+        Uncons["offline_bi_metric<br/>(Internal BI Column, Not Projected)"]
+    end
 
-Downstream Consumer Manifest:
-  consumed_projections: {
-    "bot_signals": ["feature_001", ..., "feature_200"]
-  }
+    subgraph Lockfile["stokes.lock Hashing Behavior"]
+        Hash["compute_normalized_schema_digest()<br/>1. Checks consumed_projections for table<br/>2. Excludes offline_bi_metric from canonical signature<br/>3. Result: Zero digest shift, CI passes cleanly"]
+    end
 
-Hashing Behavior:
-  When compute_normalized_schema_digest() runs on migrations/001_bot_signals.sql:
-  1. Stokes checks consumed_projections for table 'bot_signals'.
-  2. Columns NOT in the consumed list are excluded from the canonical signature.
-  3. Result: Adding 'offline_bi_metric' produces ZERO digest change in stokes.lock.
-  4. CI gate passes cleanly without false alarms.
+    Cons --> Hash
+    Uncons -.->|Filtered out| Hash
+
+    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
+    classDef safe fill:#132d21,stroke:#10b981,color:#a7f3d0;
+    class Hash safe;
 ```
 
 If the downstream consumer queries an unconstrained wildcard (`SELECT *` or unqualified `system.columns`), Stokes marks `is_wildcard = true`, disabling projection isolation and requiring explicit lockfile re-certification.
@@ -208,6 +196,7 @@ If the downstream consumer queries an unconstrained wildcard (`SELECT *` or unqu
 ---
 
 ## Reference Implementation: Schema Digest Computation
+---
 
 The following production Python implementation (from `stokes/subagents/contract_synthesizer.py`) computes normalized schema digests:
 
@@ -308,14 +297,15 @@ def compute_normalized_schema_digest(
 ---
 
 ## Resolving Merge Conflicts in Poly-Repo Development
+---
 
 In multi-repo organizations, different teams modify schemas simultaneously:
 - Analytics team adds fraud signals to ClickHouse DDL (`migrations/001_bot_signals.sql`).
 - Edge systems team refactors the proxy buffer in Rust (`crates/dirichlet-proxy`).
 
-If both pull requests modify `stokes.lock`, git merge conflicts can occur on the `master_digest` or `schema_digests` fields.
+If both pull requests modify `stokes.lock`, git merge conflicts can occur on the `master_digest` or `schema_digests` fields:
 
-```
+```text
 <<<<<<< HEAD (Branch: edge-proxy-expand-capacity)
     "downstream_capacity": 512,
     "crates/dirichlet-proxy/src/engine/feature_ingest.rs": "sha256:aaaa...",
@@ -329,18 +319,8 @@ If both pull requests modify `stokes.lock`, git merge conflicts can occur on the
 
 Stokes enforces the **Consumer Expands First (Tolerant Reader)** rule to prevent circular merge deadlocks:
 
-```
-Step 1: Downstream Consumer PR Merges First
-  - Edge proxy expands buffer capacity: [Feature; 200] → [Feature; 512].
-  - Downstream capacity (512) >= current upstream cardinality (200).
-  - Consumer PR merges cleanly into main.
-
-Step 2: Upstream Producer PR Merges Second
-  - Analytics team expands emitted signals: 200 → 280 features.
-  - Verification check: Downstream deployed capacity (512) >= New cardinality (280).
-  - Risk Ratio: 280 / 512 = 0.547 <= 1.0 (SAFE).
-  - Producer PR merges without edge panics.
-```
+- **Step 1 (Downstream Consumer PR Merges First)**: Edge proxy expands buffer capacity: `[Feature; 200]` `→` `[Feature; 512]`. Downstream capacity ($512$) $\ge$ current upstream cardinality ($200$). Consumer PR merges cleanly into main.
+- **Step 2 (Upstream Producer PR Merges Second)**: Analytics team expands emitted signals: $200 \to 280$ features. Verification check: Downstream deployed capacity ($512$) $\ge$ New cardinality ($280$). Risk Ratio: $280 / 512 = 0.547 \le 1.0$ (Safe). Producer PR merges without edge panics.
 
 ### Automated Merge Resolution Recipe
 
@@ -368,6 +348,7 @@ git commit -m "chore(stokes): re-certify boundary lockfile after poly-repo merge
 ---
 
 ## Summary & Compliance Guarantee
+---
 
 The `stokes.lock` file provides an immutable cryptographic anchor guaranteeing that decoupled cloud services cannot silently drift into runtime memory panics.
 
@@ -375,3 +356,5 @@ The `stokes.lock` file provides an immutable cryptographic anchor guaranteeing t
 - **Maintainer**: Yuliet Li (`yvliet`)
 - **Digest Algorithm**: SHA-256 over Canonical Lexicographical JSON
 - **CI Guarantee**: Sub-38ms deterministic gate enforcement
+
+See [[cli-reference|CLI Reference]] for lockfile commands and [[05-poly-repo-protocol|Poly-Repo Protocol]] for multi-team staging.

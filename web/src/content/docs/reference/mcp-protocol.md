@@ -1,43 +1,46 @@
 ---
 title: "Model Context Protocol (MCP) Server Specification"
 description: "Native JSON-RPC 2.0 Model Context Protocol specification for Stokes: tool schemas, live resources, and AI agent integration."
-author: "Yuliet Li (yvliet)"
-license: "MIT"
+category: "Reference"
+order: 4
+lastUpdated: "2026-03-24"
+readTime: "9 min read"
+author: "Yuliet Li"
 ---
 
 # Stokes Model Context Protocol (MCP) Specification
 
 Stokes implements a native Model Context Protocol (MCP) server over standard I/O (`stdio`) using JSON-RPC 2.0 framing. Engineered by Yuliet Li (`yvliet`), the Stokes MCP server gives AI coding agents (such as IBM Bob 2.0, Cursor, Claude Code, and Windsurf) real-time visibility into cross-compiler boundaries, sparse reachability graphs, and zero-allocation memory constraints.
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                     STOKES MCP INTEGRATION ARCHITECTURE                │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                        │
-│   [AI Coding Agent Host]                                               │
-│   (IBM Bob 2.0 / Cursor / Claude Code / Windsurf)                      │
-│             │                                                          │
-│             ▼ Stdio JSON-RPC 2.0 (MCP Protocol Version 2024-11-05)     │
-│   ┌────────────────────────────────────────────────────────────────┐   │
-│   │                     Stokes MCP Server                          │   │
-│   │  - JSON-RPC Dispatcher & Request Router                        │   │
-│   │  - Tree-sitter Invariant Analysis Engine                       │   │
-│   │  - Autonomous Buffer Synthesizer                               │   │
-│   └──────────────┬──────────────────┬──────────────────┬───────────┘   │
-│                  │                  │                  │               │
-│                  ▼                  ▼                  ▼               │
-│          [Tools Engine]     [Resources URI]     [Guided Prompts]       │
-│          - verify_boundaries- stokes://contracts- refactor_contract   │
-│          - get_boundary_graph- stokes://graph/dag- explain_violation   │
-│          - synthesize_buffer - stokes://lockfile                       │
-│          - inspect_channel   - stokes://diagnostics                    │
-│                                                                        │
-└────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    Host["AI Coding Agent Host<br/>(IBM Bob 2.0 / Cursor / Claude Code / Windsurf)"]
+    
+    subgraph Server["Stokes MCP Server (Protocol Version 2024-11-05)"]
+        Router["JSON-RPC Dispatcher & Request Router"]
+        AST["Tree-sitter Invariant Analysis Engine"]
+        Synth["Autonomous Buffer Synthesizer"]
+        Router --> AST --> Synth
+    end
+
+    subgraph Capabilities["Server Capabilities"]
+        Tools["Tools Engine<br/>- verify_boundaries<br/>- get_boundary_graph<br/>- synthesize_buffer<br/>- inspect_channel"]
+        Res["Resources URI<br/>- stokes://contracts<br/>- stokes://graph/dag<br/>- stokes://lockfile<br/>- stokes://diagnostics"]
+        Prompts["Guided Prompts<br/>- refactor_contract<br/>- explain_violation"]
+    end
+
+    Host -->|Stdio JSON-RPC 2.0| Server
+    Server --> Capabilities
+
+    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
+    classDef highlight fill:#1c2333,stroke:#3b82f6,color:#93c5fd;
+    class Host,Server highlight;
 ```
 
 ---
 
 ## Protocol Lifecycle & Wire Framing
+---
 
 The server complies with the official MCP specification (`2024-11-05`), operating over bidirectional standard streams (`sys.stdin` and `sys.stdout`).
 
@@ -97,6 +100,7 @@ Upon receiving the response, the client emits the `notifications/initialized` no
 ---
 
 ## Tool Schemas
+---
 
 Stokes exposes tools that enable AI agents to inspect, verify, and remediate cross-boundary contracts.
 
@@ -251,7 +255,7 @@ Generates a certified zero-heap `TieredBuffer` or Dual-Zone memory layout in Rus
 
 ### 4. `inspect_channel`
 
-Inspects a specific wire channel (e.g., Redis KV key, Kafka topic, or Unix socket) for serialization guards.
+Inspects a specific wire channel (e.g. Redis key-value key, Kafka topic, or Unix socket) for serialization guards.
 
 ```json
 {
@@ -300,11 +304,12 @@ Simulates and verifies a proposed unified diff before it is applied to disk.
 ---
 
 ## Resource Endpoints
+---
 
 Stokes exposes machine-authoritative system state through standard MCP resource URIs:
 
 | Resource URI | MIME Type | Description |
-|---|---|---|
+| :--- | :--- | :--- |
 | `stokes://contracts/active` | `application/json` | Discovered cross-boundary contracts, active buffer limits, and field mappings. |
 | `stokes://graph/dag` | `application/json` | Complete directed acyclic graph (DAG) representing multi-tier pipeline dependencies. |
 | `stokes://lockfile` | `text/plain` | Cryptographic `stokes.lock` file containing normalized AST SHA-256 digests. |
@@ -342,6 +347,7 @@ Stokes exposes machine-authoritative system state through standard MCP resource 
 ---
 
 ## Guided Agent Prompts
+---
 
 Stokes supplies structured prompt workflows to guide autonomous coding agents through contract remediation:
 
@@ -358,6 +364,7 @@ Provides a deep architectural explanation of why an unchecked fixed-size slice c
 ---
 
 ## AI Agent Integration Guide
+---
 
 ### 1. Cursor IDE Configuration
 
@@ -415,36 +422,37 @@ claude mcp add stokes -- stokes mcp
 
 ### 3. IBM Bob 2.0 Autonomous Orchestration
 
-Stokes includes first-class integration with the IBM Bob 2.0 autonomous agent. When `stokes audit --with-bob` or `stokes remediate --agent=bob` is executed, Stokes orchestrates the remediation lifecycle over asynchronous IPC:
+Stokes includes native integration with the IBM Bob 2.0 autonomous agent. When `stokes audit --with-bob` or `stokes remediate --agent=bob` is executed, Stokes orchestrates the remediation lifecycle over asynchronous IPC:
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                   IBM BOB 2.0 AUTONOMOUS REMEDIATION LOOP              │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                        │
-│  1. Stokes Orchestrator extracts boundary ASTs across SQL/Python/Rust. │
-│  2. Mathematical invariant engine detects Risk Ratio: 1.40 > 1.0.       │
-│  3. Stokes compiles AGENTS.md policy and synthesizes remediation prompt│
-│  4. Agent Bridge dispatches task payload to IBM Bob 2.0 CLI.          │
-│  5. IBM Bob 2.0 ingests stokes://contracts/active via MCP stdio.       │
-│  6. Bob refactors Rust intake buffer to TieredBuffer<Feature, 200, 312>│
-│  7. Bob scopes ClickHouse query with AND database = currentDatabase(). │
-│  8. Bob invokes stokes_verify_patch to confirm 0 unhandled panics.     │
-│  9. Stokes certifies boundary, writing stokes.lock and CONFORMANCE.md. │
-│                                                                        │
-└────────────────────────────────────────────────────────────────────────┘
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Stokes as Stokes Orchestrator
+    participant Inv as Invariant Engine
+    participant Bridge as Agent Bridge
+    participant Bob as IBM Bob 2.0
+    participant Lock as stokes.lock
+
+    Stokes->>Inv: Extract ASTs across SQL/Python/Rust
+    Inv-->>Stokes: Violation detected: Risk Ratio = 1.40 > 1.0
+    Stokes->>Bridge: Synthesize AGENTS.md policy & task payload
+    Bridge->>Bob: Dispatch remediation task
+    Bob->>Stokes: Read stokes://contracts/active via MCP stdio
+    Bob->>Bob: Refactor intake to TieredBuffer<Feature, 200, 312>
+    Bob->>Bob: Scope ClickHouse query with AND database = currentDatabase()
+    Bob->>Stokes: Call stokes_verify_patch
+    Stokes-->>Bob: Verification SUCCESS (0 panics)
+    Bob->>Lock: Certify boundary in stokes.lock
 ```
 
 #### Length-Prefixed Binary Wire Protocol for Bob IPC
 
 When communicating over Unix domain sockets or named pipes (`/tmp/stokes-bob.sock`), Stokes uses a 4-byte big-endian length-prefixed binary framing structure:
 
-```
-┌────────────────────────────────────┬───────────────────────────────────┐
-│ Length Header (4 Bytes, Big-Endian)│ Payload Body (JSON-RPC 2.0)       │
-│ uint32_be (N bytes)                │ UTF-8 Encoded Request / Response  │
-└────────────────────────────────────┴───────────────────────────────────┘
-```
+| Header / Field | Size | Representation | Semantics |
+| :--- | :--- | :--- | :--- |
+| **Length Header** | 4 Bytes | Big-Endian `uint32` | Body length $N$ in bytes. Max budget: 16 MB (`0x01000000`). |
+| **Payload Body** | $N$ Bytes | UTF-8 JSON-RPC 2.0 | Request, response, or progress stream event. |
 
 - **Maximum Frame Budget**: 16 MB (`0x01000000`). Frames exceeding this budget trigger immediate socket termination.
 - **Render Tick Coalescing**: UI and agent progress events are coalesced on a 16.6ms monotonic timer (60 FPS) to prevent queue bloat.
@@ -452,6 +460,7 @@ When communicating over Unix domain sockets or named pipes (`/tmp/stokes-bob.soc
 ---
 
 ## Summary & Author Attribution
+---
 
 The Stokes Model Context Protocol server bridges the gap between AI coding assistants and distributed systems reality, converting AI agents from localized syntax auto-completers into systems-aware architecture partners.
 
@@ -459,3 +468,5 @@ The Stokes Model Context Protocol server bridges the gap between AI coding assis
 - **Protocol Standard**: Model Context Protocol (MCP 2024-11-05)
 - **Transport**: Stdio JSON-RPC 2.0
 - **License**: MIT License
+
+For continuous integration workflows, see [[07-ci-mcp-gate|CI & MCP Gate]]. For lockfile schema fields, see [[lockfile-spec|Lockfile Specification]].

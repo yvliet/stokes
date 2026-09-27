@@ -15,17 +15,21 @@ export const DocsShell: React.FC = () => {
   const flattened = useMemo(() => flattenDocs(DOCS_TREE), []);
   const contentContainerRef = useRef<HTMLDivElement>(null);
 
-  // Determine initial document from window.location.hash or fallback to first doc
-  const [activeDoc, setActiveDoc] = useState<DocItem>(() => {
+  // Initialize activeDoc with flattened[0] to guarantee identical DOM during hydration
+  const [activeDoc, setActiveDoc] = useState<DocItem>(flattened[0]);
+
+  // Synchronize initial document from URL hash after mount
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       const hash = window.location.hash.replace(/^#/, '').trim();
       if (hash) {
         const found = findDocBySlug(hash, DOCS_TREE);
-        if (found) return found;
+        if (found && found.id !== flattened[0].id) {
+          setActiveDoc(found);
+        }
       }
     }
-    return flattened[0];
-  });
+  }, [flattened]);
 
   const [headings, setHeadings] = useState<TocHeading[]>([]);
   const [activeHeadingId, setActiveHeadingId] = useState<string>('');

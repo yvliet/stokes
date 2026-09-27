@@ -1,8 +1,11 @@
 ---
 title: "Autonomous Subagent Actor Swarm Architecture"
 description: "Concurrent actor lifecycle, specialized domain subagents, 4-byte big-endian binary IPC framing, and 16.6ms render tick coalescing in IBM Bob 2.0."
-author: "Yuliet Li (yvliet)"
-license: "MIT"
+category: "Engines"
+order: 2
+lastUpdated: "2026-03-24"
+readTime: "8 min read"
+author: "Yuliet Li"
 ---
 
 # Autonomous Subagent Actor Swarm Architecture
@@ -11,46 +14,32 @@ Modern multi-tier storage architectures cannot be evaluated using sequential, si
 
 Stokes solves this scale challenge through an **Autonomous Subagent Actor Swarm** built on IBM Bob 2.0 runtime primitives. The engine dispatches concurrent, domain-specialized actors that independently crawl language ASTs, exchange structured events over a length-prefixed binary wire protocol, and reach consensus on cross-boundary invariants without deadlocks.
 
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                        STOKES SUBAGENT ACTOR SWARM TOPOLOGY                            │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                        │
-│                         ┌────────────────────────────────────┐                         │
-│                         │     Bob 2.0 Swarm Orchestrator     │                         │
-│                         │   - Cross-Language Reachability    │                         │
-│                         │   - Automated Contract Discovery   │                         │
-│                         │   - Cryptographic Certificate Auth │                         │
-│                         └─────────────────┬──────────────────┘                         │
-│                                           │                                            │
-│                      Length-Prefixed IPC  │ Bounded Queues (maxsize=1024)              │
-│                      4-Byte BE Header     │ 16.6ms Render Tick Coalescer (60 FPS)      │
-│                                           ▼                                            │
-│       ┌─────────────────┬─────────────────┼─────────────────┬─────────────────┐        │
-│       ▼                 ▼                 ▼                 ▼                 ▼        │
-│ ┌───────────┐     ┌───────────┐     ┌───────────┐     ┌───────────┐     ┌───────────┐  │
-│ │ stokes-sql│     │stokes-    │     │stokes-    │     │stokes-rust│     │stokes-    │  │
-│ │           │     │proto      │     │python     │     │           │     │verify     │  │
-│ │ClickHouse │     │Protobuf   │     │Python AST │     │Rust syn   │     │Criterion  │  │
-│ │DDL / Shard│     │repeated   │     │ETL bounds │     │Dual-Zone  │     │Proptest   │  │
-│ │system.cols│     │max_items  │     │dict bounds│     │Quickselect│     │Float Fuzz │  │
-│ └─────┬─────┘     └─────┬─────┘     └─────┬─────┘     └─────┬─────┘     └─────┬─────┘  │
-│       │                 │                 │                 │                 │        │
-│       └─────────────────┴─────────────────┼─────────────────┴─────────────────┘        │
-│                                           ▼ Streaming Event Bus                        │
-│                         ┌────────────────────────────────────┐                         │
-│                         │    Reactive Terminal UI Driver     │                         │
-│                         │ - ANSI multi-line cursor overwrite │                         │
-│                         │ - 60 FPS bracketless loader        │                         │
-│                         │ - Dynamic unified diff formatter   │                         │
-│                         └────────────────────────────────────┘                         │
-│                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    Orch["Bob 2.0 Swarm Orchestrator<br/>- Cross-Language Reachability<br/>- Automated Contract Discovery<br/>- Cryptographic Certificate Auth"]
+
+    subgraph Swarm["Domain-Specialized Subagent Actors"]
+        SQL["stokes-sql<br/>ClickHouse DDL / Shards<br/>system.columns reflection"]
+        Proto["stokes-proto<br/>Protobuf repeated<br/>max_items bounds"]
+        Py["stokes-python<br/>Python AST ETL bounds<br/>dict comprehension bounds"]
+        Rs["stokes-rust<br/>Rust syn Dual-Zone<br/>In-Place Quickselect"]
+        Verify["stokes-verify<br/>Criterion Benchmarks<br/>Proptest Float Fuzzing"]
+    end
+
+    UI["Reactive Terminal UI Driver<br/>- ANSI multi-line cursor overwrite<br/>- 60 FPS bracketless loader<br/>- Dynamic unified diff formatter"]
+
+    Orch -->|Length-Prefixed IPC (4-Byte BE Header)| Swarm
+    Swarm -->|Streaming Event Bus (maxsize=1024)| UI
+
+    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
+    classDef highlight fill:#1c2333,stroke:#3b82f6,color:#93c5fd;
+    class Orch,UI highlight;
 ```
 
 ---
 
 ## The Five Specialized Domain Subagents
+---
 
 Each subagent operates as an autonomous actor with deep domain heuristics for its target language and runtime environment:
 
@@ -86,15 +75,14 @@ Each subagent operates as an autonomous actor with deep domain heuristics for it
 ---
 
 ## Asynchronous IPC Wire Protocol: 4-Byte Binary Framing
+---
 
 To prevent serialization bottlenecks when subagents emit high-frequency AST traversal events, the swarm communicates over length-prefixed binary frames.
 
-```
-┌────────────────────────────────────┬───────────────────────────────────────────────────┐
-│ Frame Length Header (4 Bytes)      │ Payload Body (JSON-RPC 2.0 / Typed Event)         │
-│ Big-Endian uint32 (N bytes)        │ UTF-8 Encoded JSON String                         │
-└────────────────────────────────────┴───────────────────────────────────────────────────┘
-```
+| Wire Field | Length | Encoding | Purpose & Semantics |
+| :--- | :--- | :--- | :--- |
+| **Length Header** | 4 Bytes | Big-Endian `uint32` (`>I`) | Specifies payload body length $N$ in bytes. Enforces 16 MB maximum ceiling. |
+| **Payload Body** | $N$ Bytes | UTF-8 Encoded JSON | JSON-RPC 2.0 message or typed streaming event payload. |
 
 - **Header**: 4 bytes containing a big-endian unsigned 32-bit integer (`>I`).
 - **Payload**: Canonical UTF-8 encoded JSON string.
@@ -138,6 +126,7 @@ def decode_frame(data: bytes) -> dict[str, Any]:
 ---
 
 ## Bounded Event Bus & 16.6ms Render Tick Coalescing
+---
 
 In high-speed AST traversal, five subagents can emit up to 100,000 progress events per second. Writing each event directly to the terminal using ANSI escape codes causes:
 1. Severe terminal rendering flicker.
@@ -203,23 +192,27 @@ class AgentMultiplexer:
 ---
 
 ## Actor Base Lifecycle & Deadlock-Free Mailbox Processing
+---
 
-To maintain rock-solid stability during long-running CI runs, subagent actors implement an explicit finite state machine with fault isolation.
+To maintain rock-solid stability during long-running CI runs, subagent actors implement an explicit finite state machine with fault isolation:
 
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                              ACTOR LIFECYCLE STATE MACHINE                             │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                        │
-│   [INITIALIZING] ──► [BOUNDARY_DISCOVERY] ──► [AST_PARSING]                            │
-│                                                     │                                  │
-│                                                     ▼                                  │
-│   [HALTED_ON_VIOLATION] ◄── [INVARIANT_EVAL] ──► [CROSS_BOUNDARY_LINK]                 │
-│             ▲                       │                                                  │
-│             │                       ▼                                                  │
-│      (Fatal Error)         [SYNTHESIZING_DIFF] ──► [COMPLETED]                         │
-│                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    Init["INITIALIZING"] --> Disc["BOUNDARY_DISCOVERY"]
+    Disc --> Parse["AST_PARSING"]
+    Parse --> Link["CROSS_BOUNDARY_LINK"]
+    Link --> Eval["INVARIANT_EVAL"]
+    Eval -->|Violation Detected| Halt["HALTED_ON_VIOLATION"]
+    Eval -->|Remediation Enabled| Synth["SYNTHESIZING_DIFF"]
+    Synth --> Done["COMPLETED"]
+    Eval -->|All Invariants Valid| Done
+
+    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
+    classDef halt fill:#3b1e1e,stroke:#ef4444,color:#fca5a5;
+    classDef success fill:#132d21,stroke:#10b981,color:#a7f3d0;
+
+    class Halt halt;
+    class Done success;
 ```
 
 ### Deadlock Prevention Architecture
@@ -242,6 +235,7 @@ Subagent architectures can suffer from circular wait deadlocks when actors reque
 ---
 
 ## Execution Invariant Summary
+---
 
 | Invariant Requirement | Implementation Mechanism | Verification Standard |
 | :--- | :--- | :--- |
@@ -251,4 +245,4 @@ Subagent architectures can suffer from circular wait deadlocks when actors reque
 | **Swarm Concurrency** | `asyncio.gather(*subagents)` | Fully asynchronous coroutine execution |
 | **Fault Isolation** | Per-actor exception boundaries | Actor crash produces diagnostic event without crashing swarm |
 
-Through asynchronous binary framing, 60 FPS tick coalescing, and domain-specialized actor isolation, the Stokes subagent swarm delivers enterprise-grade verification across millions of lines of polyglot code in milliseconds.
+Through asynchronous binary framing, 60 FPS tick coalescing, and domain-specialized actor isolation, the Stokes subagent swarm delivers enterprise-grade verification across millions of lines of polyglot code in milliseconds. See the [[verification-harness|Verification Harness]] and [[ast-engine|AST Engine]] for downstream integration.
