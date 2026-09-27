@@ -94,26 +94,35 @@ class CriterionRunner:
         """
         for candidate in self.CRITERION_PATH_CANDIDATES:
             base = self.workspace / candidate
-            estimates_path = base / bench_name / "new" / "estimates.json"
-            if estimates_path.exists():
-                try:
-                    data = json.loads(estimates_path.read_text())
-                    median = data.get("median", {}).get("point_estimate")
-                    if median is not None:
-                        return float(median)
-                except (json.JSONDecodeError, KeyError, TypeError):
-                    continue
-
-            # Also try the "base" subdirectory
-            estimates_path = base / bench_name / "base" / "estimates.json"
-            if estimates_path.exists():
-                try:
-                    data = json.loads(estimates_path.read_text())
-                    median = data.get("median", {}).get("point_estimate")
-                    if median is not None:
-                        return float(median)
-                except (json.JSONDecodeError, KeyError, TypeError):
-                    continue
+            if not base.exists():
+                continue
+            # First check exact match
+            for sub in ["new", "base"]:
+                estimates_path = base / bench_name / sub / "estimates.json"
+                if estimates_path.exists():
+                    try:
+                        data = json.loads(estimates_path.read_text())
+                        median = data.get("median", {}).get("point_estimate")
+                        if median is not None:
+                            return float(median)
+                    except (json.JSONDecodeError, KeyError, TypeError):
+                        pass
+            # Next check prefix match
+            try:
+                for bench_dir in base.iterdir():
+                    if bench_name in bench_dir.name:
+                        for sub in ["new", "base"]:
+                            estimates_path = bench_dir / sub / "estimates.json"
+                            if estimates_path.exists():
+                                try:
+                                    data = json.loads(estimates_path.read_text())
+                                    median = data.get("median", {}).get("point_estimate")
+                                    if median is not None:
+                                        return float(median)
+                                except (json.JSONDecodeError, KeyError, TypeError):
+                                    pass
+            except Exception:
+                pass
 
         return None
 

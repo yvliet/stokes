@@ -9,6 +9,7 @@ GitHub: yvliet
 from __future__ import annotations
 
 import asyncio
+import datetime
 import json
 import os
 import re
@@ -205,28 +206,27 @@ STOKES_PROMPTS = [
 
 
 def _find_workspace_root(hint_path: Path | str | None = None) -> Path:
-    candidates: list[Path] = []
-    if hint_path:
-        candidates.append(Path(hint_path).resolve())
-    candidates.append(Path.cwd().resolve())
+    # If hint_path is explicitly given and points directly to cloudflame or its crates
+    if hint_path and str(hint_path) not in (".", "", "None"):
+        hp = Path(hint_path).resolve()
+        if (hp / "crates" / "cloudflame-proxy").exists():
+            return hp
+        if (hp / "cloudflame" / "crates" / "cloudflame-proxy").exists():
+            return hp / "cloudflame"
 
+    # Always inspect ancestors of server.py to locate the actual target cloudflame workspace
     server_file = Path(__file__).resolve()
-    if len(server_file.parents) > 2:
-        candidates.append(server_file.parents[2])
-    if len(server_file.parents) > 1:
-        candidates.append(server_file.parents[1])
-
-    for start in candidates:
+    for start in [server_file.parents[2], server_file.parents[1], Path.cwd().resolve()]:
         curr = start
         while curr and curr != curr.parent:
-            if (curr / "stokes").exists() and (curr / "cloudflame").exists():
-                return curr
+            if (curr / "cloudflame" / "crates" / "cloudflame-proxy").exists():
+                return curr / "cloudflame"
             if (curr / "crates" / "cloudflame-proxy").exists():
-                return curr.parent
+                return curr
+            if (curr / "cloudflame").exists():
+                return curr / "cloudflame"
             curr = curr.parent
 
-    if len(server_file.parents) > 2:
-        return server_file.parents[2]
     return Path.cwd().resolve()
 
 
@@ -400,18 +400,21 @@ class StokesMcpServer:
             }
 
         if uri == "stokes://contracts":
-            res = await scan_workspace(".")
+            ws = _find_workspace_root()
+            res = await scan_workspace(ws)
             text = json.dumps(res, indent=2)
             mime = "application/json"
         elif uri == "stokes://lockfile":
-            lock_path = Path("stokes.lock")
+            ws = _find_workspace_root()
+            lock_path = Path(ws) / "stokes.lock"
             if lock_path.is_file():
                 text = lock_path.read_text(encoding="utf-8")
             else:
                 text = "# No stokes.lock found in workspace. Run stokes_cert to generate."
             mime = "text/plain"
         elif uri == "stokes://diagnostics":
-            res = await scan_workspace(".")
+            ws = _find_workspace_root()
+            res = await scan_workspace(ws)
             risk = res.get("cardinality_risk_ratio", 0.0)
             diag = {
                 "workspace": res.get("workspace", "."),
@@ -517,12 +520,12 @@ class StokesMcpServer:
 
         try:
             if name == "stokes_scan":
-                ws = args.get("workspace_path", ".")
+                ws = _find_workspace_root(args.get("workspace_path"))
                 res = await scan_workspace(ws)
                 text_payload = json.dumps(res, indent=2)
 
             elif name == "stokes_audit":
-                ws = args.get("workspace_path", ".")
+                ws = _find_workspace_root(args.get("workspace_path"))
                 res = await scan_workspace(ws)
                 synthesizer = ContractSynthesizer(res)
                 patch_str = synthesizer.synthesize()
@@ -538,7 +541,7 @@ class StokesMcpServer:
                 )
 
             elif name == "stokes_remediate":
-                ws = args.get("workspace_path", ".")
+                ws = _find_workspace_root(args.get("workspace_path"))
                 export = args.get("export_patch", True)
                 deploy = args.get("deploy", True)
                 strategy = args.get("strategy", "defensive_bounds")
@@ -649,7 +652,7 @@ class StokesMcpServer:
 
             elif name == "stokes_cert":
                 from stokes.subagents.contract_synthesizer import compute_canonical_contracts_digest
-                ws = args.get("workspace_path", ".")
+                ws = _find_workspace_root(args.get("workspace_path"))
                 output_file = args.get("output_file", "stokes.lock")
                 res = await scan_workspace(ws)
                 lock_path = Path(ws) / output_file

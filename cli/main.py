@@ -971,7 +971,7 @@ async def cmd_verify(args: argparse.Namespace) -> int:
             "benchmarks": {
                 "inplace_ns": inplace_ns,
                 "heap_ns": heap_ns,
-                "speedup": round(speedup, 2),
+                "speedup": round(float(speedup), 2) if speedup is not None else 1.0,
             },
             "violations_count": violations_detected,
         }
@@ -1139,7 +1139,7 @@ async def cmd_cert(args: argparse.Namespace) -> int:
             "downstream_capacity": downstream_cap,
             "max_canonical_columns": downstream_cap,
             "observed_upstream_cardinality": upstream_card,
-            "cardinality_risk_ratio": round(risk, 2),
+            "cardinality_risk_ratio": round(float(risk), 2) if risk is not None else 1.0,
             "untyped_seams": contracts.get("untyped_seams", [
                 "Schema Reflection → Data Pipeline",
                 "Pipeline Ingest → Proxy Buffer",

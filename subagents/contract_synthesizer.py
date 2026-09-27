@@ -191,10 +191,11 @@ def compute_canonical_contracts_digest(contracts: dict[str, Any]) -> str:
     """
     Computes a canonical SHA-256 digest of the discovered boundary contracts.
     """
+    risk_val = contracts.get("cardinality_risk_ratio")
     normalized = {
         "upstream_cardinality": contracts.get("upstream_cardinality", 0),
         "downstream_capacity": contracts.get("downstream_capacity", 0),
-        "cardinality_risk_ratio": round(contracts.get("cardinality_risk_ratio", 0.0), 4),
+        "cardinality_risk_ratio": round(float(risk_val), 4) if risk_val is not None else 0.0,
         "downstream_buffers": sorted(
             [{"type": b.get("type"), "capacity": b.get("capacity")} for b in contracts.get("downstream_buffers", [])],
             key=lambda x: (x["type"] or "", x["capacity"] or 0),

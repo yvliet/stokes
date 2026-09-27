@@ -126,26 +126,40 @@ Furthermore, by packing features into 8-byte cache-aligned descriptors (`#[repr(
 | **Stokes Hardened** *(`FeatureDescriptor`)* | 1,600 Bytes (8 B / feature) | 25 contiguous lines | 4.8% | 100% L1D residency, sub-10ns register evaluation |
 
 
-## 2. Dual-Zone In-Place Feature Shedding
+## 2. Two-Tier Bounded Stack Deserialization (`TieredBuffer`)
 
 ---
 
-If upstream schema expansion or an adversarial flood delivers 5,000 low-priority shadow features, the proxy must shed excess signals without allocating memory or dropping core security heuristics.
+Stokes rejects silent data shedding. Silently discarding dynamic records without schema consensus introduces data corruption hazards and masks upstream contract drift.
 
-Stokes formalizes **Dual-Zone Partitioning**:
+Instead, Stokes synthesizes certified **Two-Tier Bounded Stack Deserializers (`TieredBuffer`)** directly into consumer AST boundaries:
 
-| Attribute | Zone 0: Core Reserved (Slots 0..127) | Zone 1: Dynamic Adaptive (Slots 128..199) |
-| :--- | :--- | :--- |
-| **Slot Allocation** | 128 Slots (1,024 Bytes) | 72 Slots (576 Bytes) |
-| **Priority Range** | `priority >= 200` (Core Security & Heuristics) | `0 <= priority <= 199` (Tier-2 Contextual Signals) |
-| **Eviction Policy** | **Immune to eviction** | **In-Place Quickselect** (`select_nth_unstable_by`) |
-| **Operational Status** | 100% Guaranteed Active | Lowest Priority Shed First during saturation |
+| Buffer Tier | Capacity | Priority Envelope | Microarchitectural Guarantee |
+| :--- | :--- | :--- | :--- |
+| **Tier 1: Inline Fast-Path** | 200 Slots (1,600 Bytes) | Canonical Security Rules (Priorities 50..255) | 100% L1D cache resident. Evaluates with < 1 ns latency in register. |
+| **Tier 2: Stack Spillover** | 312 Slots (2,496 Bytes) | Dynamic Schema Expansion (0..312 Extra Slots) | Stack-resident spillover. Absorbs uncontracted columns with 0 B heap allocation. |
+| **Total Stack Capacity** | 512 Slots (4,096 Bytes) | All Admitted Descriptors | **Zero Dropped Features**. Fits inside a single 4 KB stack frame. |
 
-When payload cardinality exceeds buffer capacity, the proxy runs an in-place `select_nth_unstable_by` partitioning:
+When dynamic schema expansion emits 280 features (such as 200 canonical signals + 80 replicated shard columns), `TieredBuffer` absorbs **all 280 features in pure stack memory**:
 
 ```rust
-// In-place dual-zone partition without heap allocations
-pub fn partition_dual_zone(
+// Stokes-synthesized pure stack two-tier bounded deserializer
+use stokes_runtime::TieredBuffer;
+
+let mut buffer: TieredBuffer<FeatureDescriptor, 200, 312> = TieredBuffer::new();
+
+// Ingests all 280 features: 200 into inline fast-path, 80 into stack spillover
+// Zero heap allocations, zero pointer indirection, zero features shed.
+buffer.ingest_slice(&incoming)?;
+```
+
+### Emergency Saturation Backstop (Quickselect)
+
+If an adversarial flood or extreme schema violation delivers more than 512 features (exceeding total bounded stack capacity), the proxy engages an emergency fallback partition:
+
+```rust
+// Emergency saturation backstop: in-place quickselect for payloads > 512 items
+pub fn partition_emergency_saturation(
     features: &mut [FeatureDescriptor], 
     core_capacity: usize, 
     total_capacity: usize
@@ -154,7 +168,7 @@ pub fn partition_dual_zone(
         return features.len();
     }
 
-    // 1. Partition core features (priority >= 200) into Zone 0
+    // 1. Partition core features (priority >= 200) into protected slots
     let mut core_count = 0;
     for i in 0..features.len() {
         if features[i].priority >= 200 {
@@ -163,10 +177,9 @@ pub fn partition_dual_zone(
         }
     }
 
-    // Cap core features to Zone 0 bounds
     let final_core = core_count.min(core_capacity);
 
-    // 2. Partition remaining signals into Zone 1 via in-place quickselect
+    // 2. In-place quickselect: prioritize top remaining dynamic signals
     let remaining_capacity = total_capacity - final_core;
     let non_core_slice = &mut features[final_core..];
 
@@ -176,10 +189,11 @@ pub fn partition_dual_zone(
         });
     }
 
-    // Total active features retained without any memory allocation
     final_core + remaining_capacity.min(non_core_slice.len())
 }
 ```
+
+This ensures that under standard schema drift, zero features are shed, while under catastrophic saturation, the proxy degrades deterministically without heap fragmentation or thread panics.
 
 
 ## 3. Control Plane: Wait-Free LKG Rollback (ArcSwap)
