@@ -586,17 +586,13 @@ class StokesMcpServer:
 async def run_mcp_server() -> None:
     """Run the stdio MCP server event loop."""
     server = StokesMcpServer()
-    loop = asyncio.get_event_loop()
-    reader = asyncio.StreamReader()
-    protocol = asyncio.StreamReaderProtocol(reader)
-    await loop.connect_read_pipe(lambda: protocol, sys.stdin)
 
     while True:
-        line = await reader.readline()
+        line = await asyncio.to_thread(sys.stdin.readline)
         if not line:
             break
 
-        line_str = line.decode("utf-8").strip()
+        line_str = line.strip()
         if not line_str:
             continue
 
