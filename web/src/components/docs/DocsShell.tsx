@@ -160,7 +160,7 @@ export const DocsShell: React.FC = () => {
       {/* Tri-Column Desktop Layout */}
       <div className="flex-1 flex min-h-0 overflow-hidden w-full">
         {/* Left Fixed Sidebar - Has its own independent scrollbar */}
-        <div className="hidden lg:flex flex-col w-64 xl:w-72 2xl:w-80 shrink-0 h-full py-6 pl-4 sm:pl-6 lg:pl-8 pr-4 border-r border-border/40">
+        <div className="hidden lg:flex flex-col w-72 xl:w-80 shrink-0 h-full py-6 px-6 border-r border-border/40">
           <DocTreeSidebar
             categories={DOCS_TREE}
             activeDocId={activeDoc.id}

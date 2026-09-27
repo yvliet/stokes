@@ -165,7 +165,7 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
                 )}
               </button>
             </div>
-            <pre className="p-4 overflow-x-auto text-[13px] sm:text-sm leading-relaxed scrollbar-thin">
+            <pre className="p-4 overflow-x-auto text-[13px] sm:text-sm leading-relaxed">
               <code dangerouslySetInnerHTML={{ __html: highlighted }} />
             </pre>
           </div>
