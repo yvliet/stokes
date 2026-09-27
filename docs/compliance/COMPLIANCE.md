@@ -49,7 +49,7 @@ In response to inquiries regarding Bobalytics telemetry tracking and multi-tool 
 
 ### Built 100% During the Hackathon Build Window with IBM Bob 2.0
 All core project logic, AST analysis engines, and autonomous orchestration workers were authored directly using the IBM Bob 2.0 IDE and autonomous agent during the official hackathon sprint. In full alignment with hackathon rules encouraging polyglot workflows, core implementations were structured with Bob and refined with complementary compiler tooling:
-- **CLI Subcommand Suite & ANSI Renderer** (`stokes/cli/`): 60 FPS multi-line cursor addressability, bracketless grayscale loaders, and terminal diff formatters.
+- **CLI Subcommand Suite & ANSI Renderer** (`stokes/cli/`): `verify` (with `--format=json|junit` and `--lockfile`), `init` (declarative scaffolding), `graph` (Graphviz DOT/JSON/SVG DAG exporter), `scan`, `audit`, `remediate`, `codegen`, `cert`, and `mcp`. 60 FPS multi-line cursor addressability, bracketless grayscale loaders, and terminal diff formatters.
 - **Parallel AST Analyzer Suite** (`stokes/subagents/`):
   - `stokes-sql`: Specialized ClickHouse AST analyzer detecting unqualified `system.columns` reflections across database replica shards.
   - `stokes-proto`: Protobuf AST analyzer locating unbounded `repeated` message fields lacking capacity annotations.
@@ -62,7 +62,7 @@ All core project logic, AST analysis engines, and autonomous orchestration worke
 - **Cross-Boundary AST Reachability Graph** (`stokes/subagents/ast_engine/`): Tree-sitter S-expression queries and fallback regex parsing across SQL, Protobuf, Python, and Rust.
 - **Async IPC Framing & Multiplexer** (`stokes/subagents/actor_base.py`, `stokes/subagents/bob_multiplexer.py`): 4-byte big-endian framing with 16.6ms render tick coalescing.
 - **Verification & Fuzzing Harness** (`stokes/harness/`): 10,000-case IEEE-754 float fuzzer, Criterion benchmark parser, and RFC-2439 BGP flap simulator.
-- **Test Suite** (`stokes/tests/`): 111 unit and integration tests passing in 0.55s.
+- **Test Suite** (`stokes/tests/`): 196 comprehensive unit and integration tests passing in 4.04s.
 - **Policy Enforcement & Lockfiles** (`AGENTS.md`, `stokes.lock`, `CONFORMANCE.md`).
 
 ### Disclosed Pre-Prepared Templates & Supplementary Tooling
@@ -78,8 +78,8 @@ In compliance with organizer guidance, the following baseline templates and supp
 Stokes was authored through extensive multi-task development sessions inside IBM Bob 2.0. Due to the known Bobalytics telemetry synchronization behavior noted by mentor `vedantsharma01`, task session summaries serve as the authoritative record of development:
 
 - **Status**: Production Release
-- **Intermediate Sessions**: 5 audited task sessions captured with full context & task IDs
-- **Bobcoins Burned**: 35.064 / 40.000 Bobcoins across core systems engineering
+- **Intermediate Sessions**: 6 audited task sessions captured with full context & task IDs
+- **Bobcoins Burned**: 37.294 / 40.000 Bobcoins across task sessions (39.390 / 40.000 Bobcoins enterprise meter burn, 99% utilized)
 - **Detailed Audit Ledger & Screenshots**: See [`bob_sessions/README.md`](../../bob_sessions/README.md)
 
 ---
@@ -92,7 +92,7 @@ Building an enterprise-grade cross-boundary compiler verification platform requi
 
 1. **Solo Allocation vs. Project Scope**:
    - The hackathon trial allocation provided **40.000 Bobcoins** per registered participant workspace.
-   - For an architectural scope spanning 4 language targets (ClickHouse SQL, Protobuf, Python, and Rust), over **35.064 Bobcoins** were purposefully exhausted constructing the core verification engine, 8-component parallel analyzer suite, AST graph traversal logic, and terminal driver.
+   - For an architectural scope spanning 4 language targets (ClickHouse SQL, Protobuf, Python, and Rust), over **39.390 Bobcoins** were purposefully exhausted constructing the core verification engine, 8-component parallel analyzer suite, CLI subcommands (`init`, `graph`, `verify`), AST graph traversal logic, and terminal driver.
    - Hackathon participants were strictly bound to organizer-provisioned team workspaces without the ability to authenticate personal IBM Bob subscriptions or bridge outside credits into the build environment.
 
 2. **Solo vs. Multi-Member Team Token Asymmetry**:

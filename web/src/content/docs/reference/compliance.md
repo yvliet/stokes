@@ -72,7 +72,7 @@ To guarantee complete auditability, the repository maintains an unambiguous sepa
 
 | Asset Category | File Tree Paths | Description & Authorship Origin |
 | :--- | :--- | :--- |
-| **100% In-Sprint Build** | `stokes/cli/`<br/>`stokes/subagents/`<br/>`stokes/harness/`<br/>`stokes/tests/` | Synthesized with IBM Bob 2.0 during sprint: CLI runner, 8-component parallel analyzer suite, Tree-sitter AST queries, 10,000 float tests, binary IPC framing |
+| **100% In-Sprint Build** | `stokes/cli/`<br/>`stokes/subagents/`<br/>`stokes/harness/`<br/>`stokes/tests/` | Synthesized with IBM Bob 2.0 during sprint: CLI runner (`verify`, `init`, `graph`, `scan`, `audit`, `remediate`, `cert`, `mcp`), 8-component parallel analyzer suite, Tree-sitter AST queries, 10,000 float tests, binary IPC framing |
 | **Disclosed Supplementary Build** | `stokes/mcp/` | Model Context Protocol JSON-RPC stdio server engineered using complementary tooling to conserve Bobcoins for core engines |
 | **Disclosed Templates** | `cloudflame/`<br/>`web/src/` | Pre-prepared synthetic testbed modeling Cloudflare Nov 18, 2025 outage and Astro documentation shell |
 
@@ -81,7 +81,7 @@ To guarantee complete auditability, the repository maintains an unambiguous sepa
 Every line of core project logic, AST analysis, and analyzer orchestration was synthesized and verified directly inside the IBM Bob 2.0 environment during the official hackathon sprint, and refined with supporting language tooling:
 
 1. **CLI Subcommand Suite & ANSI Renderer (`stokes/cli/`)**:
-   - `main.py`: Complete CLI entrypoint supporting `verify`, `check`, `scan`, `audit`, `remediate`, `codegen`, `cert`, `diff`, `graph`, `init`, and `mcp`.
+   - `main.py`: Complete CLI entrypoint supporting `verify` (with `--format=json|junit` and `--lockfile`), `init` (declarative scaffolding), `graph` (Graphviz DOT/JSON/SVG DAG reachability exports), `check`, `scan`, `audit`, `remediate`, `codegen`, `cert`, `diff`, and `mcp`.
    - `terminal_overwriter.py`: 60 FPS multi-line cursor addressability (`\033[<N>A`), bracketless grayscale loading tickers, and tree-nested analyzer progress visualizers.
    - `formatters.py`: 3x3 matrix bracket headers, diagnostic alert cards, and ANSI unified diff formatters.
    - `agent_bridge.py`: Dynamic AI agent bridge dispatching invariant constraints to IBM Bob 2.0, Claude Code, Cursor, and patch exporters.
@@ -110,7 +110,7 @@ Every line of core project logic, AST analysis, and analyzer orchestration was s
    - `chaos_engine.py`: BGP Route Flap Dampening simulator and carrier penalty budget tracker.
 
 6. **Test Suite (`stokes/tests/`)**:
-   - 111 comprehensive unit and integration tests passing in 0.55s across CLI flags, AST queries, IPC framing, and lockfile hashing.
+   - 196 comprehensive unit and integration tests passing in 4.04s across CLI subcommands, AST queries, IPC framing, and lockfile hashing.
 
 7. **Disclosed Supplementary Build: Native MCP Server (`stokes/mcp/server.py`)**:
    - JSON-RPC 2.0 stdio server exposing 9 tools, 4 resource URIs, and 2 guided prompt templates to IDE coding agents. Authoring was completed using complementary developer tooling to conserve the allocated Bobcoin token budget for the core compiler and verification subsystems.
@@ -138,9 +138,9 @@ Stokes was developed through active collaboration with the IBM Bob 2.0 autonomou
 | Audit Parameter | Ledger Value |
 | :--- | :--- |
 | **Total Hackathon Token Allocation** | `40.000 Bobcoins` |
-| **Bobcoins Burned to Date** | `35.064 Bobcoins` (Active Burn) |
-| **Remaining Allocated Tokens** | `4.936 Bobcoins` |
-| **Audited Intermediate Sessions** | `5 Checkpoints` |
+| **Bobcoins Burned to Date** | `37.294 Bobcoins` (Session Sum) / `39.390 Bobcoins` (Active Meter Burn) |
+| **Remaining Allocated Tokens** | `0.610 Bobcoins` (1% Budget Remaining) |
+| **Audited Intermediate Sessions** | `6 Checkpoints` |
 | **Sprint Status** | **Verified Production Release** |
 
 ### Interim Task Session Ledger
@@ -152,6 +152,7 @@ Stokes was developed through active collaboration with the IBM Bob 2.0 autonomou
 | **03** | `ee34ccd0b15f8e99001def36425c2fc1` | 37.7k / 270.0k (14%) | 1.450 | 6 subtasks | PyPI wheel build, twine validation, and initial package distribution | `pip install stokes` |
 | **04** | `f5100dc74eccb43137abd7edea0fb559` | 103.9k / 270.0k (38%) | 3.600 | 8 subtasks | Dark mode charcoal palette and token standardization across Astro components | [`a1c02e6`](https://github.com/yvliet/stokes/commit/a1c02e6) |
 | **05** | `fbd8a21d8eaa665c34a2d1e91ef85a0f` | 60.4k / 270.0k (22%) | 2.300 | 9 subtasks | 3x3 matrix bracket banner, tree connector analyzers, and CLI/web terminal visual parity | [`f4818b3`](https://github.com/yvliet/stokes/commit/f4818b3) |
+| **06** | `12fc8f06d0682b75ba1cc841e6320a7a` | 87.5k / 270.0k (32%) | 2.230 | 6 subtasks | CLI additions (`stokes init`, `stokes graph`), machine-readable CI flags, and CLI test suite | [`725cce8`](https://github.com/yvliet/stokes/commit/725cce8) |
 
 ### Bobalytics Telemetry & Task History Audit Note
 
@@ -251,6 +252,24 @@ In accordance with official hackathon submission requirements, the authoritative
   - Subtask 8: Validate git diff to verify parity between web components and CLI output.
   - Subtask 9: Author conventional commit (`feat(cli): switch to 3x3 matrix bracket header and tree nested subagents`).
 
+### Session 06: CLI Additions (`init`, `graph`), Machine-Readable CI Output & Test Battery
+
+![Session 06 - CLI Commands and CI Matrix](./session_06_cli_commands_and_ci_matrix.png)
+
+![Session 06 - Bobcoin Budget Burn (1% Remaining)](./session_06_bobcoin_budget_burn.png)
+
+- **Task ID**: `12fc8f06d0682b75ba1cc841e6320a7a`
+- **Context Length**: 87.5k / 270.0k tokens (32%)
+- **Bobcoin Expenditure**: 2.230 Bobcoins (39.390 / 40.000 total budget meter burn, 1% remaining)
+- **Scope**: End-to-end CLI initialization scaffolding (`stokes init`), reachability DAG serialization (`stokes graph` with DOT, JSON, SVG), machine-readable verification formats for automated CI gates (`--format=json|junit`, `--lockfile=PATH`), and test battery (14 new tests bringing suite to 196 tests).
+- **Completed Subtasks**:
+  - Subtask 1: Explore the Stokes codebase structure to understand existing CLI subcommands and contracts.
+  - Subtask 2: Implement `stokes init` command (`.stokes/` directory, `stokes.yaml`, `contracts.json`, `AGENTS.md`, and initial `stokes.lock`).
+  - Subtask 3: Implement `stokes graph` command with DOT, JSON, and SVG reachability DAG exporters.
+  - Subtask 4: Update `stokes verify` with `--format=json|junit` and `--lockfile` flags for automated CI/CD gating.
+  - Subtask 5: Create test file `stokes/tests/test_cli_commands.py` covering all CLI additions.
+  - Subtask 6: Run pytest to confirm all 196 tests pass across all subsystems.
+
 ## 5. Resource Allocation & Hackathon Retrospective
 
 ---
@@ -261,7 +280,7 @@ Building an enterprise-grade cross-boundary compiler verification platform requi
 
 1. **Solo Allocation vs. Project Scope**:
    - The hackathon trial allocation provided **40.000 Bobcoins** per registered participant workspace.
-   - For an architectural scope spanning 4 language targets (ClickHouse SQL, Protobuf, Python, and Rust), over **35.064 Bobcoins** were purposefully exhausted constructing the core verification engine, 8-component parallel analyzer suite, AST graph traversal logic, and terminal driver.
+   - For an architectural scope spanning 4 language targets (ClickHouse SQL, Protobuf, Python, and Rust), over **39.390 Bobcoins** were purposefully exhausted constructing the core verification engine, 8-component parallel analyzer suite, CLI subcommands (`init`, `graph`, `verify`), AST graph traversal logic, and terminal driver.
    - Hackathon participants were strictly bound to organizer-provisioned team workspaces without the ability to authenticate personal IBM Bob subscriptions or bridge outside credits into the build environment.
 
 2. **Solo vs. Multi-Member Team Token Asymmetry**:

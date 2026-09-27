@@ -17,10 +17,10 @@ The allocated Bobcoin budget is actively being burned through in IBM Bob across 
 
 ```
 Total Hackathon Allocation : 40.000 Bobcoins
-Bobcoins Burned to Date    : 35.064 Bobcoins (Active burn in progress)
-Remaining Allocated Tokens :  4.936 Bobcoins (Actively burning)
-Active Sessions Logged     : 5 intermediate checkpoints
-Project Lifecycle Status   : WIP (In-Progress / Under Active Construction)
+Bobcoins Burned to Date    : 37.294 Bobcoins (Session ledger sum) / 39.390 Bobcoins (Enterprise plan meter)
+Remaining Allocated Tokens :  0.610 Bobcoins (1% budget remaining)
+Active Sessions Logged     : 6 intermediate checkpoints
+Project Lifecycle Status   : Verified Production Release
 ```
 
 ### Interim Session Ledger
@@ -32,6 +32,7 @@ Project Lifecycle Status   : WIP (In-Progress / Under Active Construction)
 | **03** | `ee34ccd0b15f8e99001def36425c2fc1` | 37.7k / 270.0k (14%) | 1.450 | 6 logged | PyPI wheel build, twine validation, and initial package release | `pip install stokes` |
 | **04** | `f5100dc74eccb43137abd7edea0fb559` | 103.9k / 270.0k (38%) | 3.600 | 8 logged | Dark mode charcoal palette and token standardization across Astro components | [`a1c02e6`](https://github.com/yvliet/stokes/commit/a1c02e6) |
 | **05** | `fbd8a21d8eaa665c34a2d1e91ef85a0f` | 60.4k / 270.0k (22%) | 2.300 | 9 logged | 3x3 matrix bracket banner and tree connector subagents alignment | [`f4818b3`](https://github.com/yvliet/stokes/commit/f4818b3) |
+| **06** | `12fc8f06d0682b75ba1cc841e6320a7a` | 87.5k / 270.0k (32%) | 2.230 | 6 logged | CLI additions (`stokes init`, `stokes graph`), machine-readable CI flags, and CLI test suite | [`725cce8`](https://github.com/yvliet/stokes/commit/725cce8) |
 
 ---
 
@@ -153,7 +154,31 @@ Project Lifecycle Status   : WIP (In-Progress / Under Active Construction)
 
 ---
 
-## 7. Active Compliance Verification & Audit Links
+## 7. Session 06: CLI Additions (`init`, `graph`), Machine-Readable CI Output & Test Battery
+
+![Session 06 - CLI Commands and CI Matrix](./session_06_cli_commands_and_ci_matrix.png)
+
+![Session 06 - Bobcoin Budget Burn (1% Remaining)](./session_06_bobcoin_budget_burn.png)
+
+### Session Metadata
+- **Task ID**: `12fc8f06d0682b75ba1cc841e6320a7a`
+- **Context Length**: 87.5k / 270.0k tokens (32%)
+- **Bobcoin Expenditure**: 2.230 Bobcoins (39.390 / 40.000 total budget meter burn, 1% remaining)
+- **Target Workspace**: `ibm 2.0`
+- **Prompt Reference**: Pasted text #1 (108 lines): Implementation of `stokes init`, `stokes graph`, `stokes verify` formats (`--format=json|junit`, `--lockfile=PATH`), and test battery.
+- **Scope**: End-to-end CLI initialization scaffolding, reachability DAG serialization (DOT, JSON, SVG), machine-readable verification formats for automated CI gates, and new test suite.
+
+### Executed Session Tasks
+- [x] **Subtask 1**: Explore the Stokes codebase structure to understand existing CLI subcommands and contracts
+- [x] **Subtask 2**: Implement `stokes init` command (`.stokes/` directory, `stokes.yaml`, `contracts.json`, `AGENTS.md`, and initial `stokes.lock`)
+- [x] **Subtask 3**: Implement `stokes graph` command with DOT, JSON, and SVG reachability DAG exporters
+- [x] **Subtask 4**: Update `stokes verify` with `--format=json|junit` and `--lockfile` flags for automated CI/CD gating
+- [x] **Subtask 5**: Create test file `stokes/tests/test_cli_commands.py` covering all CLI additions
+- [x] **Subtask 6**: Run pytest to confirm all 196 tests pass across all subsystems
+
+---
+
+## 8. Active Compliance Verification & Audit Links
 
 - **Official Compliance Disclosures**: [docs/compliance/COMPLIANCE.md](../docs/compliance/COMPLIANCE.md)
 - **Architectural Policy Specifications**: [AGENTS.md](../AGENTS.md)
