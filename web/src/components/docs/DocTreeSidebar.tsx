@@ -94,7 +94,7 @@ export const DocTreeSidebar: React.FC<DocTreeSidebarProps> = React.memo(({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search documentation..."
-            className="w-full h-9 pl-9 pr-8 bg-card/60 dark:bg-card/40 border border-border/60 rounded-lg text-xs font-sans text-foreground placeholder:text-muted-foreground outline-none focus:border-ring transition-colors"
+            className="w-full h-9 pl-9 pr-8 bg-card/60 dark:bg-card/40 border border-border/40 dark:border-[#3a3a3a] rounded-lg text-xs font-sans text-foreground placeholder:text-muted-foreground outline-none focus:border-ring transition-colors"
           />
           {searchQuery && (
             <button
@@ -156,7 +156,7 @@ export const DocTreeSidebar: React.FC<DocTreeSidebarProps> = React.memo(({
 
                 {/* Continuous Vertical Tree Guideline Rail */}
                 {isOpen && (
-                  <ul className="relative flex flex-col border-l border-border/40 ml-[10px] pl-[14px] space-y-0.5 my-1 list-none p-0 m-0">
+                  <ul className="relative flex flex-col border-l border-border/40 dark:border-[#3a3a3a] ml-[10px] pl-[14px] space-y-0.5 my-1 list-none p-0 m-0">
                     {cat.items.map((item) => {
                       const isActive = activeDocId === item.id || activeDocId === item.slug;
 

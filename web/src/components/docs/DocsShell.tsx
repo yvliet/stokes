@@ -113,11 +113,11 @@ export const DocsShell: React.FC = () => {
   return (
     <div className="w-full h-full flex flex-col min-h-0">
       {/* Mobile Navigation Toggle Bar */}
-      <div className="lg:hidden flex items-center justify-between py-3 px-4 sm:px-6 border-b border-border/40 shrink-0">
+      <div className="lg:hidden flex items-center justify-between py-3 px-4 sm:px-6 border-b border-border/40 dark:border-[#3a3a3a] shrink-0">
         <button
           type="button"
           onClick={() => setIsMobileDrawerOpen(true)}
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border/60 bg-card/60 text-xs font-sans text-foreground cursor-pointer"
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border/40 dark:border-[#3a3a3a] bg-card/60 text-xs font-sans text-foreground cursor-pointer"
         >
           <ListIcon size={14} />
           <span>documentation index</span>
@@ -134,8 +134,8 @@ export const DocsShell: React.FC = () => {
             className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
             onClick={() => setIsMobileDrawerOpen(false)}
           />
-          <div className="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-background border-r border-border/60 p-6 flex flex-col z-50 shadow-2xl">
-            <div className="flex items-center justify-between pb-4 border-b border-border/40 mb-4">
+          <div className="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-background border-r border-border/40 dark:border-[#3a3a3a] p-6 flex flex-col z-50 shadow-2xl">
+            <div className="flex items-center justify-between pb-4 border-b border-border/40 dark:border-[#3a3a3a] mb-4">
               <span className="text-xs font-sans uppercase tracking-wider text-muted-foreground">
                 documentation
               </span>
@@ -160,7 +160,7 @@ export const DocsShell: React.FC = () => {
       {/* Tri-Column Desktop Layout */}
       <div className="flex-1 flex min-h-0 overflow-hidden w-full">
         {/* Left Fixed Sidebar - Has its own independent scrollbar */}
-        <div className="hidden lg:flex flex-col w-72 xl:w-80 shrink-0 h-full py-6 px-6 border-r border-border/40">
+        <div className="hidden lg:flex flex-col w-72 xl:w-80 shrink-0 h-full py-6 px-6 border-r border-border/40 dark:border-[#3a3a3a]">
           <DocTreeSidebar
             categories={DOCS_TREE}
             activeDocId={activeDoc.id}
