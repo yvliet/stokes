@@ -131,8 +131,8 @@ export const DocTreeSidebar: React.FC<DocTreeSidebarProps> = React.memo(({
                   onClick={() => toggleCategory(cat.id)}
                   className="group flex items-center justify-between px-1 py-1 rounded-md cursor-pointer select-none text-[11px] font-sans font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <div className="flex items-center gap-1.5 min-w-0">
-                    <span className="w-3.5 h-3.5 flex items-center justify-center text-muted-foreground/70 group-hover:text-foreground shrink-0 transition-transform">
+                  <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                    <span className="w-4 h-4 flex items-center justify-center text-muted-foreground/70 group-hover:text-foreground shrink-0 transition-transform">
                       <svg
                         viewBox="0 0 24 24"
                         width="11"
@@ -154,9 +154,9 @@ export const DocTreeSidebar: React.FC<DocTreeSidebarProps> = React.memo(({
                   </span>
                 </div>
 
-                {/* Continuous Vertical Tree Guideline Rail */}
+                {/* Continuous Vertical Tree Guideline Rail (Noether logic: ml-[14px] pl-[14px] under chevron center) */}
                 {isOpen && (
-                  <ul className="relative flex flex-col border-l border-border/40 dark:border-[#3a3a3a] ml-[10px] pl-[14px] space-y-0.5 my-1 list-none p-0 m-0">
+                  <ul className="relative flex flex-col border-l border-border/40 dark:border-[#3a3a3a] ml-[14px] pl-[14px] space-y-0.5 my-1 list-none p-0 m-0">
                     {cat.items.map((item) => {
                       const isActive = activeDocId === item.id || activeDocId === item.slug;
 
@@ -169,7 +169,7 @@ export const DocTreeSidebar: React.FC<DocTreeSidebarProps> = React.memo(({
                               onSelectDoc(item);
                               onClose?.();
                             }}
-                            className={`group relative flex items-center py-1.5 px-2 rounded-md text-[13px] font-sans transition-colors text-left cursor-pointer no-underline ${
+                            className={`group relative flex items-start py-1.5 px-2 rounded-md text-[13px] font-sans transition-colors text-left cursor-pointer no-underline ${
                               isActive
                                 ? 'text-foreground font-medium'
                                 : 'text-muted-foreground hover:text-foreground font-normal'
@@ -178,17 +178,19 @@ export const DocTreeSidebar: React.FC<DocTreeSidebarProps> = React.memo(({
                             {/* Left vertical guideline rail indicator */}
                             <span
                               style={{
-                                left: -15,
-                                width: isActive ? 2 : 1,
+                                left: -14.5,
+                                width: 1.5,
                               }}
                               className={`absolute top-0 bottom-0 pointer-events-none transition-colors ${
                                 isActive
                                   ? 'bg-foreground z-10'
-                                  : 'bg-transparent group-hover:bg-muted-foreground/30 z-10'
+                                  : 'bg-transparent group-hover:bg-muted-foreground/40 z-10'
                               }`}
                             />
 
-                            <span className="truncate lowercase">{item.title}</span>
+                            <span className="flex-1 min-w-0 text-[13px] leading-snug font-normal whitespace-normal break-words lowercase">
+                              {item.title}
+                            </span>
                           </a>
                         </li>
                       );

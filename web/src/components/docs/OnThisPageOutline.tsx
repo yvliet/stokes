@@ -39,7 +39,7 @@ export const OnThisPageOutline: React.FC<OnThisPageOutlineProps> = React.memo(({
                 onSelectHeading(heading.id);
               }}
               style={{ paddingLeft: `${indent}px` }}
-              className={`group relative text-left text-[13px] font-sans py-1 pr-1 cursor-pointer leading-snug transition-colors no-underline block ${
+              className={`group relative text-left text-[13px] font-sans py-1 pr-1 cursor-pointer leading-[1.35] transition-colors no-underline block whitespace-normal break-words ${
                 isActive
                   ? 'text-foreground font-medium'
                   : 'text-muted-foreground hover:text-foreground font-normal'
@@ -54,12 +54,12 @@ export const OnThisPageOutline: React.FC<OnThisPageOutlineProps> = React.memo(({
                     className={`absolute top-0 bottom-0 pointer-events-none transition-colors ${
                       isActive && idx === heading.level - 3
                         ? 'bg-foreground w-[1.5px] z-10'
-                        : 'bg-border/60 w-[1px]'
+                        : 'bg-border/40 dark:bg-[#3a3a3a] w-[1px]'
                     }`}
                   />
                 ))}
 
-              <span className="truncate lowercase block">{heading.text}</span>
+              <span className="lowercase inline">{heading.text}</span>
             </a>
           );
         })}
