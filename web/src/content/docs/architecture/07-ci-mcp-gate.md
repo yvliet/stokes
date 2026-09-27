@@ -56,6 +56,7 @@ flowchart TD
 ```
 
 ## Sub-38ms AST CI Verification Gate
+
 ---
 
 Traditional integration tests execute actual container runtimes, compile binaries, and execute network calls to verify cross-service compatibility. Stokes operates entirely at the **Abstract Syntax Tree (AST)** layer.
@@ -115,8 +116,8 @@ jobs:
 
       - name: Install Stokes Binary
         run: |
-          curl -sSL https://trystokes.pages.dev/bin/stokes -o /usr/local/bin/stokes
-          chmod +x /usr/local/bin/stokes
+          curl -fsSL https://trystokes.pages.dev/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Execute Fast Gate
         run: |
@@ -135,6 +136,7 @@ jobs:
 ```
 
 ## Native Model Context Protocol (MCP) Server Architecture
+
 ---
 
 As development shifts toward agentic software engineering, AI agents increasingly propose pull requests that span multiple service repositories.
@@ -192,23 +194,28 @@ The Stokes MCP server communicates via JSON-RPC 2.0 over standard input/output (
 ```
 
 ## MCP Tools & Resources Exposed by Stokes
+
 ---
 
-Stokes exposes four specialized MCP tools and two live state resources to AI agents:
+Stokes exposes six specialized MCP tools and three live state resources to AI agents:
 
 ### Exposed MCP Tools
 
-- **`get_boundary_graph`**: Returns the full topological DAG of services, analytical tables, Kafka topics, ETL pipelines, and reverse proxies. Includes active cardinalities, buffer allocations, and evaluated risk ratios.
-- **`inspect_buffer_capacity`**: Accepts a `channel_id` or `symbol_name` and returns the physical downstream memory allocation (e.g. `[Feature; 200]`, 1,600 bytes, L1D cache saturation 4.8%).
-- **`verify_boundary_diff`**: Evaluates a proposed code diff in-memory before writing to disk, computing the resulting cardinality shift and predicting whether any downstream consumer will panic.
-- **`synthesize_remediation`**: Dispatches subagent swarms to synthesize a mathematically sound, zero-allocation Dual-Zone quickselect routine or Field Mask patch.
+- **`stokes_scan`**: Scans the workspace directory to discover cross-language boundaries, AST nodes, and untyped seams.
+- **`stokes_audit`**: Performs deep multi-agent invariant verification and outputs detailed diagnostic diffs.
+- **`stokes_remediate`**: Synthesizes zero-allocation Dual-Zone quickselect routines and Projection Field Mask patches.
+- **`stokes_verify_patch`**: Evaluates proposed code diffs in-memory before writing to disk, computing resulting cardinality shifts.
+- **`stokes_verify`**: Fast invariant verification gate returning machine-readable JSON status and diagnostics.
+- **`stokes_cert`**: Computes normalized AST digests and cryptographically seals `stokes.lock`.
 
 ### Exposed MCP Resources
 
-- **`stokes://contracts/active`**: Real-time JSON document reflecting active channel bindings and verified bounds.
-- **`stokes://diagnostics/live`**: Stream of active cross-boundary linter warnings (`LINT-001` through `LINT-006`).
+- **`stokes://contracts`**: Real-time JSON document reflecting active channel bindings and verified bounds.
+- **`stokes://lockfile`**: Active cryptographic interface signatures and lockfile state.
+- **`stokes://diagnostics`**: Stream of active cross-boundary linter warnings (`LINT-001` through `LINT-006`).
 
 ## Configuration & Agent Setup
+
 ---
 
 Integrating Stokes with popular AI coding agents requires a single configuration block.
@@ -220,10 +227,10 @@ Integrating Stokes with popular AI coding agents requires a single configuration
   "mcpServers": {
     "stokes": {
       "command": "stokes",
-      "args": ["mcp", "--manifest", "stokes.toml"],
+      "args": ["mcp"],
       "env": {
         "STOKES_LOG_LEVEL": "info",
-        "STOKES_STRICT_MODE": "1"
+        "STOKES_STRICT": "1"
       }
     }
   }
@@ -237,7 +244,7 @@ Integrating Stokes with popular AI coding agents requires a single configuration
   "mcpServers": {
     "stokes-boundary-engine": {
       "command": "stokes",
-      "args": ["mcp", "--workspace", "."],
+      "args": ["mcp"],
       "transport": "stdio"
     }
   }
@@ -268,6 +275,7 @@ class BobStokesMCPBridge:
 ```
 
 ## Performance & Safety Comparison
+
 ---
 
 | Feature | Legacy CI Linting | Static Analyzer (SonarQube) | Monorepo CI (Bazel) | Stokes CI Gate + Native MCP |

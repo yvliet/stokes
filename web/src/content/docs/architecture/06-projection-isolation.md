@@ -42,6 +42,7 @@ When an analytical database expands its internal cluster architecture (for examp
 Stokes eliminates this failure mode through **Projection Consumption Isolation (PCI)** and **Field Mask Verification**.
 
 ## Physical Schema Leakage from Internal Shard Tables
+
 ---
 
 To understand why traditional linters fail to catch projection drift, consider how distributed analytical databases organize physical storage on disk.
@@ -97,6 +98,7 @@ Compilers operate in total context blindness:
 When this payload reaches the edge proxy, the downstream receiver expects at most 200 features. The excess 80 shard maintenance columns trigger a fatal stack overflow panic.
 
 ## The Projection Consumption Isolation (PCI) Invariant
+
 ---
 
 Stokes replaces implicit schema ingestion with the **Projection Consumption Isolation (PCI)** mathematical invariant:
@@ -134,6 +136,7 @@ flowchart TD
 ```
 
 ## Field Mask Verification Engine
+
 ---
 
 Stokes verifies Projection Consumption Isolation statically at CI build time and dynamically at runtime boundaries.
@@ -243,6 +246,7 @@ pub fn ingest_with_projection_mask(
 ```
 
 ## Production Patch: Eliminating Shard Column Leakage
+
 ---
 
 The following real production diff demonstrates how Stokes remediates `LINT-001` and `LINT-006` in the Cloudflame benchmark ETL worker.
@@ -288,6 +292,7 @@ The following real production diff demonstrates how Stokes remediates `LINT-001`
 4. `LIMIT 200` + `[:200]`: Enforces a physical cardinality ceiling at both the database engine tier and the Python serialization tier.
 
 ## Diagnostic Rules Evaluated by stokes audit
+
 ---
 
 The Stokes verification engine executes two rules to validate Projection Consumption Isolation:
@@ -296,6 +301,7 @@ The Stokes verification engine executes two rules to validate Projection Consump
 - **`LINT-006: Wildcard Projection Hazard`**: Fatal Error. Triggered by `SELECT *` expressions in cross-boundary data extraction queries. Subagent `stokes-sql` extracts schema definitions and rewrites the query with an explicit column projection list.
 
 ## Architecture Comparison: Ingestion Security Models
+
 ---
 
 | Projection Model | Downstream Immunity to Shard Leakage | Memory Allocation Overhead | Zero-Copy Compatibility | Static Verification Ease |
@@ -305,4 +311,4 @@ The Stokes verification engine executes two rules to validate Projection Consump
 | **GraphQL Field Selection** | 100% (Client requests fields) | Heavy (AST Parsing per request) | Poor (Dynamic Dicts) | Complex Runtime |
 | **Stokes PCI & Field Masks** | **100% (Hardware Bound)** | **0 B (Static Bitmask / In-Place)** | **Optimal (Direct Stack Buffers)** | **Deterministic CI AST Check** |
 
-By enforcing Projection Consumption Isolation, Stokes guarantees that downstream services remain strictly insulated from upstream storage migrations, partition reorganizations, and internal shard expansions. See [[07-ci-mcp-gate|CI & MCP Gate]] for running these rules in automated workflows.
+By enforcing Projection Consumption Isolation, Stokes guarantees that downstream services remain strictly insulated from upstream storage migrations, partition reorganizations, and internal shard expansions. See [[ci-mcp-gate|CI & MCP Gate]] for running these rules in automated workflows.

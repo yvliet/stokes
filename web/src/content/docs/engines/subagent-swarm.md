@@ -37,6 +37,7 @@ flowchart TD
 ```
 
 ## The Five Specialized Domain Subagents
+
 ---
 
 Each subagent operates as an autonomous actor with deep domain heuristics for its target language and runtime environment:
@@ -71,6 +72,7 @@ Each subagent operates as an autonomous actor with deep domain heuristics for it
 - **Synthesized Remediation**: Emits the machine-authoritative `stokes.lock` and human-readable `CONFORMANCE.md` attestation.
 
 ## Asynchronous IPC Wire Protocol: 4-Byte Binary Framing
+
 ---
 
 To prevent serialization bottlenecks when subagents emit high-frequency AST traversal events, the swarm communicates over length-prefixed binary frames.
@@ -120,6 +122,7 @@ def decode_frame(data: bytes) -> dict[str, Any]:
 ```
 
 ## Bounded Event Bus & 16.6ms Render Tick Coalescing
+
 ---
 
 In high-speed AST traversal, five subagents can emit up to 100,000 progress events per second. Writing each event directly to the terminal using ANSI escape codes causes:
@@ -184,6 +187,7 @@ class AgentMultiplexer:
 ```
 
 ## Actor Base Lifecycle & Deadlock-Free Mailbox Processing
+
 ---
 
 To maintain rock-solid stability during long-running CI runs, subagent actors implement an explicit finite state machine with fault isolation:
@@ -225,6 +229,7 @@ Subagent architectures can suffer from circular wait deadlocks when actors reque
    - The failing actor safely transitions to `HALTED_ON_VIOLATION`, while `stokes-rust` and `stokes-sql` continue parsing uninterrupted.
 
 ## Execution Invariant Summary
+
 ---
 
 | Invariant Requirement | Implementation Mechanism | Verification Standard |

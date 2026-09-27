@@ -24,6 +24,7 @@ The answer lies in architectural abstraction. Stokes does not perform whole-prog
 | **Runtime Overhead** | 15% to 40% throughput penalty if shifted to runtime eBPF/bytecode probes | **Exactly 0 ns** (zero binary instrumentation or code injection) |
 
 ## The Failure Modes of Taint Analysis in Cross-Language CI
+
 ---
 
 Dynamic taint analysis and interprocedural pointer tracking (pioneered by academic compilers and commercial SAST tools like CodeQL or Semgrep) are well suited for localized vulnerability auditing, such as finding SQL injection paths inside a monolithic application. 
@@ -38,6 +39,7 @@ However, applying whole-program taint analysis across cross-language cloud micro
 > Stokes rejects whole-program taint analysis. Systems-level contract safety does not require tracking what a worker thread does internally with an integer; it only requires verifying that the **boundary projection contract** between services preserves cardinality and type invariants.
 
 ## Mathematical Formulation of Boundary Graphs
+
 ---
 
 Stokes formalizes multi-tier architectures as a directed semantic reachability graph:
@@ -100,6 +102,7 @@ flowchart LR
 ```
 
 ## Sparse AST Extraction via Tree-sitter
+
 ---
 
 Stokes achieves sub-38ms performance by discarding 99.8% of irrelevant syntax nodes. Using compiled Tree-sitter C-grammars, Stokes runs specialized S-expression queries that extract only declared boundary signatures.
@@ -168,6 +171,7 @@ Locates fixed stack buffer conversions using unchecked unwraps:
 ```
 
 ## Sub-38ms CI Execution Budget
+
 ---
 
 Because Tree-sitter operates as a fast C-library and the boundary graph consists of only 5 to 50 interface nodes, graph traversal executes in microseconds.
@@ -185,11 +189,12 @@ The deterministic 38ms budget is allocated as follows:
 | **Total Execution Latency** | **35.2 ms** | **Sub-38ms SLA strictly satisfied** |
 
 ## Projection Consumption Isolation
+
 ---
 
 A common failure mode in naive contract systems is **lockout hell**: if a database engineer adds an internal column to an analytical table for an offline business dashboard, external contract gates break downstream proxies even though the proxy never consumes that column.
 
-Stokes prevents false positives through **Projection Consumption Isolation**, documented in depth in [[06-projection-isolation|Projection Isolation]]:
+Stokes prevents false positives through **Projection Consumption Isolation**, documented in depth in [[projection-isolation|Projection Isolation]]:
 
 ```mermaid
 flowchart TD
@@ -218,4 +223,4 @@ Stokes isolates non-consumed columns from the consumer boundary digest:
 - CI fails **only** if a consumed column is altered, or if an unconstrained wildcard (`SELECT *` or `system.columns` reflection) is ingested.
 
 > [!TIP]
-> By isolating projected columns from ambient table schema, teams can evolve internal analytics independently without triggering false positive alerts on downstream microservices. For the next step in manifest-driven contracts, see [[04-channel-manifests|Channel Manifests]].
+> By isolating projected columns from ambient table schema, teams can evolve internal analytics independently without triggering false positive alerts on downstream microservices. For the next step in manifest-driven contracts, see [[channel-manifests|Channel Manifests]].

@@ -139,7 +139,7 @@ class BoundaryDiscovery:
             if lang is None:
                 continue
 
-            rel = str(path.relative_to(self.workspace))
+            rel = path.relative_to(self.workspace).as_posix()
             contracts["scan_files"].append(rel)
 
             try:

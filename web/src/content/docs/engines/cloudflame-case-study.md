@@ -45,6 +45,7 @@ flowchart TD
 ```
 
 ## Component Architecture Breakdown
+
 ---
 
 The Cloudflame testbed mirrors the real-world software stack across three distinct tiers:
@@ -75,6 +76,7 @@ Located in `cloudflame/crates/cloudflame-proxy/`:
 - Converts the dynamic incoming slice into the fixed array via `.try_into().unwrap()`.
 
 ## Step-by-Step Incident Crash Reproduction
+
 ---
 
 The Cloudflame testbed allows executing the complete, reproducible failure sequence from baseline stability to global process collapse:
@@ -136,6 +138,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 5. Millions of edge requests fail with `HTTP 502 Bad Gateway` and `HTTP 504 Gateway Timeout`.
 
 ## Stokes Zero-Drop Remediation
+
 ---
 
 When Stokes audits the Cloudflame testbed, the subagent swarm detects the cross-boundary contract drift and applies the **Dual-Zone Memory Remediation**.
@@ -231,6 +234,7 @@ impl ConfigMesh {
 ```
 
 ## Empirical Benchmark & Verification Results
+
 ---
 
 Running the Cloudflame test suite before and after applying Stokes verification confirms complete mitigation:
@@ -244,4 +248,4 @@ Running the Cloudflame test suite before and after applying Stokes verification 
 | **Zone 0 Core Signal Retention** | 0% (Proxy Dead) | **100% Retained (Immune to Eviction)** |
 | **Global 502 Outage Risk** | Catastrophic Fleet Blackout | **Zero Drops (Mathematical Guarantee)** |
 
-By verifying boundaries at compile time with Stokes and enforcing Dual-Zone memory partitioning at runtime, the Cloudflame testbed demonstrates that distributed multi-tier pipelines can survive large-scale upstream schema drift without a single dropped packet. Read the foundational analysis in [[01-untyped-seams|Untyped Seams]] and [[02-panic-resilience|Panic Resilience]].
+By verifying boundaries at compile time with Stokes and enforcing Dual-Zone memory partitioning at runtime, the Cloudflame testbed demonstrates that distributed multi-tier pipelines can survive large-scale upstream schema drift without a single dropped packet. Read the foundational analysis in [[untyped-seams|Untyped Seams]] and [[panic-resilience|Panic Resilience]].

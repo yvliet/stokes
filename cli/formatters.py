@@ -23,6 +23,7 @@ def print_banner(
     subagents: list[dict] | None = None,
     noise: float = 0.14,
     orchestrator: str = "Stokes Multi-Agent Engine",
+    target: str | None = None,
 ) -> None:
     """Print the Stokes 3x3 matrix bracket header with runtime info."""
     print()
@@ -37,8 +38,9 @@ def print_banner(
         f"{FG_WHITE}⎢{RESET} {FG_WHITE}■{RESET}  {FG_WHITE}■{RESET}  {DIM}·{RESET} {FG_WHITE}⎥{RESET}",
         f"{FG_WHITE}⎣{RESET} {DIM}·{RESET}  {DIM}·{RESET}  {FG_WHITE}■{RESET} {FG_WHITE}⎦{RESET}",
     ]
+    target_str = f" {DIM}· target: \"{target}\"{RESET}" if target else ""
     header_texts = [
-        f"{BOLD}{FG_WHITE}stokes v0.2.0{RESET} {DIM}· scanning \"cloudflame\"{RESET}",
+        f"{BOLD}{FG_WHITE}stokes v0.2.0{RESET}{target_str}",
         f"{DIM}orchestrator:{RESET} {orchestrator}{RESET}",
         f"{DIM}subagents: {subagents_text}{RESET}",
     ]

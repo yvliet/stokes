@@ -38,6 +38,7 @@ flowchart TD
 ```
 
 ## Protocol Lifecycle & Wire Framing
+
 ---
 
 The server complies with the official MCP specification (`2024-11-05`), operating over bidirectional standard streams (`sys.stdin` and `sys.stdout`).
@@ -96,6 +97,7 @@ Upon receiving the response, the client emits the `notifications/initialized` no
 ```
 
 ## Tool Schemas
+
 ---
 
 Stokes exposes tools that enable AI agents to inspect, verify, and remediate cross-boundary contracts.
@@ -298,6 +300,7 @@ Simulates and verifies a proposed unified diff before it is applied to disk.
 ```
 
 ## Resource Endpoints
+
 ---
 
 Stokes exposes machine-authoritative system state through standard MCP resource URIs:
@@ -339,6 +342,7 @@ Stokes exposes machine-authoritative system state through standard MCP resource 
 ```
 
 ## Guided Agent Prompts
+
 ---
 
 Stokes supplies structured prompt workflows to guide autonomous coding agents through contract remediation:
@@ -354,6 +358,7 @@ Instructs the agent to:
 Provides a deep architectural explanation of why an unchecked fixed-size slice conversion causes edge worker fleet restarts, explaining L1D cache constraints and defensive bounds alternatives.
 
 ## AI Agent Integration Guide
+
 ---
 
 ### 1. Cursor IDE Configuration
@@ -435,6 +440,7 @@ When communicating over Unix domain sockets or named pipes (`/tmp/stokes-bob.soc
 - **Render Tick Coalescing**: UI and agent progress events are coalesced on a 16.6ms monotonic timer (60 FPS) to prevent queue bloat.
 
 ## Summary & Author Attribution
+
 ---
 
 The Stokes Model Context Protocol server bridges the gap between AI coding assistants and distributed systems reality, converting AI agents from localized syntax auto-completers into systems-aware architecture partners.
@@ -444,4 +450,4 @@ The Stokes Model Context Protocol server bridges the gap between AI coding assis
 - **Transport**: Stdio JSON-RPC 2.0
 - **License**: MIT License
 
-For continuous integration workflows, see [[07-ci-mcp-gate|CI & MCP Gate]]. For lockfile schema fields, see [[lockfile-spec|Lockfile Specification]].
+For continuous integration workflows, see [[ci-mcp-gate|CI & MCP Gate]]. For lockfile schema fields, see [[lockfile-spec|Lockfile Specification]].

@@ -15,6 +15,7 @@ The Stokes Command Line Interface (`stokes`) is the unified systems tool for cro
 Subcommands are grouped into three operational suites: deterministic pipeline gates (`verify`, `check`, `cert`, `scan`), autonomous synthesis engines (`codegen`, `diff`, `graph`, `init`), and agent integration bridges (`mcp`, `audit`, `remediate`, `patch`).
 
 ## Global CLI Conventions & Environment Variables
+
 ---
 
 All Stokes commands accept standard POSIX flags and adhere to twelve-factor CLI architecture.
@@ -54,6 +55,7 @@ export STOKES_LOG_LEVEL=info
 ```
 
 ## Terminal Rendering Engine & ANSI Architecture
+
 ---
 
 Stokes features a custom reactive terminal UI driver designed for systems engineering environments. It avoids generic terminal dependencies and implements direct VT-100 escape code rendering.
@@ -69,6 +71,7 @@ Stokes features a custom reactive terminal UI driver designed for systems engine
 On Windows platforms (`win32`), Stokes automatically initializes virtual terminal processing via Windows Console API calls (`ENABLE_VIRTUAL_TERMINAL_PROCESSING`) and reconfigures standard I/O streams to UTF-8 before emitting escape codes.
 
 ## Exit Codes Reference
+
 ---
 
 Stokes returns deterministic POSIX exit codes to integrate directly with automated build and deployment pipelines:
@@ -81,6 +84,7 @@ Stokes returns deterministic POSIX exit codes to integrate directly with automat
 | `130` | **Interrupted** | Process received `SIGINT` (`Ctrl+C`) or execution timed out. | Abort pipeline step. |
 
 ## Command Reference
+
 ---
 
 ### `stokes verify`
@@ -484,6 +488,7 @@ stokes stage-check "clickhouse://admin:secret@staging-ch.internal:9000/telemetry
 ```
 
 ## Continuous Integration Automation
+
 ---
 
 ### GitHub Actions Workflow
@@ -529,6 +534,7 @@ jobs:
 ```
 
 ## Summary & Author Attribution
+
 ---
 
 The Stokes CLI guarantees that architectural contracts across analytical databases, serialization layers, and low-latency edge proxies are verified deterministically before code deployment.

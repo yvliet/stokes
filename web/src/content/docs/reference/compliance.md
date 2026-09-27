@@ -15,6 +15,7 @@ This document provides formal, comprehensive disclosure regarding compliance wit
 This disclosure delineates the 100% in-sprint Bob 2.0 autonomous analysis build from disclosed pre-prepared assets in full compliance with the organizer ruling.
 
 ## 1. Official Organizer & Mentor Rulings
+
 ---
 
 ### Ruling 1: Pre-Prepared Assets & Code Scaffolding Permissions
@@ -64,6 +65,7 @@ In response to developer inquiries regarding Bobalytics telemetry tracking and m
 > Per the organizer ruling and official hackathon rules, all core Stokes analysis, parallel analyzer suite orchestration, AST graph traversal, and verification engines were authored 100% from scratch inside the hackathon window using IBM Bob 2.0, with complementary tooling utilized for secondary typechecking and formatting.
 
 ## 2. Scope & Delineation of Repository Assets
+
 ---
 
 To guarantee complete auditability, the repository maintains an unambiguous separation between components built during the hackathon sprint and pre-prepared reference assets:
@@ -128,6 +130,7 @@ In strict conformance with the lablab.ai organizer ruling, the following templat
    - Staged Astro frontend layout and presentation template used for the documentation portal and product showcase.
 
 ## 3. IBM Bob 2.0 Token Audit Ledger
+
 ---
 
 Stokes was developed through active collaboration with the IBM Bob 2.0 autonomous agent. Per hackathon guidelines, all Bob development tasks and token consumption metrics are recorded in an audit ledger:
@@ -157,6 +160,7 @@ As officially confirmed by hackathon admin and technical mentor `vedantsharma01`
 In accordance with official hackathon submission requirements, the authoritative record of IBM Bob 2.0 development consists of the exported **Task Session Summaries**, including timestamped context lengths, Bobcoin expenditure ledgers, and task execution checkpoints documented below and preserved in [`bob_sessions/`](https://github.com/yvliet/stokes/tree/main/bob_sessions).
 
 ## 4. Session Breakdown & Audit Details
+
 ---
 
 ### Session 01: Core Verification Engine & Parallel Analyzer Scaffolding
@@ -248,6 +252,7 @@ In accordance with official hackathon submission requirements, the authoritative
   - Subtask 9: Author conventional commit (`feat(cli): switch to 3x3 matrix bracket header and tree nested subagents`).
 
 ## 5. Resource Allocation & Hackathon Retrospective
+
 ---
 
 Building an enterprise-grade cross-boundary compiler verification platform requires substantial computational context across AST query compilation, binary IPC framing protocols, property-based fuzzing harnesses, and zero-allocation static analysis.
@@ -275,6 +280,7 @@ To empower both ambitious solo builders and multi-person squads in future IBM Bo
 - **Personal Account Bridging**: Provide an optional API or subscription bridge allowing participants to link personal IBM Bob accounts if their project roadmap exceeds standard trial allocations.
 
 ## 6. Verification & Attestation
+
 ---
 
 This compliance document serves as the binding attribution statement for Project Stokes in the IBM Bob 2.0 Hackathon.

@@ -69,9 +69,9 @@ SUBAGENT_CATALOG: dict[str, dict] = {
         "runtime": "Rust 1.85",
         "scope": "edge proxy L7 engine, fixed memory & panic invariants",
         "stages": [
-            "inspecting crates/cloudflame-proxy/src/lib.rs buffer bounds...",
-            "auditing feature_ingest.rs intake handler allocation...",
-            "evaluating fixed stack buffer [Feature; 200] capacity...",
+            "inspecting edge proxy L7 buffer bounds...",
+            "auditing intake handler allocation...",
+            "evaluating fixed stack buffer capacity...",
             "FLAGGED: infallible intake violation (.unwrap() on overflow)",
         ],
     },
@@ -155,12 +155,13 @@ async def cmd_scan(args: argparse.Namespace) -> int:
     from stokes.subagents.boundary_discovery import BoundaryDiscovery
     from stokes.subagents.contract_synthesizer import ContractSynthesizer
 
-    path = args.path or "../cloudflame"
+    path = args.path or "."
     abs_path = str(Path(path).resolve())
+    target_name = Path(abs_path).name or "workspace"
 
     stack = detect_workspace_stack(abs_path)
     subagents = resolve_subagents(stack)
-    print_banner(subagents=subagents)
+    print_banner(subagents=subagents, target=target_name)
 
     print(
         f"  {BG_GRAY} SCAN {RESET} {BOLD}Stokes orchestrator scanning workspace: "
@@ -211,8 +212,9 @@ async def cmd_audit(args: argparse.Namespace) -> int:
     from stokes.subagents.stokes_proto import StokesProtoAgent
     from stokes.subagents.bob_multiplexer import AgentMultiplexer, BobMultiplexer
 
-    path = args.path or "../cloudflame"
+    path = args.path or "."
     abs_path = str(Path(path).resolve())
+    target_name = Path(abs_path).name or "workspace"
     strict = getattr(args, "strict", False)
 
     stack = detect_workspace_stack(abs_path)
@@ -239,7 +241,7 @@ async def cmd_audit(args: argparse.Namespace) -> int:
         contracts_data = json.loads(contracts_path.read_text())
 
     subagents = resolve_subagents(stack)
-    print_banner(subagents=subagents)
+    print_banner(subagents=subagents, target=target_name)
 
     runtime_names = ", ".join(sa.get("runtime", "?") for sa in subagents[:-1])
     print(
@@ -351,9 +353,9 @@ async def cmd_audit(args: argparse.Namespace) -> int:
             remediation_prompt = (
                 "Stokes Systems Invariant Engine detected cross-boundary contract drift:\n"
                 f"- Peak Cardinality Risk Ratio: {max_risk:.2f} > 1.0 (FATAL)\n"
-                "- Downstream fixed buffer [Feature; 200] in crates/cloudflame-proxy/src/engine/feature_ingest.rs\n"
-                "- Upstream ClickHouse reflection emits 280 rows without database qualification predicate\n"
-                "Task: Enforce cross-boundary cardinality bounds: scope upstream ClickHouse reflection queries to database = currentDatabase() and implement defensive bounds guards (Result<_, PayloadError>) in crates/cloudflame-proxy."
+                "- Downstream fixed buffer capacity exceeded by upstream projection cardinality\n"
+                "- Upstream reflection/query emits rows without strict database qualification predicate\n"
+                "Task: Enforce cross-boundary cardinality bounds: scope upstream reflection queries to active database and implement defensive bounds guards in downstream buffer."
             )
             scan_res = await scan_workspace(abs_path)
             synthesizer = ContractSynthesizer(scan_res)
@@ -423,7 +425,7 @@ async def cmd_patch(args: argparse.Namespace) -> int:
     from stokes.subagents.contract_synthesizer import ContractSynthesizer
     from stokes.cli.agent_bridge import PatchExportProvider
 
-    abs_path = os.path.abspath(args.path or "../cloudflame")
+    abs_path = os.path.abspath(args.path or ".")
     scan_res = await scan_workspace(abs_path)
     synthesizer = ContractSynthesizer(scan_res)
     diff_str = synthesizer.synthesize()
@@ -443,7 +445,7 @@ async def cmd_codegen(args: argparse.Namespace) -> int:
     from stokes.subagents.contract_synthesizer import ContractSynthesizer
     from stokes.cli.agent_bridge import PatchExportProvider
 
-    abs_path = os.path.abspath(getattr(args, "path", None) or "../cloudflame")
+    abs_path = os.path.abspath(getattr(args, "path", None) or ".")
     consumer = getattr(args, "consumer", None)
     should_write = getattr(args, "write", False)
 
@@ -477,11 +479,12 @@ async def cmd_stage_check(args: argparse.Namespace) -> int:
     """stokes stage-check [DATABASE_URL] - evaluate staging catalog against buffer bounds."""
     from stokes.subagents.staging_inspector import StagingInspector
 
-    db_url = args.database_url or "mock://cloudflame"
+    db_url = args.database_url or os.environ.get("DATABASE_URL") or "mock://staging"
+    target_name = db_url.split("://")[-1].split("/")[0] if "://" in db_url else db_url
 
     stack = ["sql", "python", "rust"]
     subagents = resolve_subagents(stack)
-    print_banner(subagents=subagents)
+    print_banner(subagents=subagents, target=target_name)
 
     print(
         f"  {BG_GRAY} STAGE-CHECK {RESET} {BOLD}Connecting to staging catalog: "
@@ -588,12 +591,13 @@ async def cmd_verify(args: argparse.Namespace) -> int:
     from stokes.harness.sandbox_runner import SandboxRunner
 
     strict = getattr(args, "strict", False)
-    path = getattr(args, "path", "../cloudflame")
-    abs_path = str(Path(path).resolve()) if path else str(Path("../cloudflame").resolve())
+    path = getattr(args, "path", ".") or "."
+    abs_path = str(Path(path).resolve())
+    target_name = Path(abs_path).name or "workspace"
 
-    stack = ["sql", "python", "rust"]
+    stack = detect_workspace_stack(abs_path) or ["sql", "python", "rust"]
     subagents = resolve_subagents(stack)
-    print_banner(subagents=subagents)
+    print_banner(subagents=subagents, target=target_name)
 
     print(
         f"  {BG_PURPLE} SANDBOX {RESET} {BOLD}Executing Stokes verification battery "
@@ -648,12 +652,13 @@ async def cmd_cert(args: argparse.Namespace) -> int:
     from stokes.harness.criterion_runner import CriterionRunner
 
     output = getattr(args, "output", "stokes.lock") or "stokes.lock"
-    path = getattr(args, "path", "../cloudflame")
-    abs_path = str(Path(path).resolve()) if path else str(Path("../cloudflame").resolve())
+    path = getattr(args, "path", ".") or "."
+    abs_path = str(Path(path).resolve())
+    target_name = Path(abs_path).name or "workspace"
 
-    stack = ["sql", "python", "rust"]
+    stack = detect_workspace_stack(abs_path) or ["sql", "python", "rust"]
     subagents = resolve_subagents(stack)
-    print_banner(subagents=subagents)
+    print_banner(subagents=subagents, target=target_name)
 
     print(
         f"  {BG_GRAY} CERT {RESET} {BOLD}Generating cryptographic boundary lockfile...{RESET}"
@@ -662,16 +667,42 @@ async def cmd_cert(args: argparse.Namespace) -> int:
 
     # Collect schema digests using normalized semantic AST hashing
     from stokes.subagents.contract_synthesizer import compute_normalized_schema_digest
+    from stokes.subagents.boundary_discovery import BoundaryDiscovery
     schema_digests: dict[str, str] = {}
-    schema_files = [
-        Path(abs_path) / "migrations" / "001_bot_signals.sql",
-        Path(abs_path) / "services" / "feature-pipeline" / "catalog_sync.py",
-        Path(abs_path) / "crates" / "cloudflame-proxy" / "src" / "engine" / "feature_ingest.rs",
-    ]
-    for sf in schema_files:
-        if sf.exists():
-            digest = compute_normalized_schema_digest(sf)
-            schema_digests[str(sf.relative_to(Path(abs_path)))] = digest
+
+    disc = BoundaryDiscovery(abs_path)
+    contracts = await disc.scan()
+    candidate_files: list[Path] = []
+    for b in contracts.get("downstream_buffers", []):
+        if b.get("file"):
+            candidate_files.append(Path(abs_path) / b["file"])
+    for p in contracts.get("upstream_projections", []):
+        if p.get("file"):
+            candidate_files.append(Path(abs_path) / p["file"])
+    for c in contracts.get("cardinality_constants", []):
+        if c.get("file"):
+            candidate_files.append(Path(abs_path) / c["file"])
+
+    for candidate in Path(abs_path).rglob("*"):
+        if any(part.startswith(".") or part in ("target", "node_modules", "__pycache__", "dist", "build") for part in candidate.parts):
+            continue
+        if candidate.is_file() and candidate.suffix in (".sql", ".rs", ".py", ".proto", ".json"):
+            if any(kw in part.lower() for part in candidate.parts for kw in ("migration", "schema", "contract", "pipeline", "ingest", "signals", "model")):
+                candidate_files.append(candidate)
+
+    seen = set()
+    for sf in candidate_files:
+        sf_path = Path(sf).resolve()
+        if sf_path.exists() and sf_path.is_file() and sf_path not in seen:
+            seen.add(sf_path)
+            try:
+                rel = sf_path.relative_to(Path(abs_path)).as_posix()
+                digest = compute_normalized_schema_digest(sf_path)
+                schema_digests[rel] = digest
+            except Exception:
+                pass
+            if len(schema_digests) >= 10:
+                break
 
     # Run verification
     fuzz = FloatFuzzBattery(n_cases=10000)
@@ -683,18 +714,25 @@ async def cmd_cert(args: argparse.Namespace) -> int:
     digest_input = json.dumps(schema_digests, sort_keys=True).encode()
     master = "sha256:" + hashlib.sha256(digest_input).hexdigest()
 
+    downstream_cap = contracts.get("downstream_capacity") or 200
+    upstream_card = contracts.get("upstream_cardinality") or 200
+    risk = contracts.get("cardinality_risk_ratio") or (upstream_card / max(downstream_cap, 1))
+
     lockfile: dict[str, Any] = {
         "stokes_version": "0.2.0",
         "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-        "target_repository": abs_path,
+        "target_repository": target_name,
         "schema_digests": schema_digests,
         "boundary_contracts": {
-            "max_active_features": 200,
-            "downstream_capacity": 200,
-            "max_canonical_columns": 200,
-            "observed_upstream_cardinality": 280,
-            "cardinality_risk_ratio": 1.40,
-            "untyped_seams": ["ClickHouse DDL -> Python ETL", "Python ETL -> Rust Proxy"],
+            "max_active_features": downstream_cap,
+            "downstream_capacity": downstream_cap,
+            "max_canonical_columns": downstream_cap,
+            "observed_upstream_cardinality": upstream_card,
+            "cardinality_risk_ratio": round(risk, 2),
+            "untyped_seams": contracts.get("untyped_seams", [
+                "Schema Reflection → Data Pipeline",
+                "Pipeline Ingest → Proxy Buffer",
+            ]),
             "verification_mode": "normalized_semantic_ast",
         },
         "verification_results": {
@@ -789,7 +827,7 @@ def _write_conformance_md(path: Path, lockfile: dict[str, Any]) -> None:
 This conformance report was generated by **Stokes v{lockfile['stokes_version']}**,
 an autonomous cross-boundary systems invariant verification engine for multi-agent systems.
 
-**Certified by**: yvliet (GitHub: yvliet)  
+**Certified by**: Yuliet Li (GitHub: `yvliet`)  
 **Designation**: Principal Distributed Systems Architect  
 **Certification Status**: {'CONFORMANCE VERIFIED' if lockfile['ci_gate_status'] == 'PASSED' else 'CONFORMANCE REJECTED'}
 """
@@ -815,13 +853,13 @@ def build_parser() -> argparse.ArgumentParser:
 
     # scan
     p_scan = sub.add_parser("scan", help="Crawl workspace and discover cross-boundary contracts")
-    p_scan.add_argument("path", nargs="?", default="../cloudflame", help="Workspace path")
+    p_scan.add_argument("path", nargs="?", default=".", help="Workspace path (default: current directory)")
     p_scan.add_argument("--generate-contract", action="store_true",
                         help="Auto-synthesize AGENTS.md from discovered contracts")
 
     # audit
     p_audit = sub.add_parser("audit", help="Run parallel subagents and evaluate contract compliance")
-    p_audit.add_argument("path", nargs="?", default="../cloudflame", help="Workspace path")
+    p_audit.add_argument("path", nargs="?", default=".", help="Workspace path (default: current directory)")
     p_audit.add_argument("--strict", action="store_true", default=True,
                          help="Require contracts.json; exit 1 on any violation (default: True)")
     p_audit.add_argument("--agent", choices=["claude", "bob", "aider", "goose", "openhands", "generic", "patch"],
@@ -840,7 +878,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_remed = sub.add_parser(
         "remediate", help="Evaluate contract drift and invoke AI coding agent to apply fixes"
     )
-    p_remed.add_argument("path", nargs="?", default="../cloudflame", help="Workspace path")
+    p_remed.add_argument("path", nargs="?", default=".", help="Workspace path (default: current directory)")
     p_remed.add_argument("--agent", choices=["claude", "bob", "aider", "goose", "openhands", "generic", "patch"], default=None,
                          help="Specific coding agent provider (default: auto-detect)")
     p_remed.add_argument("--agent-cmd", help="Custom command template for generic agent")
@@ -864,7 +902,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_patch = sub.add_parser(
         "patch", help="Synthesize and export unified remediation patch directly to disk"
     )
-    p_patch.add_argument("path", nargs="?", default="../cloudflame", help="Workspace path")
+    p_patch.add_argument("path", nargs="?", default=".", help="Workspace path (default: current directory)")
     p_patch.add_argument("--output", default=None, help="Output path for patch file")
 
     # stage-check
@@ -872,8 +910,8 @@ def build_parser() -> argparse.ArgumentParser:
         "stage-check", help="Evaluate staging database catalog against buffer bounds"
     )
     p_stage.add_argument(
-        "database_url", nargs="?", default="mock://cloudflame",
-        help="Database URL (e.g. clickhouse://host:9000/db or mock://cloudflame)"
+        "database_url", nargs="?", default="mock://staging",
+        help="Database URL (e.g. clickhouse://host:9000/db or mock://staging)"
     )
 
     # verify
@@ -886,13 +924,13 @@ def build_parser() -> argparse.ArgumentParser:
                           help="Path to downstream consumer repo for poly-repo sequence verification")
     p_verify.add_argument("--producer", default=None,
                           help="Path to upstream producer repo for poly-repo sequence verification")
-    p_verify.add_argument("path", nargs="?", default="../cloudflame")
+    p_verify.add_argument("path", nargs="?", default=".", help="Workspace path (default: current directory)")
 
     # codegen (autonomous synthesis of certified zero-heap buffers)
     p_codegen = sub.add_parser(
         "codegen", help="Synthesize certified zero-heap buffers (TieredBuffer) and patch AST boundaries"
     )
-    p_codegen.add_argument("path", nargs="?", default="../cloudflame", help="Workspace path")
+    p_codegen.add_argument("path", nargs="?", default=".", help="Workspace path (default: current directory)")
     p_codegen.add_argument("--consumer", default=None,
                            help="Target consumer file to synthesize TieredBuffer for")
     p_codegen.add_argument("--write", action="store_true",
@@ -906,7 +944,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_cert.add_argument("--output", default="stokes.lock",
                         help="Output path for stokes.lock (default: stokes.lock)")
-    p_cert.add_argument("path", nargs="?", default="../cloudflame")
+    p_cert.add_argument("path", nargs="?", default=".", help="Workspace path (default: current directory)")
 
     # check (fast deterministic CI boundary contract gate)
     p_check = sub.add_parser(
@@ -918,7 +956,7 @@ def build_parser() -> argparse.ArgumentParser:
                           help="Path to downstream consumer repo for poly-repo sequence verification")
     p_check.add_argument("--producer", default=None,
                           help="Path to upstream producer repo for poly-repo sequence verification")
-    p_check.add_argument("path", nargs="?", default="../cloudflame")
+    p_check.add_argument("path", nargs="?", default=".", help="Workspace path (default: current directory)")
 
     return parser
 

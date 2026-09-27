@@ -34,6 +34,7 @@ When repositories release on independent schedules, version skew is not an anoma
 Stokes formalizes poly-repo contract coordination through mathematical deployment choreography, cross-repo cryptographic AST hashing, and a deadlock-free staging protocol.
 
 ## The Downstream-First Deployment Sequence
+
 ---
 
 Distributed contract safety requires enforcing a strict temporal invariant across production rollouts:
@@ -64,6 +65,7 @@ Consider expanding a fraud detection pipeline from 200 canonical features to 280
 > If the upstream producer merges and deploys first, the downstream consumer immediately receives a payload of cardinality 280 while operating with a buffer of 200. Any call to `slice.try_into().unwrap()` causes an unrecoverable panic, taking down the edge proxy before the downstream patch can ever be released.
 
 ## Cross-Repo AST Digest Hashing in stokes.lock
+
 ---
 
 To enforce contract compatibility across decoupled git repositories without requiring shared submodules or mono-repo synchronization, Stokes computes deterministic cryptographic digests directly from language ASTs.
@@ -122,6 +124,7 @@ The pipeline flows from raw source code through Tree-sitter parsing, boundary no
 If an upstream database engineer modifies comments or adds an unrelated index in `001_bot_signals.sql`, the normalized AST digest remains invariant. But if a column is added or a type changes from `UInt16` to `UInt64`, the digest mutates deterministically, invalidating downstream lockfiles.
 
 ## Eliminating Circular Merge Deadlocks in Git Workflows
+
 ---
 
 In a poly-repo environment enforced by strict CI gates, a classic circular dependency deadlock arises if not architected correctly:
@@ -208,6 +211,7 @@ The verification engine inspects the verified production lockfile of `repo-edge-
 The upstream PR merges and deploys safely with zero circular dependency, zero manual override flags, and zero risk of runtime panic.
 
 ## Production CI Integration: Complete GitHub Actions Workflows
+
 ---
 
 Below are complete, production-grade GitHub Actions workflows implementing the Downstream-First verification gate across both repositories.
@@ -328,6 +332,7 @@ jobs:
 ```
 
 ## Architectural Comparison Matrix
+
 ---
 
 | Evaluation Dimension | Uncoordinated Poly-Repo | Git Submodules / Monorepo | Intrusive IDL (Protobuf/gRPC) | Stokes Poly-Repo Protocol |
@@ -339,4 +344,4 @@ jobs:
 | **Runtime Overhead** | 0 ns | 0 ns | 150-800 ns per msg | **0 ns (Purely Compile/CI Gate)** |
 | **AST Digest Precision** | None | File Git-Hash (Fragile) | Protocol Hash | **Normalized Structural AST** |
 
-By formalizing cross-repo deployment sequencing and encoding buffer invariants directly into deterministic lockfiles, Stokes eliminates the single largest cause of distributed edge outages: silent version skew across decoupled engineering repositories. See [[06-projection-isolation|Projection Isolation]] and [[07-ci-mcp-gate|CI & MCP Gate]] for related mechanisms.
+By formalizing cross-repo deployment sequencing and encoding buffer invariants directly into deterministic lockfiles, Stokes eliminates the single largest cause of distributed edge outages: silent version skew across decoupled engineering repositories. See [[projection-isolation|Projection Isolation]] and [[ci-mcp-gate|CI & MCP Gate]] for related mechanisms.

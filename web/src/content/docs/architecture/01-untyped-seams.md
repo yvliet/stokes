@@ -31,6 +31,7 @@ flowchart LR
 ```
 
 ## 1. Real-World Case Study: Dissecting the Nov 18, 2025 Cascade
+
 ---
 
 On November 18, 2025, a global edge network experienced a catastrophic multi-hour outage affecting millions of customer domains. The incident was not caused by external cyberattacks, hardware failures, or network link cuts. It was caused by contract drift across an untyped architectural seam.
@@ -55,6 +56,7 @@ Every stage of this catastrophic pipeline passed continuous integration and unit
 The defect did not exist in any individual repository. It existed solely in the **untyped seam** between the repositories.
 
 ## 2. Mathematical Formulation: The Cardinality Inequality
+
 ---
 
 Stokes models distributed pipeline safety by formalizing cross-boundary data flows into a directed bipartite relation.
@@ -110,6 +112,7 @@ In the Cloudflame benchmark (modeling the November 18, 2025 incident):
    Since $\text{len}(280) \neq 200$, the function returns `Err`. Because the code invokes `.unwrap()`, execution enters `core::panicking::panic()`, aborting the thread. The fatal error path is mathematically reachable with probability $P = 1.0$ upon intake.
 
 ## 3. Concrete Code Analysis: Vulnerable vs. Hardened
+
 ---
 
 ### 1. The SQL Layer
@@ -277,6 +280,7 @@ pub fn ingest_packet_features_hardened(raw_slice: &[FeatureDescriptor]) -> Intak
 ```
 
 ## 4. Conclusion: Eliminating Context Blindness
+
 ---
 
 Single-language compilers cannot defend against cross-boundary failures. By analyzing SQL DDL scripts, Python serialization sinks, and Rust stack layouts simultaneously, Stokes closes the untyped seam. It verifies that cardinality constraints hold across polyglot interfaces before code ever reaches production.

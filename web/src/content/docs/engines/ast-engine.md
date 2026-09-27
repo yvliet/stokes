@@ -58,6 +58,7 @@ flowchart TD
 ```
 
 ## Polyglot Parsing Strategy: Native Tree-sitter & Regex Fallback
+
 ---
 
 To provide production-grade speed without fragile external runtime dependencies, the engine implements a dual-mode parser architecture:
@@ -125,6 +126,7 @@ class TreeSitterLoader:
 ```
 
 ## Tree-sitter S-Expression Queries Across Languages
+
 ---
 
 The core engine uses Tree-sitter S-expression query files (`.scm`) to capture structural patterns that represent cross-boundary vulnerabilities.
@@ -216,6 +218,7 @@ Locates direct conversions from dynamic slices to fixed stack arrays via `.try_i
 ```
 
 ## Normalizing ASTs to Language-Agnostic Boundary Digests
+
 ---
 
 Because boundary interfaces communicate across programming languages, the engine translates AST nodes into an intermediate representation: **Boundary Intermediate Representation (BIR)**.
@@ -293,6 +296,7 @@ class BoundaryInterfaceIR:
 ```
 
 ## Directed Reachability Graph Construction
+
 ---
 
 Once the AST engine extracts all boundary nodes and computes their digests, it constructs the **Topological Reachability Graph** $\mathcal{G} = (\mathcal{V}, \mathcal{E})$:
@@ -324,6 +328,7 @@ class ReachabilityGraph:
 ```
 
 ## Performance Characteristics
+
 ---
 
 | Metric | Stokes Multi-Language AST Engine | Monolithic Compiler Invocation (`rustc` + `mypy` + `sqlfluff`) |

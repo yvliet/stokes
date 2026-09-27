@@ -23,6 +23,7 @@ In polyglot storage pipelines and low-latency edge networks, however, imposing a
 | **Code Generation** | Heavy: requires generating, compiling, and checking in thousands of stub files | **Zero code generation**: works directly on existing source files |
 
 ## Why Intrusive IDLs Fail in High-Throughput Pipelines
+
 ---
 
 While IDLs are well suited for standard synchronous RPC microservices, they fail across multi-tier storage and packet-intake pipelines for three structural reasons:
@@ -47,7 +48,7 @@ pub struct FeatureDescriptor {
 }
 ```
 
-Generated IDL structs (e.g. `prost` or `protobuf-codegen`) wrap fields in multiple pointer indirections, dynamically allocated heap strings, and optional wrapper types (`Option<T>`). Ingesting 200 features via generated IDL code transforms a compact 1,600-byte stack array into 17,600 bytes of fragmented heap allocations, evicting the L1D CPU cache and degrading intake latency from 7.66 ns to over 30 ns.
+Generated IDL structs (e.g. `prost` or `protobuf-codegen`) wrap fields in multiple pointer indirections, dynamically allocated heap strings, and optional wrapper types (`Option<T>`). Ingesting 200 features via generated IDL code turns a compact 1,600-byte stack array into 17,600 bytes of fragmented heap allocations, evicting the L1D CPU cache and degrading intake latency from 7.66 ns to over 30 ns.
 
 ### 3. The Unbounded Collection Illusion
 
@@ -63,6 +64,7 @@ message BotFeaturePayload {
 Protobuf ensures that each element within `features` is a valid `Feature`. However, it provides zero guarantees regarding **how many** items are serialized into the message. When an upstream service packs 280 items into an unbounded repeated field, the downstream proxy still panics when assigning the items to a fixed stack allocation.
 
 ## Non-Invasive Systems Integration
+
 ---
 
 Stokes preserves your existing codebases. It introduces zero code generators, requires zero stub classes, and imposes zero runtime memory footprint.
@@ -96,6 +98,7 @@ capacity_limit = 200
 > `stokes.toml` is a linter manifest (analogous to `.eslintrc.json`, `clippy.toml`, or `rustfmt.toml`), not an IDL. You write idiomatic Python, idiomatic Rust, and idiomatic SQL. Stokes verifies that their semantic boundaries align.
 
 ## Channel Binding Mechanics
+
 ---
 
 Stokes resolves producer-to-consumer channel bindings through two mechanisms: automatic zero-config discovery of static wire literals, and declarative glob patterns for dynamic runtime topic templates.
@@ -147,6 +150,7 @@ capacity_limit = 200
 ```
 
 ## Direct Schema Extraction from Source ASTs
+
 ---
 
 Instead of relying on intermediate schema artifacts, Stokes compiles Tree-sitter C-grammars directly into its binary, extracting semantic types from idiomatic language code.
@@ -204,14 +208,14 @@ pub struct FeatureIntakeBuffer {
 - Capacity ceiling: 200 elements.
 
 ## Semantic Normalization & Cryptographic Hashing
+
 ---
 
 Once AST interface signatures are extracted, Stokes normalizes the representations:
 1. Strips non-semantic elements: comments, docstrings, variable names inside private scopes, and whitespace.
 2. Orders schema fields alphabetically to make signatures order-independent where wire formats permit.
 3. Computes canonical SHA-256 digests.
-
 4. Compares normalized digests against `stokes.lock` in under 38 milliseconds in CI.
 
 > [!TIP]
-> Because Stokes hashes normalized ASTs rather than raw file contents, formatting code with `rustfmt`, `black`, `ruff`, or `sqlfluff` never invalidates `stokes.lock`. Only functional schema alterations or buffer capacity shifts trigger verification diffs. Learn how multi-repository teams coordinate these changes in [[05-poly-repo-protocol|Poly-Repo Protocol]] and review [[lockfile-spec|Lockfile Specification]].
+> Because Stokes hashes normalized ASTs rather than raw file contents, formatting code with `rustfmt`, `black`, `ruff`, or `sqlfluff` never invalidates `stokes.lock`. Only functional schema alterations or buffer capacity shifts trigger verification diffs. Learn how multi-repository teams coordinate these changes in [[poly-repo-protocol|Poly-Repo Protocol]] and review [[lockfile-spec|Lockfile Specification]].

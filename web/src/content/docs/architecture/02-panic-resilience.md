@@ -21,20 +21,22 @@ While eliminating unhandled panics satisfies compiler linters and eliminates cra
 | **Scenario B: Naive Match** *(False Sense of Security)* | `let features = match payload.try_into() { Ok(f) => f, Err(_) => return Err(ProxyError::CapacityMismatch), };` | 0 Panics, 0 Crashes, Clippy is 100% satisfied. | Every worker thread returns `Err` `→` 100% HTTP 502 Bad Gateway dropped. The global edge outage is identical in magnitude and duration. |
 
 > [!WARNING]
-> Replacing a panic with a rejected request without degradation logic merely transforms a process abort into a 502 Bad Gateway response. If every incoming request carries 280 features into a 200-capacity buffer, 100% of customer traffic is discarded. A resilient system must maintain availability through graceful degradation.
+> Replacing a panic with a rejected request without degradation logic merely turns a process abort into a 502 Bad Gateway response. If every incoming request carries 280 features into a 200-capacity buffer, 100% of customer traffic is discarded. A resilient system must maintain availability through graceful degradation.
 
 
 ## The Two-Tier Runtime Reference Model
+
 ---
 
 In the open-source Cloudflame proxy case study (modeling high-throughput edge systems), resilience is achieved through a **Two-Tier Runtime Reference Model**:
 
 Architecture divides into two decoupled execution tiers: a zero-allocation hot Data Plane executing microsecond packet evaluation via `TieredBuffer` in-place quickselect, and an asynchronous Control Plane handling background catalog synchronization, schema hash verification, and wait-free `ArcSwap` configuration reloads.
 
-Stokes is strictly a static CI gate and MCP server; it injects zero code into customer binaries. However, Stokes actively verifies that boundary contracts match between upstream producers and downstream consumer capacities, as detailed in [[01-untyped-seams|Untyped Seams]] and [[03-boundary-graphs|Boundary Graphs]].
+Stokes is strictly a static CI gate and MCP server; it injects zero code into customer binaries. However, Stokes actively verifies that boundary contracts match between upstream producers and downstream consumer capacities, as detailed in [[untyped-seams|Untyped Seams]] and [[boundary-graphs|Boundary Graphs]].
 
 
 ## 1. Data Plane: High-Speed Inline TieredBuffer
+
 ---
 
 High-throughput packet paths cannot invoke heap allocators (`malloc`, `jemalloc`) during intake without incurring severe tail latency penalties and lock contention. 
@@ -125,6 +127,7 @@ Furthermore, by packing features into 8-byte cache-aligned descriptors (`#[repr(
 
 
 ## 2. Dual-Zone In-Place Feature Shedding
+
 ---
 
 If upstream schema expansion or an adversarial flood delivers 5,000 low-priority shadow features, the proxy must shed excess signals without allocating memory or dropping core security heuristics.
@@ -180,6 +183,7 @@ pub fn partition_dual_zone(
 
 
 ## 3. Control Plane: Wait-Free LKG Rollback (ArcSwap)
+
 ---
 
 On the control plane, configuration reload routines ingest dynamic catalog updates from analytical stores. If a schema payload violates cryptographic digests or contains corrupt mappings, the control plane immediately executes a wait-free rollback to the **Last-Known-Good (LKG)** state.
@@ -233,6 +237,7 @@ impl ConfigManager {
 
 
 ## Why Compile-Time CI Verification Is Still Essential
+
 ---
 
 Given that runtime architectures can implement `TieredBuffer` and `ArcSwap` LKG rollbacks, why is Stokes necessary in continuous integration?
@@ -252,4 +257,4 @@ When an uncontracted schema drifts into production:
 
 You do not deploy broken SQL migrations simply because PostgreSQL has transactional `ROLLBACK`, and you do not push broken container images simply because Kubernetes has pod crash restart policies.
 
-Stokes shifts failure left into CI. By enforcing boundary contracts in under 38 milliseconds, Stokes blocks breaking changes before containers are built and before production rollbacks are ever provoked. See [[07-ci-mcp-gate|CI & MCP Gate]] for integration workflows.
+Stokes shifts failure left into CI. By enforcing boundary contracts in under 38 milliseconds, Stokes blocks breaking changes before containers are built and before production rollbacks are ever provoked. See [[ci-mcp-gate|CI & MCP Gate]] for integration workflows.

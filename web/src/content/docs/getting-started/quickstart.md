@@ -14,6 +14,7 @@ This guide walks through installing Stokes, initializing a cross-boundary worksp
 The five core steps to configure and run Stokes in your repository: install the CLI, initialize workspace boundaries, lock contracts into `stokes.lock`, enforce the verification gate in CI, and connect the native MCP server to your local IDE.
 
 ## 1. Installation
+
 ---
 
 Stokes is distributed as a standalone, zero-dependency native binary or as a Python package for developer environments.
@@ -26,10 +27,10 @@ curl -fsSL https://trystokes.pages.dev/install.sh | sh
 
 The installer verifies the release checksum and places the `stokes` binary in your local path (`/usr/local/bin` or `~/.local/bin`).
 
-### Option B: Cargo (Rust Toolchain)
+### Option B: Pipx (Isolated Python Binary)
 
 ```bash
-cargo install stokes-cli --locked
+pipx install stokes
 ```
 
 ### Option C: Python Package (Agent Orchestration & MCP Core)
@@ -46,6 +47,7 @@ stokes --version
 ```
 
 ## 2. Project Initialization
+
 ---
 
 Navigate to the root of your polyglot project or monorepo and run `stokes init`:
@@ -72,6 +74,7 @@ Generated stokes.toml with 1 bound channel.
 ```
 
 ## 3. Defining Cross-Boundary Contracts (`stokes.toml`)
+
 ---
 
 The `stokes.toml` manifest defines the semantic bindings connecting upstream producers with downstream consumers across your architecture:
@@ -113,6 +116,7 @@ max_l1d_footprint_bytes = 32768
 > `stokes.toml` is a declarative verification manifest, not an Interface Definition Language (IDL). It generates zero code, adds zero serialization stubs, and imposes zero runtime overhead on your production binaries.
 
 ## 4. Cryptographic Boundary Locking (`stokes.lock`)
+
 ---
 
 To prevent silent contract drift in polyglot teams, Stokes compiles semantic AST signatures into a deterministic, machine-authoritative lockfile: `stokes.lock`.
@@ -127,27 +131,23 @@ This generates `stokes.lock`, containing cryptographic SHA-256 digests of parsed
 
 ```json
 {
-  "version": 1,
-  "generator": "stokes v0.2.0-hardened",
-  "workspace": "enterprise-feature-mesh",
-  "channels": {
-    "bot_signals_v1": {
-      "channel_id": "bot_signals_v1",
-      "transport": "kv_store",
-      "wire_format": "json",
-      "invariants": {
-        "max_cardinality": 200,
-        "downstream_capacity": 200,
-        "risk_ratio": 1.0,
-        "zero_heap_allocation": true
-      },
-      "signatures": {
-        "sql_ast_sha256": "4f82d7c9a1e0b5f36e897d2830f81d77a9c3e21890ef7654b123456789abcdef",
-        "python_ast_sha256": "8a3e7b1c90f23d4e65a78912bcdef34567890123456789abcdef0123456789ab",
-        "rust_ast_sha256": "c5d4e3f2a1b09876543210fedcba9876543210fedcba9876543210fedcba9876"
-      }
-    }
-  }
+  "stokes_version": "0.2.0",
+  "generated_at": "2026-09-27T10:00:00.000000+00:00",
+  "target_repository": "crates/edge-proxy",
+  "boundary_contracts": {
+    "max_active_features": 200,
+    "downstream_capacity": 200,
+    "max_canonical_columns": 200,
+    "observed_upstream_cardinality": 200,
+    "cardinality_risk_ratio": 1.0,
+    "verification_mode": "normalized_semantic_ast"
+  },
+  "schema_digests": {
+    "crates/edge-proxy/src/intake.rs": "sha256:c5d4e3f2a1b09876543210fedcba9876543210fedcba9876543210fedcba9876",
+    "migrations/004_bot_signals.sql": "sha256:4f82d7c9a1e0b5f36e897d2830f81d77a9c3e21890ef7654b123456789abcdef",
+    "services/pipeline/extractor.py": "sha256:8a3e7b1c90f23d4e65a78912bcdef34567890123456789abcdef0123456789ab"
+  },
+  "ci_gate_status": "PASSED"
 }
 ```
 
@@ -155,6 +155,7 @@ This generates `stokes.lock`, containing cryptographic SHA-256 digests of parsed
 > The AST digests in `stokes.lock` are computed over normalized syntax representations: comments, whitespace, variable renamings, and internal implementation details are stripped before hashing. Only declared interface boundaries, table definitions, and fixed buffer capacities affect the digest.
 
 ## 5. Running Verification in CI (`stokes verify --strict`)
+
 ---
 
 In CI/CD environments, Stokes acts as an uncompromising gatekeeper. Running `stokes verify --strict` parses all boundary files, checks the sparse boundary graph, evaluates the Cardinality Risk Ratio, and validates signatures against `stokes.lock`:
@@ -229,6 +230,7 @@ jobs:
 ```
 
 ## 6. Local Model Context Protocol (MCP) Server Launch
+
 ---
 
 Stokes provides a built-in Model Context Protocol (MCP) server operating over standard input/output (`stdio`). This allows AI development tools such as Cursor, Windsurf, Claude Code, and IBM Bob 2.0 to inspect boundary contracts, run property tests, and synthesize zero-allocation patches natively within your editor.

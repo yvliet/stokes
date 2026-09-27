@@ -204,7 +204,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: install stokes cli
-        run: cargo install stokes-cli --locked
+        run: curl -fsSL https://trystokes.pages.dev/install.sh | sh
         
       - name: verify cross-boundary invariants
         run: stokes verify --lockfile=stokes.lock --strict

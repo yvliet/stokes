@@ -17,6 +17,7 @@ Unlike human-written markdown attestations (`CONFORMANCE.md`) or mutable configu
 Verification splits into two tiers: machine-authoritative contract checks in `stokes.lock` (JSON/TOML SHA-256 digests evaluated in CI) and human-readable reporting in `CONFORMANCE.md` for pull request audits.
 
 ## Complete Schema Specification
+
 ---
 
 The `stokes.lock` file is serialized in canonical JSON (or equivalent TOML). All object keys are sorted lexicographically, and floating-point values are rounded to four decimal places to ensure cross-platform reproducibility.
@@ -62,6 +63,7 @@ The `stokes.lock` file is serialized in canonical JSON (or equivalent TOML). All
 ```
 
 ## Schema Field Definitions
+
 ---
 
 ### Top-Level Metadata
@@ -100,6 +102,7 @@ The `stokes.lock` file is serialized in canonical JSON (or equivalent TOML). All
 | `heap_allocation_bytes` | Integer | Bytes | Confirmed heap allocation during packet intake (must be exactly 0 B). |
 
 ## Deterministic AST Hashing Algorithm
+
 ---
 
 The core innovation in `stokes.lock` is **Semantic AST Hashing**. If a developer refactors code using `rustfmt`, runs `black` on Python scripts, adds internal comments, or renames private helper functions, standard file hashers (such as Git tree hashes or `sha256sum`) change, breaking CI.
@@ -141,15 +144,17 @@ Stokes computes digests exclusively over **canonical interface signatures**, dis
 - **Message Type Tracking**: Records top-level message names and field numbers, verifying backward wire compatibility.
 
 ## Projection Consumption Isolation
+
 ---
 
 A critical challenge in cross-boundary verification is **Contract Drift Lockout**: if a database engineer adds an internal column (`admin_notes VARCHAR`) to an analytical table for an offline business dashboard, a naive hash of the database DDL breaks downstream edge proxy CI checks, even though the proxy never consumes that column.
 
-Stokes implements **Projection Consumption Isolation** (detailed in [[06-projection-isolation|Projection Isolation]]). When `stokes cert` computes normalized digests, it inspects `consumed_projections` for each channel. If an analytical table contains 205 columns but downstream consumers only project 200, the 5 unconsumed columns are excluded from the canonical signature. Internal database schema additions produce zero digest shifts in downstream contracts, eliminating false-positive CI failures.
+Stokes implements **Projection Consumption Isolation** (detailed in [[projection-isolation|Projection Isolation]]). When `stokes cert` computes normalized digests, it inspects `consumed_projections` for each channel. If an analytical table contains 205 columns but downstream consumers only project 200, the 5 unconsumed columns are excluded from the canonical signature. Internal database schema additions produce zero digest shifts in downstream contracts, eliminating false-positive CI failures.
 
 If the downstream consumer queries an unconstrained wildcard (`SELECT *` or unqualified `system.columns`), Stokes marks `is_wildcard = true`, disabling projection isolation and requiring explicit lockfile re-certification.
 
 ## Reference Implementation: Schema Digest Computation
+
 ---
 
 The following production Python implementation (from `stokes/subagents/contract_synthesizer.py`) computes normalized schema digests:
@@ -249,6 +254,7 @@ def compute_normalized_schema_digest(
 ```
 
 ## Resolving Merge Conflicts in Poly-Repo Development
+
 ---
 
 In multi-repo organizations, different teams modify schemas simultaneously:
@@ -298,6 +304,7 @@ git commit -m "chore(stokes): re-certify boundary lockfile after poly-repo merge
 ```
 
 ## Summary & Compliance Guarantee
+
 ---
 
 The `stokes.lock` file provides an immutable cryptographic anchor guaranteeing that decoupled cloud services cannot silently drift into runtime memory panics.
@@ -307,4 +314,4 @@ The `stokes.lock` file provides an immutable cryptographic anchor guaranteeing t
 - **Digest Algorithm**: SHA-256 over Canonical Lexicographical JSON
 - **CI Guarantee**: Sub-38ms deterministic gate enforcement
 
-See [[cli-reference|CLI Reference]] for lockfile commands and [[05-poly-repo-protocol|Poly-Repo Protocol]] for multi-team staging.
+See [[cli-reference|CLI Reference]] for lockfile commands and [[poly-repo-protocol|Poly-Repo Protocol]] for multi-team staging.

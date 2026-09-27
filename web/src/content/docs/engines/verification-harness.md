@@ -36,6 +36,7 @@ flowchart TD
 ```
 
 ## 10,000-Case IEEE-754 Float Fuzzing Battery
+
 ---
 
 When high-throughput reverse proxies compute anti-bot threat scores using incoming feature values, floating-point arithmetic introduces severe security and availability risks:
@@ -131,6 +132,7 @@ def run_battery(num_random_cases: int = 10000) -> dict[str, Any]:
 ```
 
 ## Statistical Criterion Benchmark Log Parser
+
 ---
 
 High-throughput systems cannot tolerate latency regressions introduced by dynamic allocations. Stokes incorporates a native parser for Criterion benchmark JSON outputs.
@@ -175,6 +177,7 @@ Because network packet latencies follow heavy-tailed, non-Gaussian distributions
 - **Kolmogorov-Smirnov (K-S) Test**: Measures maximal vertical divergence $D = \sup_t |F_{\text{baseline}}(t) - F_{\text{canary}}(t)|$. Rejects if $D > 0.05$, catching tail spikes ($p99.9$) that do not shift the median.
 
 ## RFC-2439 BGP Route Flap Dampening (RFD) Simulator
+
 ---
 
 When an edge proxy panics due to an unhandled slice overflow, the process dies and drops its listening sockets. Upstream health checks fail, causing edge BGP daemons (BIRD, ExaBGP) to withdraw the node's Anycast IP prefix from Tier-1 transit carriers.
@@ -226,6 +229,7 @@ class ChaosEngine:
 3. **Tier 3: Carrier BGP Prepending (Controlled POP Evacuation)**: Invoked only for physical data center maintenance. The proxy commands the host BGP daemon to announce AS-Path prepends or RFC 8326 graceful shutdown. Tracks simulated RFD penalty budget ($P < 1,500$), preventing carrier route suppression.
 
 ## Summary of Verification Guarantees
+
 ---
 
 | Invariant Subsystem | Verification Tooling | Acceptance Criteria |
@@ -235,4 +239,4 @@ class ChaosEngine:
 | **Carrier BGP Stability** | `chaos_engine.py` (RFC-2439 simulator) | Simulated RFD penalty $< 1,500$; zero route dampening |
 | **Schema Bounds** | `stokes verify --strict` (AST engine) | Emitted cardinality $\le$ buffer capacity ($\mathcal{C} \le \mathcal{B}$) |
 
-By uniting microarchitectural benchmarks, IEEE-754 float fuzzing, and carrier-grade BGP flap simulation, the Stokes Verification Harness guarantees that low-latency systems maintain mathematical stability under production stress. See the [[cloudflame-case-study|Cloudflame Case Study]] for real-world benchmarking results and [[02-panic-resilience|Panic Resilience]] for the two-tier runtime model.
+By uniting microarchitectural benchmarks, IEEE-754 float fuzzing, and carrier-grade BGP flap simulation, the Stokes Verification Harness guarantees that low-latency systems maintain mathematical stability under production stress. See the [[cloudflame-case-study|Cloudflame Case Study]] for real-world benchmarking results and [[panic-resilience|Panic Resilience]] for the two-tier runtime model.
