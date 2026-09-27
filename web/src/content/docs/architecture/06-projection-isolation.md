@@ -41,8 +41,6 @@ When an analytical database expands its internal cluster architecture (for examp
 
 Stokes eliminates this failure mode through **Projection Consumption Isolation (PCI)** and **Field Mask Verification**.
 
----
-
 ## Physical Schema Leakage from Internal Shard Tables
 ---
 
@@ -98,8 +96,6 @@ Compilers operate in total context blindness:
 
 When this payload reaches the edge proxy, the downstream receiver expects at most 200 features. The excess 80 shard maintenance columns trigger a fatal stack overflow panic.
 
----
-
 ## The Projection Consumption Isolation (PCI) Invariant
 ---
 
@@ -136,8 +132,6 @@ flowchart TD
     classDef safe fill:#132d21,stroke:#10b981,color:#a7f3d0;
     class Downstream safe;
 ```
-
----
 
 ## Field Mask Verification Engine
 ---
@@ -248,8 +242,6 @@ pub fn ingest_with_projection_mask(
 }
 ```
 
----
-
 ## Production Patch: Eliminating Shard Column Leakage
 ---
 
@@ -295,8 +287,6 @@ The following real production diff demonstrates how Stokes remediates `LINT-001`
 3. `default_kind != 'ALIAS'`: Excludes virtual computed columns and internal shard metadata offsets.
 4. `LIMIT 200` + `[:200]`: Enforces a physical cardinality ceiling at both the database engine tier and the Python serialization tier.
 
----
-
 ## Diagnostic Rules Evaluated by stokes audit
 ---
 
@@ -304,8 +294,6 @@ The Stokes verification engine executes two rules to validate Projection Consump
 
 - **`LINT-001: Unbounded Upstream Catalog Reflection`**: Fatal Error. Triggered by database introspection queries (`system.columns`, `information_schema.columns`) lacking explicit table equality or database qualification. Prevents dynamic ingestion of internal shard replica tables.
 - **`LINT-006: Wildcard Projection Hazard`**: Fatal Error. Triggered by `SELECT *` expressions in cross-boundary data extraction queries. Subagent `stokes-sql` extracts schema definitions and rewrites the query with an explicit column projection list.
-
----
 
 ## Architecture Comparison: Ingestion Security Models
 ---

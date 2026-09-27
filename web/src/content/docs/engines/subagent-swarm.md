@@ -36,8 +36,6 @@ flowchart TD
     class Orch,UI highlight;
 ```
 
----
-
 ## The Five Specialized Domain Subagents
 ---
 
@@ -71,8 +69,6 @@ Each subagent operates as an autonomous actor with deep domain heuristics for it
 - **Target Runtimes**: Criterion, Proptest, Linux cgroups, Docker.
 - **Core Responsibility**: Orchestrates dynamic validation, executes 10,000-case IEEE-754 float fuzzing batteries, parses Criterion benchmark outputs, and simulates BGP route flaps.
 - **Synthesized Remediation**: Emits the machine-authoritative `stokes.lock` and human-readable `CONFORMANCE.md` attestation.
-
----
 
 ## Asynchronous IPC Wire Protocol: 4-Byte Binary Framing
 ---
@@ -122,8 +118,6 @@ def decode_frame(data: bytes) -> dict[str, Any]:
     body = data[4 : 4 + length]
     return json.loads(body.decode("utf-8"))
 ```
-
----
 
 ## Bounded Event Bus & 16.6ms Render Tick Coalescing
 ---
@@ -189,8 +183,6 @@ class AgentMultiplexer:
                 on_tick(self._coalesced_buffer[:])
 ```
 
----
-
 ## Actor Base Lifecycle & Deadlock-Free Mailbox Processing
 ---
 
@@ -231,8 +223,6 @@ Subagent architectures can suffer from circular wait deadlocks when actors reque
 3. **Isolated Fault Domains**:
    - If `stokes-python` encounters a syntax error in an unparseable test script, the exception is caught, packaged as a `CONTRACT_VIOLATION` event, and emitted to the multiplexer.
    - The failing actor safely transitions to `HALTED_ON_VIOLATION`, while `stokes-rust` and `stokes-sql` continue parsing uninterrupted.
-
----
 
 ## Execution Invariant Summary
 ---

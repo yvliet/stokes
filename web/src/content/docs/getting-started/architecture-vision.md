@@ -13,25 +13,7 @@ Modern hyperscale cloud architectures are polyglot by necessity. Relational and 
 
 However, decoupling systems into specialized linguistic tiers creates an architectural fault line: **the untyped cross-boundary seam**.
 
-```mermaid
-flowchart TD
-  subgraph SQL["SQL Translation Unit (ClickHouse DDL)"]
-    S1["migrations/004_stats.sql<br/>system.columns: 280 rows emitted"]
-    S2["sqlfluff: PASS"]
-  end
-  subgraph PY["Python Runtime AST (ETL Feature Worker)"]
-    P1["services/etl/worker.py<br/>Dynamic dict: 280 items serialized"]
-    P2["mypy / ruff: PASS"]
-  end
-  subgraph RS["Rust Compilation Unit (Edge Ingress Proxy)"]
-    R1["crates/proxy/src/intake.rs<br/>Stack buffer: [Feature; 200]<br/>slice.try_into().unwrap()"]
-    R2["rustc / clippy: PASS"]
-  end
-  SQL -->|Column projection| PY
-  PY -->|KV payload transport| RS
-  RS --> Fatal["THE SYSTEMIC VERIFICATION VOID<br/>Cardinality(SQL: 280) > Capacity(Rust: 200)<br/>Result: TryFromSliceError Panic!"]
-  style Fatal stroke:#ef4444,stroke-width:2px
-```
+In a traditional pipeline, each tier validates its own syntax: SQL migrations pass `sqlfluff`, Python extractors pass `mypy`, and Rust proxies compile under `rustc`. Yet none of these compilers verify the semantic invariant connecting them. When an upstream migration expands emitted columns from 200 to 280, a downstream edge proxy allocating a fixed `[Feature; 200]` stack buffer panics at runtime with `TryFromSliceError`. Stokes bridges this gap at build time.
 
 ## 1. The Systemic Void Across Polyglot Tiers
 
@@ -132,24 +114,11 @@ In microservice environments with decoupled git repositories, enforcing cross-bo
 
 Stokes formalizes the **Consumer Expands First (Tolerant Reader)** deployment protocol:
 
-```mermaid
-sequenceDiagram
-  autonumber
-  participant Edge as Edge Proxy Repo (Consumer)
-  participant Stokes as Stokes CI Gate
-  participant Analytics as Analytics Repo (Producer)
-  participant Prod as Production Fleet
-
-  Note over Edge: Step 1: Downstream Buffer Expansion
-  Edge->>Stokes: PR 101: Expand buffer to [Feature; 512]
-  Stokes-->>Edge: Invariant check: 200 <= 512 (Risk = 0.39 <= 1.0) -> PASS
-  Edge->>Prod: Merge & Deploy to edge fleet
-
-  Note over Analytics: Step 2: Upstream Emission Expansion
-  Analytics->>Stokes: PR 102: Expand ClickHouse DDL & worker to 280
-  Stokes-->>Analytics: Invariant check: 280 <= 512 (Risk = 0.55 <= 1.0) -> PASS
-  Analytics->>Prod: Merge & Deploy without downtime
-```
+| Stage | Action & PR Scope | Contract Invariant Verification | Deployment State |
+|---|---|---|---|
+| **Step 1: Downstream Buffer Expansion** | Edge Proxy PR expands stack buffer to 512 slots (`[Feature; 512]`) | Upstream: 200 $\le$ Downstream: 512<br/>$\text{Risk} = 200 / 512 = 0.39 \le 1.0$ (PASS) | Edge fleet merges and deploys to production first. |
+| **Step 2: Upstream Emission Expansion** | Analytics PR expands ClickHouse DDL and worker emission to 280 items | Upstream: 280 $\le$ Downstream: 512<br/>$\text{Risk} = 280 / 512 = 0.55 \le 1.0$ (PASS) | Analytics merges and deploys safely with zero downtime. |
+| **Step 3 (Optional): Buffer Compaction** | Edge Proxy compacts buffer from 512 down to exact target (280) | Upstream: 280 $\le$ Downstream: 280<br/>$\text{Risk} = 280 / 280 = 1.00 \le 1.0$ (PASS) | Steady-state capacity aligns with exact wire cardinality. |
 
 By verifying that consumer capacity is always greater than or equal to producer cardinality ($\mathcal{B}_{\text{downstream}} \ge \mathcal{C}_{\text{upstream}}$), Stokes enables autonomous poly-repo progression without risking runtime boundary crashes.
 

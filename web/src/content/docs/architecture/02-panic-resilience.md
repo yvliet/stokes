@@ -23,42 +23,16 @@ While eliminating unhandled panics satisfies compiler linters and eliminates cra
 > [!WARNING]
 > Replacing a panic with a rejected request without degradation logic merely transforms a process abort into a 502 Bad Gateway response. If every incoming request carries 280 features into a 200-capacity buffer, 100% of customer traffic is discarded. A resilient system must maintain availability through graceful degradation.
 
----
 
 ## The Two-Tier Runtime Reference Model
 ---
 
 In the open-source Dirichlet proxy case study (modeling high-throughput edge systems), resilience is achieved through a **Two-Tier Runtime Reference Model**:
 
-```mermaid
-flowchart TD
-    Traffic["Incoming Edge Traffic"]
-    
-    subgraph DataPlane["Data Plane (Hot Packet Path)"]
-        DP1["Microsecond packet path"]
-        DP2["TieredBuffer intake"]
-        DP3["In-place quickselect"]
-        DP4["Zero heap allocation"]
-    end
-
-    subgraph ControlPlane["Control Plane (Config Engine)"]
-        CP1["Asynchronous catalog sync"]
-        CP2["Schema hash validation"]
-        CP3["Wait-free ArcSwap reload"]
-        CP4["LKG rollback in < 50 ns"]
-    end
-
-    Traffic --> DataPlane
-    Traffic --> ControlPlane
-
-    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
-    classDef highlight fill:#1c2333,stroke:#3b82f6,color:#60a5fa;
-    class Traffic highlight;
-```
+Architecture divides into two decoupled execution tiers: a zero-allocation hot Data Plane executing microsecond packet evaluation via `TieredBuffer` in-place quickselect, and an asynchronous Control Plane handling background catalog synchronization, schema hash verification, and wait-free `ArcSwap` configuration reloads.
 
 Stokes is strictly a static CI gate and MCP server; it injects zero code into customer binaries. However, Stokes actively verifies that boundary contracts match between upstream producers and downstream consumer capacities, as detailed in [[01-untyped-seams|Untyped Seams]] and [[03-boundary-graphs|Boundary Graphs]].
 
----
 
 ## 1. Data Plane: High-Speed Inline TieredBuffer
 ---
@@ -149,7 +123,6 @@ Furthermore, by packing features into 8-byte cache-aligned descriptors (`#[repr(
 | **Unhardened Struct** *(Heap strings & pointers)* | 17,600 Bytes (88 B / feature) | 275 cache lines | 53.7% | Frequent cache evictions, microsecond tail spikes |
 | **Stokes Hardened** *(`FeatureDescriptor`)* | 1,600 Bytes (8 B / feature) | 25 contiguous lines | 4.8% | 100% L1D residency, sub-10ns register evaluation |
 
----
 
 ## 2. Dual-Zone In-Place Feature Shedding
 ---
@@ -205,7 +178,6 @@ pub fn partition_dual_zone(
 }
 ```
 
----
 
 ## 3. Control Plane: Wait-Free LKG Rollback (ArcSwap)
 ---
@@ -259,7 +231,6 @@ impl ConfigManager {
 }
 ```
 
----
 
 ## Why Compile-Time CI Verification Is Still Essential
 ---

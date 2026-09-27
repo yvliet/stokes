@@ -14,19 +14,7 @@ The `stokes.lock` file is the machine-authoritative cryptographic contract manif
 
 Unlike human-written markdown attestations (`CONFORMANCE.md`) or mutable configuration manifests (`stokes.yaml`), `stokes.lock` is evaluated deterministically by CI gates (`stokes verify --strict`). If upstream schema reflections or downstream intake capacities drift from the recorded contract, CI fails in under 38 milliseconds, preventing production deployment.
 
-```mermaid
-flowchart TD
-    AST["Compiler ASTs: SQL / Python / Rust"] --> Hasher["Deterministic AST Hasher<br/>- Comment & whitespace strip<br/>- Projection Isolation filter<br/>- Canonical token sort"]
-    
-    Hasher --> Machine["Machine Tier: stokes.lock<br/>- JSON / TOML<br/>- SHA-256 digests<br/>- CI gate enforced"]
-    Hasher --> Human["Human Tier: CONFORMANCE.md<br/>- Markdown report<br/>- Capacity margins & tables<br/>- Pull request review artifact"]
-
-    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
-    classDef highlight fill:#1c2333,stroke:#3b82f6,color:#93c5fd;
-    class AST,Hasher highlight;
-```
-
----
+Verification splits into two tiers: machine-authoritative contract checks in `stokes.lock` (JSON/TOML SHA-256 digests evaluated in CI) and human-readable reporting in `CONFORMANCE.md` for pull request audits.
 
 ## Complete Schema Specification
 ---
@@ -73,8 +61,6 @@ The `stokes.lock` file is serialized in canonical JSON (or equivalent TOML). All
 }
 ```
 
----
-
 ## Schema Field Definitions
 ---
 
@@ -113,8 +99,6 @@ The `stokes.lock` file is serialized in canonical JSON (or equivalent TOML). All
 | `violations_resolved` | Integer | Count | Invariant breaches corrected via autonomous remediation. |
 | `heap_allocation_bytes` | Integer | Bytes | Confirmed heap allocation during packet intake (must be exactly 0 B). |
 
----
-
 ## Deterministic AST Hashing Algorithm
 ---
 
@@ -122,18 +106,11 @@ The core innovation in `stokes.lock` is **Semantic AST Hashing**. If a developer
 
 Stokes computes digests exclusively over **canonical interface signatures**, discarding non-contract syntax:
 
-```mermaid
-flowchart TD
-    Src["Source Code File"] --> Strip["Lexical Comment Stripping (-- , // , /* ... */ , #)"]
-    Strip --> Parse["Grammar-Specific AST Traversal (Tree-sitter / Python ast)"]
-    Parse --> PCI["Projection Consumption Isolation (Exclude unconsumed columns)"]
-    PCI --> Canon["Canonical JSON Serialization (sort_keys=True, separators=(',', ':'))"]
-    Canon --> SHA["SHA-256 Cryptographic Hash → sha256:<64 hex characters>"]
-
-    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
-    classDef highlight fill:#1c2333,stroke:#3b82f6,color:#93c5fd;
-    class Src,SHA highlight;
-```
+1. **Lexical Comment Stripping**: Removes single-line (`--`, `//`, `#`) and block comments (`/* ... */`).
+2. **Grammar-Specific AST Traversal**: Extracts declared public signatures using Tree-sitter or Python `ast`.
+3. **Projection Consumption Isolation**: Excludes unconsumed internal table columns.
+4. **Canonical JSON Serialization**: Normalizes types and sorts dictionary keys lexicographically.
+5. **Cryptographic Hashing**: Computes the SHA-256 digest (`sha256:<64-hex>`).
 
 ### Language Normalization Rules
 
@@ -163,37 +140,14 @@ flowchart TD
 - **Repeated Field Extraction**: Records `repeated <type> <name> = <tag>` declarations, tracking tag numbers and custom Stokes boundary options (`[(stokes.max_items) = N]`).
 - **Message Type Tracking**: Records top-level message names and field numbers, verifying backward wire compatibility.
 
----
-
 ## Projection Consumption Isolation
 ---
 
 A critical challenge in cross-boundary verification is **Contract Drift Lockout**: if a database engineer adds an internal column (`admin_notes VARCHAR`) to an analytical table for an offline business dashboard, a naive hash of the database DDL breaks downstream edge proxy CI checks, even though the proxy never consumes that column.
 
-Stokes implements **Projection Consumption Isolation**, detailed in [[06-projection-isolation|Projection Isolation]]:
-
-```mermaid
-flowchart TD
-    subgraph ClickHouse["ClickHouse Table: bot_signals"]
-        Cons["feature_001 ... feature_200<br/>(Projected into Edge Proxy)"]
-        Uncons["offline_bi_metric<br/>(Internal BI Column, Not Projected)"]
-    end
-
-    subgraph Lockfile["stokes.lock Hashing Behavior"]
-        Hash["compute_normalized_schema_digest()<br/>1. Checks consumed_projections for table<br/>2. Excludes offline_bi_metric from canonical signature<br/>3. Result: Zero digest shift, CI passes cleanly"]
-    end
-
-    Cons --> Hash
-    Uncons -.->|Filtered out| Hash
-
-    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
-    classDef safe fill:#132d21,stroke:#10b981,color:#a7f3d0;
-    class Hash safe;
-```
+Stokes implements **Projection Consumption Isolation** (detailed in [[06-projection-isolation|Projection Isolation]]). When `stokes cert` computes normalized digests, it inspects `consumed_projections` for each channel. If an analytical table contains 205 columns but downstream consumers only project 200, the 5 unconsumed columns are excluded from the canonical signature. Internal database schema additions produce zero digest shifts in downstream contracts, eliminating false-positive CI failures.
 
 If the downstream consumer queries an unconstrained wildcard (`SELECT *` or unqualified `system.columns`), Stokes marks `is_wildcard = true`, disabling projection isolation and requiring explicit lockfile re-certification.
-
----
 
 ## Reference Implementation: Schema Digest Computation
 ---
@@ -294,8 +248,6 @@ def compute_normalized_schema_digest(
     return "sha256:" + hashlib.sha256(canonical_json.encode("utf-8")).hexdigest()
 ```
 
----
-
 ## Resolving Merge Conflicts in Poly-Repo Development
 ---
 
@@ -344,8 +296,6 @@ stokes verify --strict
 git add stokes.lock CONFORMANCE.md
 git commit -m "chore(stokes): re-certify boundary lockfile after poly-repo merge"
 ```
-
----
 
 ## Summary & Compliance Guarantee
 ---

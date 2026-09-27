@@ -54,14 +54,7 @@ Stokes solves Context Blindness by lifting interface signatures from isolated ab
 
 ---
 
-Stokes delivers cross-boundary verification and autonomous repair sharing a unified semantic core:
-
-```mermaid
-flowchart TD
-  Core["Stokes Core Engine<br/>(Semantic AST Extraction)"]
-  Core --> Linter["Next-Gen Systems Linter<br/>- Sub-38ms CI execution gate<br/>- Sparse boundary graph<br/>- stokes.lock verification<br/>- Native MCP agent server"]
-  Core --> Synthesis["Autonomous Agent Synthesis<br/>- Multi-agent bridge (Bob)<br/>- Certified TieredBuffer<br/>- Unified diff generation<br/>- Zero runtime panic patch"]
-```
+Stokes delivers cross-boundary verification and autonomous repair sharing a unified semantic core across two primary operational modes: static CI gate analysis and autonomous multi-agent synthesis.
 
 ### 1. Next-Gen Systems Linter (< 38ms Gate)
 The Stokes command-line engine runs as a zero-dependency static analysis gate in continuous integration pipelines:
@@ -133,18 +126,7 @@ Stokes couples static verification with an autonomous multi-agent core. Built on
 - `stokes-rust`: Rust syn/Tree-sitter parser identifying fixed stack buffer unwraps and cache-unfriendly allocations.
 - `stokes-verify`: Verification harness running property tests and synthesizing verified unified diff patches.
 
-```mermaid
-flowchart TD
-  Orch["Stokes Orchestrator (IBM Bob 2.0 Swarm)"]
-  Orch -->|Length-Prefixed Binary IPC| SQL["stokes-sql"]
-  Orch -->|Length-Prefixed Binary IPC| PY["stokes-python"]
-  Orch -->|Length-Prefixed Binary IPC| RS["stokes-rust"]
-  Orch -->|Length-Prefixed Binary IPC| VER["stokes-verify"]
-  SQL -->|Streaming Event Bus| TUI["ANSI Multi-Line TUI (60 FPS Render Tick)"]
-  PY -->|Streaming Event Bus| TUI
-  RS -->|Streaming Event Bus| TUI
-  VER -->|Streaming Event Bus| TUI
-```
+These subagents stream diagnostics through an internal message bus into the ANSI multi-line terminal UI and emit structured JSON-RPC events for IDE coding agents.
 
 ## 6. Author & Attribution
 

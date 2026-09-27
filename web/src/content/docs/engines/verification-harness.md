@@ -35,8 +35,6 @@ flowchart TD
     class AST,Attest highlight;
 ```
 
----
-
 ## 10,000-Case IEEE-754 Float Fuzzing Battery
 ---
 
@@ -132,8 +130,6 @@ def run_battery(num_random_cases: int = 10000) -> dict[str, Any]:
     return {"total": passed + failed, "passed": passed, "failed": failed}
 ```
 
----
-
 ## Statistical Criterion Benchmark Log Parser
 ---
 
@@ -177,8 +173,6 @@ class CriterionRunner:
 Because network packet latencies follow heavy-tailed, non-Gaussian distributions, Stokes rejects parametric averages (mean, standard deviation) in favor of non-parametric tests:
 - **Two-Sample Mann-Whitney U Test**: Evaluates median latency shift across baseline and canary runs ($p < 0.01$ threshold).
 - **Kolmogorov-Smirnov (K-S) Test**: Measures maximal vertical divergence $D = \sup_t |F_{\text{baseline}}(t) - F_{\text{canary}}(t)|$. Rejects if $D > 0.05$, catching tail spikes ($p99.9$) that do not shift the median.
-
----
 
 ## RFC-2439 BGP Route Flap Dampening (RFD) Simulator
 ---
@@ -230,8 +224,6 @@ class ChaosEngine:
 1. **Tier 1: In-Memory L7 Degradation ($< 270\text{ ns}$)**: Overflow features are shed in-place via `select_nth_unstable_by`. Broken configurations trigger wait-free `ArcSwap` rollback to the Last-Known-Good state ($< 50\text{ ns}$). Zero routing changes occur.
 2. **Tier 2: Local L4 Load Balancer Draining ($< 500\text{ ms}$)**: For localized host crashes, the proxy fails its `/healthz` HTTP probe. Upstream L4 balancers (Maglev/Unimog) divert flows to healthy sibling nodes without touching BGP.
 3. **Tier 3: Carrier BGP Prepending (Controlled POP Evacuation)**: Invoked only for physical data center maintenance. The proxy commands the host BGP daemon to announce AS-Path prepends or RFC 8326 graceful shutdown. Tracks simulated RFD penalty budget ($P < 1,500$), preventing carrier route suppression.
-
----
 
 ## Summary of Verification Guarantees
 ---

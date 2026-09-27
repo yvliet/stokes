@@ -11,13 +11,7 @@ license: "MIT"
 
 This guide walks through installing Stokes, initializing a cross-boundary workspace, establishing cryptographic boundary contracts, running deterministic CI verification, and configuring the native Model Context Protocol (MCP) server for local IDE coding agents.
 
-```mermaid
-flowchart TD
-  I["1. Install Binary<br/>curl -fsSL https://stokes.dev/install.sh | sh"] --> Init["2. Initialize Workspace<br/>stokes init (Discovers boundaries & generates stokes.toml)"]
-  Init --> Lock["3. Lock Boundary Contract<br/>stokes cert --output stokes.lock (Computes SHA-256 AST digests)"]
-  Lock --> CI["4. CI Verification Gate<br/>stokes verify --strict (Sub-38ms deterministic AST gate)"]
-  CI --> MCP["5. IDE Agent Loop<br/>stokes mcp (Exposes stdio JSON-RPC tools to Cursor/Claude)"]
-```
+The five core steps to configure and run Stokes in your repository: install the CLI, initialize workspace boundaries, lock contracts into `stokes.lock`, enforce the verification gate in CI, and connect the native MCP server to your local IDE.
 
 ## 1. Installation
 
@@ -291,17 +285,33 @@ When connected via MCP, the following tools are available to coding agents:
 - `stokes_remediate`: Dispatches automated AST repairs to synthesize safe Dual-Zone fallback routines.
 - `stokes_cert`: Cryptographically updates and re-signs `stokes.lock`.
 
-```mermaid
-sequenceDiagram
-  autonumber
-  participant Agent as IDE Agent (Cursor / Claude)
-  participant MCP as Stokes MCP Server (stdio)
+```json
+// Example: IDE Agent calls stokes_verify via MCP stdio
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "stokes_verify",
+    "arguments": { "channel": "bot_signals_v1" }
+  }
+}
 
-  Agent->>MCP: callTool("stokes_verify", { channel: "bot_signals_v1" })
-  MCP-->>Agent: { passed: false, risk: 1.40, violation: "LINT-001" }
-
-  Agent->>MCP: callTool("stokes_remediate", { channel: "bot_signals_v1" })
-  MCP-->>Agent: { unified_diff: "@@ -42,7 +42 @@\n- buffer.try_into().unwrap()\n+ TieredBuffer::intake(slice)" }
+// Stokes MCP Server response
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "passed": false,
+    "risk_ratio": 1.40,
+    "violations": [
+      {
+        "code": "LINT-001",
+        "message": "ClickHouse system.columns reflection missing currentDatabase() scope"
+      }
+    ]
+  }
+}
 ```
 
 > [!TIP]

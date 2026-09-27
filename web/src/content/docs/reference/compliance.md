@@ -12,33 +12,7 @@ author: "Yuliet Li"
 
 This document provides formal, comprehensive disclosure regarding compliance with the official IBM Bob 2.0 Hackathon regulations, sprint build window criteria, pre-prepared asset permissions, and token expenditure ledgers. Engineered by Yuliet Li (`yvliet`), Stokes maintains 100% transparent attribution.
 
-```mermaid
-flowchart TD
-    Ruling["Official Organizer Ruling<br/>lablab.ai Discord Message ID: 1553083130045268114<br/>Permits pre-prepared synthetic sample code and demo UI templates<br/>when transparently disclosed and core Bob analysis is built in-sprint"]
-    
-    subgraph InSprint["100% In-Sprint Build (Bob 2.0)"]
-        S1["CLI suite & ANSI 60 FPS renderer"]
-        S2["5-subagent autonomous swarm"]
-        S3["Tree-sitter AST reachability engine"]
-        S4["Length-prefixed binary IPC framing"]
-        S5["10,000-case float fuzzer & tests"]
-        S6["Native MCP stdio JSON-RPC server"]
-    end
-
-    subgraph Disclosed["Disclosed Pre-Prepared Assets"]
-        P1["Dirichlet proxy testbed"]
-        P2["Astro presentation shell"]
-    end
-
-    Ruling --> InSprint
-    Ruling --> Disclosed
-
-    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
-    classDef highlight fill:#1c2333,stroke:#3b82f6,color:#93c5fd;
-    class Ruling highlight;
-```
-
----
+This disclosure delineates the 100% in-sprint Bob 2.0 autonomous analysis build from disclosed pre-prepared assets in full compliance with the organizer ruling.
 
 ## 1. Official Organizer Ruling
 ---
@@ -61,8 +35,6 @@ During the official hackathon question-and-answer period, the lablab.ai organizi
 
 > [!NOTE]
 > Per the organizer ruling, all core Stokes analysis, subagent orchestration, AST graph traversal, and verification engines were authored 100% from scratch inside the hackathon window using IBM Bob 2.0.
-
----
 
 ## 2. Scope & Delineation of Repository Assets
 ---
@@ -124,8 +96,6 @@ In strict conformance with the lablab.ai organizer ruling, the following templat
 2. **Web UI Presentation Shell (`web/`)**:
    - Staged Astro frontend layout and presentation template used for the documentation portal and product showcase.
 
----
-
 ## 3. IBM Bob 2.0 Token Audit Ledger
 ---
 
@@ -148,8 +118,6 @@ Stokes was developed through active collaboration with the IBM Bob 2.0 autonomou
 | **03** | `ee34ccd0b15f8e99001def36425c2fc1` | 37.7k / 270.0k (14%) | 1.450 | 6 subtasks | PyPI wheel build, twine validation, and initial package distribution | `pip install stokes` |
 | **04** | `f5100dc74eccb43137abd7edea0fb559` | 103.9k / 270.0k (38%) | 3.600 | 8 subtasks | Dark mode charcoal palette and token standardization across Astro components | [`a1c02e6`](https://github.com/yvliet/stokes/commit/a1c02e6) |
 | **05** | `fbd8a21d8eaa665c34a2d1e91ef85a0f` | 60.4k / 270.0k (22%) | 2.300 | 9 subtasks | 3x3 matrix bracket banner, tree connector subagents, and CLI/web terminal visual parity | [`f4818b3`](https://github.com/yvliet/stokes/commit/f4818b3) |
-
----
 
 ## 4. Session Breakdown & Audit Details
 ---
@@ -226,8 +194,6 @@ Stokes was developed through active collaboration with the IBM Bob 2.0 autonomou
   - Subtask 7: Run `npm run build` to verify Astro build integrity.
   - Subtask 8: Validate git diff to verify parity between web components and CLI output.
   - Subtask 9: Author conventional commit (`feat(cli): switch to 3x3 matrix bracket header and tree nested subagents`).
-
----
 
 ## 5. Verification & Attestation
 ---

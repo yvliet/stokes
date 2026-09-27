@@ -410,22 +410,32 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
       const line = rawLines[i];
       const trimmed = line.trim();
 
-      // Skip document top title H1 if it repeats doc.title
-      if (trimmed.startsWith('# ') && !trimmed.startsWith('## ')) {
-        const rawTitle = trimmed.slice(2).trim();
-        // If it duplicates or is close to doc.title, skip to avoid double rendering
-        if (
-          rawTitle.toLowerCase() === doc.title.toLowerCase() ||
-          rawTitle.toLowerCase() === doc.id.toLowerCase() ||
-          rawTitle.toLowerCase() === doc.slug.toLowerCase()
-        ) {
-          i++;
-          continue;
-        }
-      }
-
       // Horizontal Rule
       if (trimmed === '---' || trimmed === '***') {
+        // Drop the top rule of a sandwiched heading:
+        // If a horizontal rule precedes a heading that already has a rule below it,
+        // prioritize the rule below the heading and skip this top one.
+        let nextNonEmptyIdx = i + 1;
+        while (nextNonEmptyIdx < rawLines.length && !rawLines[nextNonEmptyIdx].trim()) {
+          nextNonEmptyIdx++;
+        }
+        if (nextNonEmptyIdx < rawLines.length) {
+          const nextTrimmed = rawLines[nextNonEmptyIdx].trim();
+          if (/^#{1,6}\s+/.test(nextTrimmed)) {
+            let afterHeadingIdx = nextNonEmptyIdx + 1;
+            while (afterHeadingIdx < rawLines.length && !rawLines[afterHeadingIdx].trim()) {
+              afterHeadingIdx++;
+            }
+            if (afterHeadingIdx < rawLines.length) {
+              const afterTrimmed = rawLines[afterHeadingIdx].trim();
+              if (afterTrimmed === '---' || afterTrimmed === '***') {
+                i++;
+                continue;
+              }
+            }
+          }
+        }
+
         parsedBlocks.push(
           <hr key={`hr-${i}`} className="border-t border-border/40 my-8" />
         );
@@ -462,18 +472,18 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
       const singleLineMath = trimmed.match(/^\$\$(.+?)\$\$$/);
       if (singleLineMath) {
         const mathCode = singleLineMath[1].trim();
-        try {
-          const html = katex.renderToString(mathCode, { displayMode: true, throwOnError: false });
+        const html = safeRenderKaTeX(mathCode, true);
+        if (html) {
           parsedBlocks.push(
             <div
               key={`math-${i}`}
-              className="my-5 overflow-x-auto py-3.5 px-4 rounded-xl bg-[#141414] border border-border/40 text-center"
+              className="my-5 overflow-x-auto py-3 px-1 text-center bg-transparent border-0"
               dangerouslySetInnerHTML={{ __html: html }}
             />
           );
-        } catch {
+        } else {
           parsedBlocks.push(
-            <div key={`math-${i}`} className="my-5 p-4 rounded-xl bg-[#141414] border border-border/40 text-center font-mono text-xs text-red-400">
+            <div key={`math-${i}`} className="my-5 p-2 bg-transparent text-center font-mono text-xs text-red-400 border-0">
               {mathCode}
             </div>
           );
@@ -504,13 +514,13 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
           parsedBlocks.push(
             <div
               key={`math-${i}`}
-              className="my-5 overflow-x-auto py-3.5 px-4 rounded-xl bg-[#141414] border border-border/40 text-center"
+              className="my-5 overflow-x-auto py-3 px-1 text-center bg-transparent border-0"
               dangerouslySetInnerHTML={{ __html: html }}
             />
           );
         } else {
           parsedBlocks.push(
-            <div key={`math-${i}`} className="my-5 p-4 rounded-xl bg-[#141414] border border-border/40 text-center font-mono text-xs text-red-400">
+            <div key={`math-${i}`} className="my-5 p-2 bg-transparent text-center font-mono text-xs text-red-400 border-0">
               {mathCode}
             </div>
           );
@@ -544,10 +554,10 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
         parsedBlocks.push(
           <div
             key={`code-${i}`}
-            className="my-5 rounded-xl border border-border/60 bg-[#191919] text-[#e0e0e0] overflow-hidden text-xs sm:text-[13px] font-mono shadow-sm"
+            className="my-5 rounded-xl border border-border/50 bg-[#121213] dark:bg-[#101011] text-foreground overflow-hidden text-xs sm:text-[13px] font-mono shadow-sm"
           >
-            <div className="flex items-center justify-between px-4 py-2 border-b border-[#2d2d2d] bg-[#212121]">
-              <span className="text-[11px] sm:text-xs text-[#9e9e9e] font-mono lowercase">
+            <div className="flex items-center justify-between px-4 py-2 border-b border-border/40 bg-[#18181a] dark:bg-[#151516]">
+              <span className="text-[11px] sm:text-xs text-muted-foreground font-mono lowercase">
                 {lang || 'text'}
               </span>
               <button
@@ -557,7 +567,7 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
                   setCopiedCodeIdx(thisCodeIdx);
                   setTimeout(() => setCopiedCodeIdx(null), 2000);
                 }}
-                className="flex items-center gap-1 text-[11px] sm:text-xs text-[#9e9e9e] hover:text-white px-2 py-0.5 rounded cursor-pointer transition-colors"
+                className="flex items-center gap-1 text-[11px] sm:text-xs text-muted-foreground hover:text-foreground px-2 py-0.5 rounded cursor-pointer transition-colors"
                 title="Copy code"
               >
                 {copiedCodeIdx === thisCodeIdx ? (
@@ -573,7 +583,7 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
                 )}
               </button>
             </div>
-            <pre className="p-4 overflow-x-auto text-[13px] sm:text-sm leading-relaxed">
+            <pre className="p-4 overflow-x-auto text-[13px] sm:text-sm leading-relaxed bg-[#121213] dark:bg-[#101011]">
               <code dangerouslySetInnerHTML={{ __html: highlighted }} />
             </pre>
           </div>
@@ -684,8 +694,8 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
         continue;
       }
 
-      // Headings H2, H3, H4
-      const headingMatch = line.match(/^(#{2,4})\s+(.+)$/);
+      // Headings H1 through H6
+      const headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
       if (headingMatch) {
         const level = headingMatch[1].length;
         const text = headingMatch[2].trim();
@@ -694,7 +704,37 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
 
         extractedHeadings.push({ id, text: cleanText, level });
 
-        if (level === 2) {
+        if (level === 1) {
+          parsedBlocks.push(
+            <div key={`h1-${i}`} className="pt-6 pb-2 text-left">
+              <h1
+                id={id}
+                className="group flex items-center gap-2 text-2xl sm:text-3xl lg:text-4xl font-serif font-light text-foreground tracking-tight scroll-mt-24"
+              >
+                <span dangerouslySetInnerHTML={{ __html: renderInline(text) }} />
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.location.hash = id;
+                    navigator.clipboard.writeText(window.location.href);
+                    setCopiedHeadingId(id);
+                    setTimeout(() => setCopiedHeadingId(null), 1500);
+                  }}
+                  className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground transition-opacity p-0.5"
+                  aria-label="Copy section link"
+                  title="Copy link to section"
+                >
+                  {copiedHeadingId === id ? (
+                    <CheckIcon size={16} className="text-emerald-400" />
+                  ) : (
+                    <LinkIcon size={16} />
+                  )}
+                </button>
+              </h1>
+            </div>
+          );
+        } else if (level === 2) {
           parsedBlocks.push(
             <div key={`h2-${i}`} className="pt-8 pb-1 text-left">
               <h2
@@ -722,8 +762,6 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
                   )}
                 </button>
               </h2>
-              {/* Subtle website section divider line matching technical-docs rule */}
-              <hr className="border-0 border-t border-border/40 my-3" />
             </div>
           );
         } else if (level === 3) {
@@ -736,15 +774,26 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
               <span dangerouslySetInnerHTML={{ __html: renderInline(text) }} />
             </h3>
           );
-        } else {
+        } else if (level === 4) {
           parsedBlocks.push(
             <h4
               key={`h4-${i}`}
               id={id}
               className="pt-4 pb-1 text-xs sm:text-sm font-sans font-medium text-foreground tracking-normal uppercase text-left"
             >
-              {cleanText}
+              <span dangerouslySetInnerHTML={{ __html: renderInline(text) }} />
             </h4>
+          );
+        } else {
+          const Tag = level === 5 ? 'h5' : 'h6';
+          parsedBlocks.push(
+            <Tag
+              key={`h${level}-${i}`}
+              id={id}
+              className="pt-3 pb-1 text-xs font-sans font-medium text-muted-foreground tracking-wide uppercase text-left"
+            >
+              <span dangerouslySetInnerHTML={{ __html: renderInline(text) }} />
+            </Tag>
           );
         }
         i++;

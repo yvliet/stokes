@@ -55,8 +55,6 @@ flowchart TD
     class Clients,CoreEngine highlight;
 ```
 
----
-
 ## Sub-38ms AST CI Verification Gate
 ---
 
@@ -136,8 +134,6 @@ jobs:
           exit 1
 ```
 
----
-
 ## Native Model Context Protocol (MCP) Server Architecture
 ---
 
@@ -145,24 +141,13 @@ As development shifts toward agentic software engineering, AI agents increasingl
 
 When an AI agent modifies an upstream database schema, standard Language Server Protocols (LSP) only provide feedback for the active file. The agent has no visibility into downstream consumers.
 
-To solve this, Stokes implements a native **Model Context Protocol (MCP)** server:
+The agent-guided verification flow proceeds in five steps:
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Agent as AI Coding Agent (Cursor / Claude / Bob 2.0)
-    participant MCP as Stokes Native MCP Server
-    participant Engine as Boundary Reachability Engine
-    participant Proxy as Downstream Ingress Proxy
-
-    Agent->>MCP: tools/call: inspect_buffer_capacity(channel="analytics_to_edge")
-    MCP->>Engine: Evaluate proposed expansion: 200 → 202 columns
-    Engine->>Proxy: Inspect buffer allocation: [Feature; 200]
-    Proxy-->>Engine: Physical capacity = 200 slots
-    Engine-->>MCP: Cardinality overflow (202 > 200, Risk = 1.01)
-    MCP-->>Agent: REJECTED: Upstream expansion exceeds downstream buffer capacity.<br/>Required sequence: Expand downstream proxy buffer first!
-    Note over Agent: Agent expands downstream buffer to 256,<br/>then safely commits upstream SQL migration
-```
+1. **Agent Query**: The AI agent queries `inspect_buffer_capacity(channel="analytics_to_edge")` before committing an upstream schema change.
+2. **Reachability Evaluation**: Stokes inspects downstream consumers mapped to the channel.
+3. **Capacity Check**: Identifies the downstream edge proxy allocating a fixed stack buffer of 200 slots.
+4. **Rejection & Guidance**: With a proposed expansion to 202 columns, Stokes detects a cardinality overflow ($\text{Risk} = 202 / 200 = 1.01 > 1.0$) and rejects the change with structured diagnostic guidance.
+5. **Autonomous Remediation**: The agent expands the downstream buffer first, avoiding production skew.
 
 ### JSON-RPC 2.0 Protocol Implementation
 
@@ -206,8 +191,6 @@ The Stokes MCP server communicates via JSON-RPC 2.0 over standard input/output (
 }
 ```
 
----
-
 ## MCP Tools & Resources Exposed by Stokes
 ---
 
@@ -224,8 +207,6 @@ Stokes exposes four specialized MCP tools and two live state resources to AI age
 
 - **`stokes://contracts/active`**: Real-time JSON document reflecting active channel bindings and verified bounds.
 - **`stokes://diagnostics/live`**: Stream of active cross-boundary linter warnings (`LINT-001` through `LINT-006`).
-
----
 
 ## Configuration & Agent Setup
 ---
@@ -285,8 +266,6 @@ class BobStokesMCPBridge:
             }
         return {"allow_write": True}
 ```
-
----
 
 ## Performance & Safety Comparison
 ---

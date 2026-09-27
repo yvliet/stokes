@@ -57,8 +57,6 @@ flowchart TD
     class Inputs,Graph highlight;
 ```
 
----
-
 ## Polyglot Parsing Strategy: Native Tree-sitter & Regex Fallback
 ---
 
@@ -125,8 +123,6 @@ class TreeSitterLoader:
         ],
     }
 ```
-
----
 
 ## Tree-sitter S-Expression Queries Across Languages
 ---
@@ -219,8 +215,6 @@ Locates direct conversions from dynamic slices to fixed stack arrays via `.try_i
   arguments: (arg_list)) @fatal_slice_unwrap_violation
 ```
 
----
-
 ## Normalizing ASTs to Language-Agnostic Boundary Digests
 ---
 
@@ -298,8 +292,6 @@ class BoundaryInterfaceIR:
         return "sha256:" + hashlib.sha256(serialized.encode("utf-8")).hexdigest()
 ```
 
----
-
 ## Directed Reachability Graph Construction
 ---
 
@@ -330,8 +322,6 @@ class ReachabilityGraph:
                     ))
         return violations
 ```
-
----
 
 ## Performance Characteristics
 ---

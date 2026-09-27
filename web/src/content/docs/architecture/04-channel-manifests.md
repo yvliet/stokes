@@ -22,8 +22,6 @@ In polyglot storage pipelines and low-latency edge networks, however, imposing a
 | **Runtime Overhead** | High serialization, deserialization, and heap allocation penalties | **Zero runtime overhead (0 ns)**: purely compile-time and CI verification |
 | **Code Generation** | Heavy: requires generating, compiling, and checking in thousands of stub files | **Zero code generation**: works directly on existing source files |
 
----
-
 ## Why Intrusive IDLs Fail in High-Throughput Pipelines
 ---
 
@@ -64,8 +62,6 @@ message BotFeaturePayload {
 
 Protobuf ensures that each element within `features` is a valid `Feature`. However, it provides zero guarantees regarding **how many** items are serialized into the message. When an upstream service packs 280 items into an unbounded repeated field, the downstream proxy still panics when assigning the items to a fixed stack allocation.
 
----
-
 ## Non-Invasive Systems Integration
 ---
 
@@ -99,36 +95,10 @@ capacity_limit = 200
 > [!NOTE]
 > `stokes.toml` is a linter manifest (analogous to `.eslintrc.json`, `clippy.toml`, or `rustfmt.toml`), not an IDL. You write idiomatic Python, idiomatic Rust, and idiomatic SQL. Stokes verifies that their semantic boundaries align.
 
----
-
 ## Channel Binding Mechanics
 ---
 
-Stokes determines how upstream data sources bind to downstream consumers using two mechanisms:
-
-```mermaid
-flowchart TD
-    Engine["Channel Binding Engine"]
-    
-    subgraph StaticDiscovery["1. Static Wire Literals (Zero-Config)"]
-        SD1["Automatic AST literal extraction"]
-        SD2["Matches transport keys: 'edge_bot_signals'"]
-        SD3["Zero manual configuration required"]
-    end
-
-    subgraph DeclarativePatterns["2. Declarative Patterns (Dynamic Routing)"]
-        DP1["Wildcards: 'signals:*:v2'"]
-        DP2["Catches dynamic template strings"]
-        DP3["Issues WARN_DYNAMIC_UNBOUND if unmapped"]
-    end
-
-    Engine --> StaticDiscovery
-    Engine --> DeclarativePatterns
-
-    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
-    classDef highlight fill:#1c2333,stroke:#3b82f6,color:#93c5fd;
-    class Engine highlight;
-```
+Stokes resolves producer-to-consumer channel bindings through two mechanisms: automatic zero-config discovery of static wire literals, and declarative glob patterns for dynamic runtime topic templates.
 
 ### 1. Static Wire Literal Discovery (Zero-Config)
 
@@ -175,8 +145,6 @@ pattern = "signals:*:v2"
 transport = "kv_store"
 capacity_limit = 200
 ```
-
----
 
 ## Direct Schema Extraction from Source ASTs
 ---
@@ -235,8 +203,6 @@ pub struct FeatureIntakeBuffer {
 - Array type: `Type::Array(len = 200)`.
 - Capacity ceiling: 200 elements.
 
----
-
 ## Semantic Normalization & Cryptographic Hashing
 ---
 
@@ -245,18 +211,7 @@ Once AST interface signatures are extracted, Stokes normalizes the representatio
 2. Orders schema fields alphabetically to make signatures order-independent where wire formats permit.
 3. Computes canonical SHA-256 digests.
 
-```mermaid
-flowchart TD
-    Source["Native Source Code (SQL / Python / Rust)"] --> Tree["Tree-sitter Parse Tree (C-Grammar)"]
-    Tree --> Strip["Strip Comments, Whitespace & Private Identifiers"]
-    Strip --> Canon["Canonical Interface AST (Normalized S-Expression)"]
-    Canon --> Digest["SHA-256 Digest Computation"]
-    Digest --> Verify["Verify against stokes.lock in < 38ms CI Pass"]
-
-    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
-    classDef highlight fill:#1c2333,stroke:#3b82f6,color:#93c5fd;
-    class Source,Verify highlight;
-```
+4. Compares normalized digests against `stokes.lock` in under 38 milliseconds in CI.
 
 > [!TIP]
 > Because Stokes hashes normalized ASTs rather than raw file contents, formatting code with `rustfmt`, `black`, `ruff`, or `sqlfluff` never invalidates `stokes.lock`. Only functional schema alterations or buffer capacity shifts trigger verification diffs. Learn how multi-repository teams coordinate these changes in [[05-poly-repo-protocol|Poly-Repo Protocol]] and review [[lockfile-spec|Lockfile Specification]].

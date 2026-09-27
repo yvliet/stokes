@@ -12,41 +12,7 @@ author: "Yuliet Li"
 
 The Stokes Command Line Interface (`stokes`) is the unified systems tool for cross-boundary contract verification, semantic AST diffing, automated buffer synthesis, and CI/CD gate enforcement. Engineered by Yuliet Li (`yvliet`), the CLI operates as a standalone zero-dependency binary delivering sub-38ms execution latency in automated pipelines.
 
-```mermaid
-flowchart TD
-    CLI["stokes [COMMAND] [FLAGS]"]
-    
-    subgraph PipelineGates["Pipeline Gates"]
-        G1["verify"]
-        G2["check"]
-        G3["cert"]
-        G4["scan"]
-    end
-
-    subgraph AutonomousEngines["Autonomous Engines"]
-        E1["codegen"]
-        E2["diff"]
-        E3["graph"]
-        E4["init"]
-    end
-
-    subgraph AgentBridge["Agent Bridge"]
-        A1["mcp"]
-        A2["audit"]
-        A3["remediate"]
-        A4["patch"]
-    end
-
-    CLI --> PipelineGates
-    CLI --> AutonomousEngines
-    CLI --> AgentBridge
-
-    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
-    classDef highlight fill:#1c2333,stroke:#3b82f6,color:#93c5fd;
-    class CLI highlight;
-```
-
----
+Subcommands are grouped into three operational suites: deterministic pipeline gates (`verify`, `check`, `cert`, `scan`), autonomous synthesis engines (`codegen`, `diff`, `graph`, `init`), and agent integration bridges (`mcp`, `audit`, `remediate`, `patch`).
 
 ## Global CLI Conventions & Environment Variables
 ---
@@ -87,8 +53,6 @@ export STOKES_WORKSPACE=/workspace
 export STOKES_LOG_LEVEL=info
 ```
 
----
-
 ## Terminal Rendering Engine & ANSI Architecture
 ---
 
@@ -104,8 +68,6 @@ Stokes features a custom reactive terminal UI driver designed for systems engine
 
 On Windows platforms (`win32`), Stokes automatically initializes virtual terminal processing via Windows Console API calls (`ENABLE_VIRTUAL_TERMINAL_PROCESSING`) and reconfigures standard I/O streams to UTF-8 before emitting escape codes.
 
----
-
 ## Exit Codes Reference
 ---
 
@@ -117,8 +79,6 @@ Stokes returns deterministic POSIX exit codes to integrate directly with automat
 | `1` | **Contract Breach / Fatal Drift** | Invariant violated. Peak Cardinality Risk Ratio $> 1.0$, unhandled slice `.unwrap()` detected, or AST digests do not match `stokes.lock`. | Block pull request merge; notify author and dispatch remediation. |
 | `2` | **Configuration / Manifest Error** | Missing `.stokes/contracts.json` or invalid CLI arguments under `--strict` mode. | Verify workspace path and run `stokes scan` or `stokes init`. |
 | `130` | **Interrupted** | Process received `SIGINT` (`Ctrl+C`) or execution timed out. | Abort pipeline step. |
-
----
 
 ## Command Reference
 ---
@@ -523,8 +483,6 @@ Inspects `system.columns` or `information_schema` on a staging ClickHouse or Pos
 stokes stage-check "clickhouse://admin:secret@staging-ch.internal:9000/telemetry"
 ```
 
----
-
 ## Continuous Integration Automation
 ---
 
@@ -569,8 +527,6 @@ jobs:
           stokes cert --output=stokes.lock.ci
           diff -u stokes.lock stokes.lock.ci
 ```
-
----
 
 ## Summary & Author Attribution
 ---

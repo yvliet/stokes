@@ -37,8 +37,6 @@ flowchart TD
     class Host,Server highlight;
 ```
 
----
-
 ## Protocol Lifecycle & Wire Framing
 ---
 
@@ -96,8 +94,6 @@ Upon receiving the response, the client emits the `notifications/initialized` no
   "params": {}
 }
 ```
-
----
 
 ## Tool Schemas
 ---
@@ -301,8 +297,6 @@ Simulates and verifies a proposed unified diff before it is applied to disk.
 }
 ```
 
----
-
 ## Resource Endpoints
 ---
 
@@ -344,8 +338,6 @@ Stokes exposes machine-authoritative system state through standard MCP resource 
 }
 ```
 
----
-
 ## Guided Agent Prompts
 ---
 
@@ -360,8 +352,6 @@ Instructs the agent to:
 
 ### `stokes_explain_violation`
 Provides a deep architectural explanation of why an unchecked fixed-size slice conversion causes edge worker fleet restarts, explaining L1D cache constraints and defensive bounds alternatives.
-
----
 
 ## AI Agent Integration Guide
 ---
@@ -424,26 +414,13 @@ claude mcp add stokes -- stokes mcp
 
 Stokes includes native integration with the IBM Bob 2.0 autonomous agent. When `stokes audit --with-bob` or `stokes remediate --agent=bob` is executed, Stokes orchestrates the remediation lifecycle over asynchronous IPC:
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Stokes as Stokes Orchestrator
-    participant Inv as Invariant Engine
-    participant Bridge as Agent Bridge
-    participant Bob as IBM Bob 2.0
-    participant Lock as stokes.lock
-
-    Stokes->>Inv: Extract ASTs across SQL/Python/Rust
-    Inv-->>Stokes: Violation detected: Risk Ratio = 1.40 > 1.0
-    Stokes->>Bridge: Synthesize AGENTS.md policy & task payload
-    Bridge->>Bob: Dispatch remediation task
-    Bob->>Stokes: Read stokes://contracts/active via MCP stdio
-    Bob->>Bob: Refactor intake to TieredBuffer<Feature, 200, 312>
-    Bob->>Bob: Scope ClickHouse query with AND database = currentDatabase()
-    Bob->>Stokes: Call stokes_verify_patch
-    Stokes-->>Bob: Verification SUCCESS (0 panics)
-    Bob->>Lock: Certify boundary in stokes.lock
-```
+1. **AST Extraction**: Stokes orchestrator extracts syntax trees across SQL, Python, and Rust.
+2. **Violation Detection**: Invariant engine flags a cardinality overflow ($\text{Risk} = 1.40 > 1.0$).
+3. **Task Synthesis**: Agent bridge constructs an `AGENTS.md` task directive and dispatches it to IBM Bob 2.0.
+4. **Contract Introspection**: Bob inspects active boundary contracts via `stokes://contracts/active` over MCP stdio.
+5. **Code Refactoring**: Bob migrates fixed stack arrays to `TieredBuffer` and scopes ClickHouse queries with `database = currentDatabase()`.
+6. **Patch Verification**: Stokes executes `stokes_verify_patch`, confirming zero panic paths.
+7. **Lockfile Certification**: The healed contract boundary is re-certified and signed into `stokes.lock`.
 
 #### Length-Prefixed Binary Wire Protocol for Bob IPC
 
@@ -456,8 +433,6 @@ When communicating over Unix domain sockets or named pipes (`/tmp/stokes-bob.soc
 
 - **Maximum Frame Budget**: 16 MB (`0x01000000`). Frames exceeding this budget trigger immediate socket termination.
 - **Render Tick Coalescing**: UI and agent progress events are coalesced on a 16.6ms monotonic timer (60 FPS) to prevent queue bloat.
-
----
 
 ## Summary & Author Attribution
 ---

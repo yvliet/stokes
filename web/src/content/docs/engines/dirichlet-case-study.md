@@ -32,7 +32,7 @@ flowchart TD
 
     subgraph Tier3["Tier 3: Rust L7 Proxy (Pingora-Style)"]
         Ingest["feature_ingest.rs: [Feature; 200] stack buffer"]
-        Panic["slice.try_into().unwrap() EXPECTS <= 200 SLOTS<br/>280 > 200 → FATAL TryFromSliceError PANIC"]
+        Panic["slice.try_into().unwrap() EXPECTS AT MOST 200 SLOTS<br/>280 > 200 → FATAL TryFromSliceError PANIC"]
         Ingest --> Panic
     end
 
@@ -43,8 +43,6 @@ flowchart TD
     classDef danger fill:#3b1e1e,stroke:#ef4444,color:#fca5a5;
     class Panic danger;
 ```
-
----
 
 ## Component Architecture Breakdown
 ---
@@ -75,8 +73,6 @@ Located in `dirichlet/crates/dirichlet-proxy/`:
   pub type FeatureBuffer = [FeatureDescriptor; MAX_ACTIVE_FEATURES];
   ```
 - Converts the dynamic incoming slice into the fixed array via `.try_into().unwrap()`.
-
----
 
 ## Step-by-Step Incident Crash Reproduction
 ---
@@ -139,8 +135,6 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 4. Edge health check probes fail, causing upstream L4 balancers and BGP daemons to drop the node.
 5. Millions of edge requests fail with `HTTP 502 Bad Gateway` and `HTTP 504 Gateway Timeout`.
 
----
-
 ## Stokes Zero-Drop Remediation
 ---
 
@@ -152,27 +146,7 @@ When Stokes audits the Dirichlet testbed, the subagent swarm detects the cross-b
 | **Zone 1: Dynamic Adaptive** | 72 Slots (576 Bytes) | `0 <= priority <= 199` (Tier-2 Signals) | In-place quickselect (`select_nth_unstable_by`). Lowest priority shed first. |
 | **Shed Elements** | 80 Excess Slots | `priority == 0` (Shard columns) | Shed via zero-allocation slice truncation. 0 Bytes heap overhead. |
 
-```mermaid
-flowchart TD
-    Payload["Incoming Unbounded Payload: 280 Features<br/>- 200 Core Signals (Priority 200..255)<br/>- 80 Shadow Shard Columns (Priority 0)"]
-    
-    Part["In-Place Partitioning (7.66 ns)"]
-    
-    subgraph ActiveBuffer["Total Active Buffer: Exactly 200 Features (1,600 Bytes)"]
-        Z0["Zone 0: Core Reserved (Slots 0..127)<br/>Capacity: 128 Slots (1,024 B)<br/>Status: Immune to Eviction"]
-        Z1["Zone 1: Dynamic Adaptive (Slots 128..199)<br/>Capacity: 72 Slots (576 B)<br/>Status: Lowest Priority Shed First"]
-    end
-
-    Excess["Excess 80 Shadow Features (Priority 0)<br/>Shed via zero-allocation slice truncation (0 B Heap Allocation)"]
-
-    Payload --> Part
-    Part --> ActiveBuffer
-    Part -.->|Dropped| Excess
-
-    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
-    classDef safe fill:#132d21,stroke:#10b981,color:#a7f3d0;
-    class ActiveBuffer safe;
-```
+Under this layout, the 200 high-priority signals are admitted into the fixed 1,600-byte stack allocation while excess shadow shard columns are shed via zero-allocation slice truncation.
 
 ### 1. In-Place Quickselect Partitioning
 
@@ -255,8 +229,6 @@ impl ConfigMesh {
     }
 }
 ```
-
----
 
 ## Empirical Benchmark & Verification Results
 ---

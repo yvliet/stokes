@@ -26,7 +26,7 @@ flowchart LR
   end
   T1 -->|Untyped Wire Seam 1: Column rows| T2
   T2 -->|Untyped Wire Seam 2: KV Mesh| T3
-  T3 --> Panic["FATAL RUNTIME COLLISION<br/>280 features > 200 buffer capacity<br/>TryFromSliceError Panic -> 100% 502 Blackout"]
+  T3 --> Panic["FATAL RUNTIME COLLISION<br/>280 features > 200 buffer capacity<br/>TryFromSliceError Panic → 100% 502 Blackout"]
   style Panic stroke:#ef4444,stroke-width:2px
 ```
 
@@ -38,15 +38,7 @@ On November 18, 2025, a global edge network experienced a catastrophic multi-hou
 
 The production incident unfolded across three decoupled linguistic tiers:
 
-```mermaid
-flowchart TD
-  A["ClickHouse Migration (DDL)<br/>Adds 2 replica shard tables (r0, r1)<br/>Columns expand: 200 -> 280"] --> B["Python Dynamic Feature Extractor (ETL)<br/>Reflects system.columns without DB filter<br/>Packs 280 rows into untyped dict"]
-  B --> C["Rust Edge Reverse Proxy (L7 Intake)<br/>Reads 280-element payload from KV mesh<br/>Attempts conversion into [Feature; 200] stack buffer"]
-  C --> D["TryFromSliceError Panic<br/>Worker threads crash immediately<br/>Epoll event loop aborts"]
-  D --> E["Fleet-Wide Restart Storm<br/>Supervisord restart loops -> 100% packet blackout"]
-  style D stroke:#ef4444,stroke-width:2px
-  style E stroke:#ef4444,stroke-width:2px
-```
+The production incident unfolded sequentially: ClickHouse added replica shards expanding columns from 200 to 280, the Python ETL worker reflected the wider schema into dynamic dictionaries, and the Rust edge proxy crashed upon attempting to cast 280 items into its fixed 200-slot stack buffer.
 
 ### Why Compilers Remained Silent
 

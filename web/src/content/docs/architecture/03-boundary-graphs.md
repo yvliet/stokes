@@ -23,8 +23,6 @@ The answer lies in architectural abstraction. Stokes does not perform whole-prog
 | **False Positive Rate** | High (confounded by dynamic reflection, decorators, and generic containers) | **Deterministic**: 0 false positives based on declared buffer bounds |
 | **Runtime Overhead** | 15% to 40% throughput penalty if shifted to runtime eBPF/bytecode probes | **Exactly 0 ns** (zero binary instrumentation or code injection) |
 
----
-
 ## The Failure Modes of Taint Analysis in Cross-Language CI
 ---
 
@@ -38,8 +36,6 @@ However, applying whole-program taint analysis across cross-language cloud micro
 
 > [!IMPORTANT]
 > Stokes rejects whole-program taint analysis. Systems-level contract safety does not require tracking what a worker thread does internally with an integer; it only requires verifying that the **boundary projection contract** between services preserves cardinality and type invariants.
-
----
 
 ## Mathematical Formulation of Boundary Graphs
 ---
@@ -102,8 +98,6 @@ flowchart LR
     class VS1,VS2 source;
     class VB1 warning;
 ```
-
----
 
 ## Sparse AST Extraction via Tree-sitter
 ---
@@ -173,8 +167,6 @@ Locates fixed stack buffer conversions using unchecked unwraps:
     (#match? @unwrap_fn "^(unwrap|expect)$"))) @fatal_slice_unwrap
 ```
 
----
-
 ## Sub-38ms CI Execution Budget
 ---
 
@@ -191,8 +183,6 @@ The deterministic 38ms budget is allocated as follows:
 | **5. Cryptographic SHA-256 digest vs. lockfile** | `4.5 ms` | Validate schema digests against `stokes.lock` |
 | **6. Terminal ANSI output & exit code generation** | `3.2 ms` | Render diagnostic diffs and SARIF logs |
 | **Total Execution Latency** | **35.2 ms** | **Sub-38ms SLA strictly satisfied** |
-
----
 
 ## Projection Consumption Isolation
 ---

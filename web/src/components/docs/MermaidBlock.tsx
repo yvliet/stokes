@@ -11,19 +11,57 @@ async function getMermaid() {
     mermaidPromise = import('mermaid').then(({ default: mermaid }) => {
       mermaid.initialize({
         startOnLoad: false,
-        theme: 'dark',
+        theme: 'base',
         themeVariables: {
           darkMode: true,
-          background: '#141414',
-          primaryColor: '#242424',
+          background: 'transparent',
+          mainBkg: 'transparent',
+          nodeBorder: '#3a3a3a',
+          nodeTextColor: '#ededed',
+          clusterBkg: 'rgba(255, 255, 255, 0.02)',
+          clusterBorder: '#3a3a3a',
+          defaultLinkColor: '#8a8a8a',
+          lineColor: '#8a8a8a',
+          titleColor: '#ededed',
+          edgeLabelBackground: 'rgba(30, 30, 30, 0.9)',
+          primaryColor: 'transparent',
           primaryTextColor: '#ededed',
           primaryBorderColor: '#3a3a3a',
-          lineColor: '#7a7a7a',
-          secondaryColor: '#1a1a1a',
-          tertiaryColor: '#181818',
-          fontFamily: 'JetBrains Mono, monospace, sans-serif',
-          fontSize: '13px',
+          secondaryColor: 'transparent',
+          secondaryTextColor: '#ededed',
+          secondaryBorderColor: '#333333',
+          tertiaryColor: 'transparent',
+          tertiaryTextColor: '#ededed',
+          tertiaryBorderColor: '#2d2d2d',
+          actorBkg: 'transparent',
+          actorBorder: '#3a3a3a',
+          actorTextColor: '#ededed',
+          actorLineColor: '#3a3a3a',
+          signalColor: '#8a8a8a',
+          signalTextColor: '#ededed',
+          labelBoxBkgColor: 'transparent',
+          labelBoxBorderColor: '#3a3a3a',
+          labelTextColor: '#ededed',
+          loopTextColor: '#ededed',
+          noteBorderColor: '#3a3a3a',
+          noteBkgColor: 'rgba(255, 255, 255, 0.03)',
+          noteTextColor: '#ededed',
+          activationBorderColor: '#3a3a3a',
+          activationBkgColor: 'rgba(255, 255, 255, 0.05)',
+          sequenceNumberColor: '#8a8a8a',
+          fontFamily: 'JetBrains Mono, Mona Sans, monospace, sans-serif',
+          fontSize: '12px',
         },
+        flowchart: {
+          htmlLabels: true,
+          curve: 'basis',
+          padding: 15,
+        },
+        sequence: {
+          useMaxWidth: true,
+          mirrorActors: false,
+        },
+        look: 'classic',
         securityLevel: 'loose',
       });
       return mermaid;
@@ -45,8 +83,12 @@ export const MermaidBlock: React.FC<MermaidBlockProps> = ({ code }) => {
       try {
         const mermaid = await getMermaid();
         const { svg } = await mermaid.render(renderId, code);
+        const cleanSvg = svg
+          .replace(/filter:\s*drop-shadow\([^)]+\);?/gi, '')
+          .replace(/filter="url\(#[^"]*\)"/gi, '')
+          .replace(/<filter[\s\S]*?<\/filter>/gi, '');
         if (!isCancelled) {
-          setSvgHtml(svg);
+          setSvgHtml(cleanSvg);
           setError(null);
         }
       } catch (err: any) {
@@ -80,7 +122,7 @@ export const MermaidBlock: React.FC<MermaidBlockProps> = ({ code }) => {
 
   if (!svgHtml) {
     return (
-      <div className="my-5 flex items-center justify-center p-8 rounded-xl border border-border/40 bg-[#141414] text-xs font-mono text-muted-foreground animate-pulse">
+      <div className="my-5 flex items-center justify-center p-8 rounded-xl border border-border/50 bg-[#101011] dark:bg-[#101011] text-xs font-mono text-muted-foreground animate-pulse">
         Rendering diagram SVG...
       </div>
     );
@@ -88,7 +130,7 @@ export const MermaidBlock: React.FC<MermaidBlockProps> = ({ code }) => {
 
   return (
     <div
-      className="my-6 flex justify-center overflow-x-auto rounded-xl border border-border/50 bg-[#121212] p-5 shadow-sm [&>svg]:max-w-full [&>svg]:h-auto"
+      className="my-6 flex justify-center overflow-x-auto rounded-xl border border-border/50 bg-[#101011] dark:bg-[#101011] p-6 [&>svg]:max-w-full [&>svg]:h-auto [&_*]:!filter-none [&_*]:!shadow-none [&_*]:!drop-shadow-none"
       dangerouslySetInnerHTML={{ __html: svgHtml }}
     />
   );

@@ -33,8 +33,6 @@ When repositories release on independent schedules, version skew is not an anoma
 
 Stokes formalizes poly-repo contract coordination through mathematical deployment choreography, cross-repo cryptographic AST hashing, and a deadlock-free staging protocol.
 
----
-
 ## The Downstream-First Deployment Sequence
 ---
 
@@ -64,8 +62,6 @@ Consider expanding a fraud detection pipeline from 200 canonical features to 280
 
 > [!CAUTION]
 > If the upstream producer merges and deploys first, the downstream consumer immediately receives a payload of cardinality 280 while operating with a buffer of 200. Any call to `slice.try_into().unwrap()` causes an unrecoverable panic, taking down the edge proxy before the downstream patch can ever be released.
-
----
 
 ## Cross-Repo AST Digest Hashing in stokes.lock
 ---
@@ -121,21 +117,9 @@ Raw source code file hashes (such as `git hash-object` or `sha256sum file.rs`) a
 
 Stokes extracts boundary nodes via Tree-sitter, strips trivia (comments, whitespace, documentation attributes), normalizes types to canonical primitives, and serializes the AST into a canonical S-expression before hashing:
 
-```mermaid
-flowchart LR
-    A["Raw Source Code"] --> B["Tree-sitter Parse"]
-    B --> C["Filter Boundary Nodes"]
-    C --> D["Canonical IR"]
-    D --> E["SHA-256 Digest"]
-
-    classDef default fill:#13151b,stroke:#262b35,color:#e1e4ea;
-    classDef highlight fill:#1c2333,stroke:#3b82f6,color:#93c5fd;
-    class A,E highlight;
-```
+The pipeline flows from raw source code through Tree-sitter parsing, boundary node filtering, and canonical IR serialization into a SHA-256 digest.
 
 If an upstream database engineer modifies comments or adds an unrelated index in `001_bot_signals.sql`, the normalized AST digest remains invariant. But if a column is added or a type changes from `UInt16` to `UInt64`, the digest mutates deterministically, invalidating downstream lockfiles.
-
----
 
 ## Eliminating Circular Merge Deadlocks in Git Workflows
 ---
@@ -222,8 +206,6 @@ The verification engine inspects the verified production lockfile of `repo-edge-
 - Evaluated Risk: $280 / 512 = 0.546 \le 1.0$ (PASSED)
 
 The upstream PR merges and deploys safely with zero circular dependency, zero manual override flags, and zero risk of runtime panic.
-
----
 
 ## Production CI Integration: Complete GitHub Actions Workflows
 ---
@@ -344,8 +326,6 @@ jobs:
           echo "::error::Downstream edge-proxy must deploy expanded capacity BEFORE this PR can merge."
           exit 1
 ```
-
----
 
 ## Architectural Comparison Matrix
 ---
