@@ -25,7 +25,7 @@ The `stokes.lock` file is serialized in canonical JSON (or equivalent TOML). All
 
 ```json
 {
-  "$schema": "https://stokes.dev/schemas/v0.2.0/lockfile.json",
+  "$schema": "https://trystokes.pages.dev/schemas/v0.2.0/lockfile.json",
   "stokes_version": "0.2.0",
   "generated_at": "2026-09-26T12:00:00.000000+00:00",
   "target_repository": "crates/cloudflame-proxy",

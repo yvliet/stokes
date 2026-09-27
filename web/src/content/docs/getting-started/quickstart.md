@@ -21,7 +21,7 @@ Stokes is distributed as a standalone, zero-dependency native binary or as a Pyt
 ### Option A: Shell Installer (Recommended for CI & Linux/macOS)
 
 ```bash
-curl -fsSL https://stokes.dev/install.sh | sh
+curl -fsSL https://trystokes.pages.dev/install.sh | sh
 ```
 
 The installer verifies the release checksum and places the `stokes` binary in your local path (`/usr/local/bin` or `~/.local/bin`).
@@ -221,7 +221,7 @@ jobs:
 
       - name: Install Stokes
         run: |
-          curl -fsSL https://stokes.dev/install.sh | sh
+          curl -fsSL https://trystokes.pages.dev/install.sh | sh
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Run Stokes Strict Verification Gate

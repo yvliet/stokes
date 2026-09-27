@@ -282,7 +282,7 @@ This compliance document serves as the binding attribution statement for Project
 - **Solo Creator & Maintainer**: Yuliet Li (`yvliet`)
 - **Official Repository**: [https://github.com/yvliet/stokes](https://github.com/yvliet/stokes)
 - **PyPI Release**: [https://pypi.org/project/stokes/](https://pypi.org/project/stokes/)
-- **Live Documentation**: [https://stokes.dev](https://stokes.dev)
+- **Live Documentation**: [https://trystokes.pages.dev](https://trystokes.pages.dev)
 - **Compliance Status**: FULLY CONFORMANT WITH ORGANIZER RULING
 
 For technical tool reference, see [[cli-reference|CLI Reference]] and [[mcp-protocol|MCP Protocol Reference]].

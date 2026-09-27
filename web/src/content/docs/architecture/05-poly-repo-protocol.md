@@ -72,7 +72,7 @@ The machine-authoritative lockfile (`stokes.lock`) records the SHA-256 digest of
 
 ```json
 {
-  "$schema": "https://stokes.dev/schemas/v1/lockfile.json",
+  "$schema": "https://trystokes.pages.dev/schemas/v1/lockfile.json",
   "version": 1,
   "generated_by": "stokes-engine v0.2.0-hardened",
   "author": "yvliet",
@@ -243,7 +243,7 @@ jobs:
 
       - name: Install Stokes CLI Engine
         run: |
-          curl -sSL https://get.stokes.dev/linux-x86_64/stokes -o /usr/local/bin/stokes
+          curl -sSL https://trystokes.pages.dev/bin/stokes -o /usr/local/bin/stokes
           chmod +x /usr/local/bin/stokes
           stokes --version
 
@@ -303,7 +303,7 @@ jobs:
 
       - name: Install Stokes CLI Engine
         run: |
-          curl -sSL https://get.stokes.dev/linux-x86_64/stokes -o /usr/local/bin/stokes
+          curl -sSL https://trystokes.pages.dev/bin/stokes -o /usr/local/bin/stokes
           chmod +x /usr/local/bin/stokes
 
       - name: Fetch Live Downstream Production Lockfile

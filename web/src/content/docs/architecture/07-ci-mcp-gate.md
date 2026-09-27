@@ -115,7 +115,7 @@ jobs:
 
       - name: Install Stokes Binary
         run: |
-          curl -sSL https://get.stokes.dev/linux-x86_64/stokes -o /usr/local/bin/stokes
+          curl -sSL https://trystokes.pages.dev/bin/stokes -o /usr/local/bin/stokes
           chmod +x /usr/local/bin/stokes
 
       - name: Execute Fast Gate
