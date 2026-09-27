@@ -224,7 +224,7 @@ class ChaosEngine:
 ```
 
 ### The Three Protective Tiers:
-1. **Tier 1: In-Memory L7 Degradation ($< 270\text{ ns}$)**: Overflow features are shed in-place via `select_nth_unstable_by`. Broken configurations trigger wait-free `ArcSwap` rollback to the Last-Known-Good state ($< 50\text{ ns}$). Zero routing changes occur.
+1. **Tier 1: In-Memory L7 Degradation ($< 270\text{ ns}$)**: Bounded stack buffer absorbs drift in-place. Broken configurations trigger wait-free `ArcSwap` rollback to the Last-Known-Good state ($< 50\text{ ns}$). Zero routing changes occur.
 2. **Tier 2: Local L4 Load Balancer Draining ($< 500\text{ ms}$)**: For localized host crashes, the proxy fails its `/healthz` HTTP probe. Upstream L4 balancers (Maglev/Unimog) divert flows to healthy sibling nodes without touching BGP.
 3. **Tier 3: Carrier BGP Prepending (Controlled POP Evacuation)**: Invoked only for physical data center maintenance. The proxy commands the host BGP daemon to announce AS-Path prepends or RFC 8326 graceful shutdown. Tracks simulated RFD penalty budget ($P < 1,500$), preventing carrier route suppression.
 
