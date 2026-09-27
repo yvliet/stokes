@@ -214,7 +214,15 @@ export function renderInline(text: string): string {
   // 6. Markdown Links [text](url)
   processed = processed.replace(
     /\[([^\]]+)\]\(([^)]+)\)/g,
-    '<a href="$2" class="underline underline-offset-2 text-foreground hover:text-primary font-normal transition-colors">$1</a>'
+    (_, text, url) => {
+      const trimmedUrl = url.trim();
+      const isExternal = /^(?:https?:|\/\/|mailto:)/i.test(trimmedUrl);
+      const isAssetOrDoc = /\.(?:png|jpe?g|svg|gif|webp|pdf|zip|tar\.gz)$/i.test(trimmedUrl);
+      if (isExternal || isAssetOrDoc) {
+        return `<a href="${trimmedUrl}" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 text-foreground hover:text-primary font-normal transition-colors inline group">${text}<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block ml-1 opacity-60 group-hover:opacity-100 transition-opacity align-baseline -translate-y-0.5 shrink-0"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>`;
+      }
+      return `<a href="${trimmedUrl}" class="underline underline-offset-2 text-foreground hover:text-primary font-normal transition-colors">${text}</a>`;
+    }
   );
 
   // 7. Bold **text**
