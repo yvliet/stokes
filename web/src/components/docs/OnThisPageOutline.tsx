@@ -20,7 +20,7 @@ export const OnThisPageOutline: React.FC<OnThisPageOutlineProps> = React.memo(({
   return (
     <aside className={`flex flex-col text-left select-none ${className}`}>
       {/* Header */}
-      <div className="flex items-center gap-1.5 text-[11px] font-sans font-medium text-muted-foreground mb-2.5 pb-2 border-b border-border/40 dark:border-[#3a3a3a]">
+      <div className="flex items-center gap-1.5 text-[11px] font-sans font-medium text-muted-foreground mb-2">
         <ListIcon size={12} className="shrink-0 text-muted-foreground" />
         <span>on this page</span>
       </div>
