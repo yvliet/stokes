@@ -3,7 +3,7 @@ title: "Stokes Lockfile Specification (stokes.lock)"
 description: "Formal specification of the stokes.lock schema: deterministic AST hashing, comment and whitespace normalization, and poly-repo merge resolution."
 category: "Reference"
 order: 3
-lastUpdated: "2026-03-24"
+lastUpdated: "September 27, 2026"
 readTime: "9 min read"
 author: "Yuliet Li"
 ---

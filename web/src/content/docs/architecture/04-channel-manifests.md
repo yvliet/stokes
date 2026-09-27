@@ -3,7 +3,7 @@ title: "Channel Binding & Manifests vs. Intrusive IDLs"
 description: "Non-invasive cross-boundary systems integration, direct AST schema extraction, and declarative channel manifests without code generation."
 category: "Architecture"
 order: 4
-lastUpdated: "2026-03-24"
+lastUpdated: "September 27, 2026"
 readTime: "7 min read"
 author: "Yuliet Li"
 ---

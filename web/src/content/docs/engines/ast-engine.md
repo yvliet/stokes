@@ -3,7 +3,7 @@ title: "Stokes Multi-Language AST Analysis Engine"
 description: "Tree-sitter S-expression queries, zero-dependency regex fallback grammars, and language-agnostic boundary digest normalization across SQL, Protobuf, Python, and Rust."
 category: "Engines"
 order: 1
-lastUpdated: "2026-03-24"
+lastUpdated: "September 27, 2026"
 readTime: "8 min read"
 author: "Yuliet Li"
 ---

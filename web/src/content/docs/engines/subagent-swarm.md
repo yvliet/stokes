@@ -3,7 +3,7 @@ title: "Autonomous Subagent Actor Swarm Architecture"
 description: "Concurrent actor lifecycle, specialized domain subagents, 4-byte big-endian binary IPC framing, and 16.6ms render tick coalescing in IBM Bob 2.0."
 category: "Engines"
 order: 2
-lastUpdated: "2026-03-24"
+lastUpdated: "September 27, 2026"
 readTime: "8 min read"
 author: "Yuliet Li"
 ---

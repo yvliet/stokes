@@ -3,7 +3,7 @@ title: "Poly-Repo Contract Coordination & Version Skew Prevention"
 description: "Mathematical choreography of distributed deployments, Downstream-First capacity expansion, cross-repo cryptographic digests, and eliminating merge deadlocks."
 category: "Architecture"
 order: 5
-lastUpdated: "2026-03-24"
+lastUpdated: "September 27, 2026"
 readTime: "9 min read"
 author: "Yuliet Li"
 ---

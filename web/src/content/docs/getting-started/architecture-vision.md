@@ -1,7 +1,7 @@
 ---
 title: "02. Architecture Vision & Design Principles"
 summary: "Why single-language compilers fail across multi-tier distributed pipelines and the design principles behind Stokes."
-lastUpdated: "last updated 1 day ago"
+lastUpdated: "September 27, 2026"
 readTime: "5 min read"
 author: "Yuliet Li (yvliet)"
 license: "MIT"

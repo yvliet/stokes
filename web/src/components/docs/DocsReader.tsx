@@ -1085,7 +1085,7 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
           <div className="inline-flex items-center gap-2 text-xs font-sans text-muted-foreground lowercase">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-border/60 bg-muted/30">
               <ClockIcon size={12} className="text-muted-foreground shrink-0" />
-              <span>{doc.lastUpdated || 'last updated 1 day ago'}</span>
+              <span>{doc.lastUpdated || 'September 27, 2026'}</span>
             </span>
             {doc.readTime && (
               <>

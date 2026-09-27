@@ -3,7 +3,7 @@ title: "Verification, Fuzzing & Simulation Harness"
 description: "10,000-case IEEE-754 float fuzzing battery, Criterion micro-benchmark log parser, and RFC-2439 BGP route flap dampening simulator."
 category: "Engines"
 order: 3
-lastUpdated: "2026-03-24"
+lastUpdated: "September 27, 2026"
 readTime: "9 min read"
 author: "Yuliet Li"
 ---

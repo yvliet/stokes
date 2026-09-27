@@ -3,7 +3,7 @@ title: "Panic vs. 100% Error Rate & Two-Tier Resilience"
 description: "Why Clippy-safe error handling still causes total service blackouts and how the Two-Tier Runtime Reference Model achieves true resilience."
 category: "Architecture"
 order: 2
-lastUpdated: "2026-03-24"
+lastUpdated: "September 27, 2026"
 readTime: "7 min read"
 author: "Yuliet Li"
 ---

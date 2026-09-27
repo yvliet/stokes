@@ -1,7 +1,7 @@
 ---
 title: "01. Untyped Seams & Context Blindness"
 summary: "Dissection of cross-compiler boundary failures, mathematical cardinality inequality, and the Cloudflare November 18, 2025 incident model."
-lastUpdated: "last updated 1 day ago"
+lastUpdated: "September 27, 2026"
 readTime: "6 min read"
 author: "Yuliet Li (yvliet)"
 license: "MIT"

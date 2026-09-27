@@ -3,7 +3,7 @@ title: "Projection Consumption Isolation & Field Mask Verification"
 description: "Eliminating wildcard projection hazards, isolating internal shard table leakage, and enforcing compile-time field mask verification across storage boundaries."
 category: "Architecture"
 order: 6
-lastUpdated: "2026-03-24"
+lastUpdated: "September 27, 2026"
 readTime: "8 min read"
 author: "Yuliet Li"
 ---

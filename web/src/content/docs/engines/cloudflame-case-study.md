@@ -3,7 +3,7 @@ title: "The Cloudflame Benchmark & Incident Reproduction Testbed"
 description: "Forensic breakdown and zero-drop mitigation of the Cloudflare November 18, 2025 outage reproduction across ClickHouse, Python ETL, and Pingora Rust proxy."
 category: "Engines"
 order: 4
-lastUpdated: "2026-03-24"
+lastUpdated: "September 27, 2026"
 readTime: "9 min read"
 author: "Yuliet Li"
 ---

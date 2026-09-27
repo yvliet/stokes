@@ -1,7 +1,7 @@
 ---
 title: "03. Quickstart & CLI Guide"
 summary: "Installation, project initialization, boundary contract locking, and CI verification with Stokes."
-lastUpdated: "last updated 1 day ago"
+lastUpdated: "September 27, 2026"
 readTime: "3 min read"
 author: "Yuliet Li (yvliet)"
 license: "MIT"

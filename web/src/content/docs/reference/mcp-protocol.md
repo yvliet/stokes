@@ -3,7 +3,7 @@ title: "Model Context Protocol (MCP) Server Specification"
 description: "Native JSON-RPC 2.0 Model Context Protocol specification for Stokes: tool schemas, live resources, and AI agent integration."
 category: "Reference"
 order: 4
-lastUpdated: "2026-03-24"
+lastUpdated: "September 27, 2026"
 readTime: "9 min read"
 author: "Yuliet Li"
 ---

@@ -3,7 +3,7 @@ title: "Deterministic CI Gate & Native MCP Server"
 description: "Sub-38ms AST boundary verification in CI/CD pipelines and the native Model Context Protocol (MCP) server architecture empowering AI coding agents."
 category: "Architecture"
 order: 7
-lastUpdated: "2026-03-24"
+lastUpdated: "September 27, 2026"
 readTime: "8 min read"
 author: "Yuliet Li"
 ---

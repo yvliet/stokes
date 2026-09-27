@@ -3,7 +3,7 @@ title: "Boundary Graphs vs. Whole-Program Taint Analysis"
 description: "Why interprocedural taint analysis fails at CI scale and how sparse boundary compatibility graphs achieve sub-38ms verification."
 category: "Architecture"
 order: 3
-lastUpdated: "2026-03-24"
+lastUpdated: "September 27, 2026"
 readTime: "8 min read"
 author: "Yuliet Li"
 ---

@@ -3,7 +3,7 @@ title: "Hackathon Compliance & Asset Disclosure"
 description: "Formal compliance documentation: lablab.ai organizer ruling, clean delineation of build sprint assets vs pre-prepared templates, and IBM Bob token audit ledger."
 category: "Reference"
 order: 2
-lastUpdated: "2026-03-24"
+lastUpdated: "September 27, 2026"
 readTime: "7 min read"
 author: "Yuliet Li"
 ---

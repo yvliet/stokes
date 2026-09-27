@@ -1,7 +1,7 @@
 ---
 title: "01. Introduction & Overview"
 summary: "Cross-boundary systems invariant verification engine and autonomous multi-agent synthesis."
-lastUpdated: "last updated 1 day ago"
+lastUpdated: "September 27, 2026"
 readTime: "4 min read"
 author: "Yuliet Li (yvliet)"
 license: "MIT"

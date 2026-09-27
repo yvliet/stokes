@@ -3,7 +3,7 @@ title: "Command Line Interface (CLI) Reference"
 description: "Comprehensive systems reference for the Stokes CLI: subcommands, flags, exit codes, CI environment variables, and ANSI terminal rendering."
 category: "Reference"
 order: 1
-lastUpdated: "2026-03-24"
+lastUpdated: "September 27, 2026"
 readTime: "12 min read"
 author: "Yuliet Li"
 ---
