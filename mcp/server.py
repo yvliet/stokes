@@ -213,6 +213,9 @@ def _find_workspace_root(hint_path: Path | str | None = None) -> Path:
             return hp
         if (hp / "cloudflame" / "crates" / "cloudflame-proxy").exists():
             return hp / "cloudflame"
+        # If explicitly pointing to an existing directory (such as a pytest tmp_path) that is not the IDE binary host
+        if hp.exists() and "ibm bob" not in str(hp).lower() and "programs" not in str(hp).lower():
+            return hp
 
     # Always inspect ancestors of server.py to locate the actual target cloudflame workspace
     server_file = Path(__file__).resolve()
