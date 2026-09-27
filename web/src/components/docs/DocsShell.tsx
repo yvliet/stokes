@@ -173,9 +173,9 @@ export const DocsShell: React.FC = () => {
           ref={contentContainerRef}
           className="flex-1 h-full min-w-0 overflow-y-auto"
         >
-          <div className="w-full max-w-[1440px] px-6 lg:px-10 xl:px-12 py-6 pb-24 flex flex-col lg:flex-row gap-8 xl:gap-12 items-start">
+          <div className="w-full max-w-[1440px] px-6 lg:px-10 xl:px-12 flex flex-col lg:flex-row gap-8 xl:gap-12 items-start">
             {/* Center Main Article */}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 py-6 pb-24">
               <DocsReader
                 key={activeDoc.id}
                 doc={activeDoc}
@@ -186,8 +186,8 @@ export const DocsShell: React.FC = () => {
               />
             </div>
 
-            {/* Right Sticky On This Page Rail */}
-            <div className="hidden lg:block w-56 xl:w-64 shrink-0 sticky top-0 max-h-[calc(100vh-6rem)] overflow-y-auto">
+            {/* Right Fixed On This Page Rail - Permanently anchored, never scrolls */}
+            <div className="hidden lg:block w-56 xl:w-64 shrink-0 sticky top-0 pt-6 pb-12 max-h-screen overflow-y-auto sidebar-hover-scrollbar">
               <OnThisPageOutline
                 headings={headings}
                 activeHeadingId={activeHeadingId}
