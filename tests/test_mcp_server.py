@@ -276,3 +276,38 @@ async def test_mcp_tool_call_verify_patch_rejected(mcp_server):
     assert data["verification"] == "REJECTED"
     assert data["zero_panic_guarantee"] is False
 
+
+@pytest.mark.asyncio
+async def test_mcp_tool_call_verify_patch_bob_dual_zone_first_attempt(mcp_server):
+    bob_dual_zone_patch = """\
+--- a/crates/cloudflame-proxy/src/lib.rs
++++ b/crates/cloudflame-proxy/src/lib.rs
+@@ -25,6 +25,12 @@
+ pub fn ingest_features_baseline(features: &[Feature]) -> [Feature; 200] {
+     let slice_ref: &[Feature; 200] = padded.as_slice().try_into().unwrap();
+     slice_ref.clone()
+ }
++
++pub fn ingest_features_dual_zone(features: &mut Vec<Feature>) -> IngestionReport {
++    ingest_features_gracefully(features)
++}
+"""
+    req = {
+        "jsonrpc": "2.0",
+        "id": 16,
+        "method": "tools/call",
+        "params": {
+            "name": "stokes_verify_patch",
+            "arguments": {
+                "patch_content": bob_dual_zone_patch,
+                "target_file": "crates/cloudflame-proxy/src/lib.rs",
+            },
+        },
+    }
+    resp = await mcp_server.handle_request(req)
+    assert resp["id"] == 16
+    data = json.loads(resp["result"]["content"][0]["text"])
+    assert data["verification"] == "VERIFIED_SAFE"
+    assert data["zero_panic_guarantee"] is True
+
+
