@@ -13,7 +13,8 @@ During the official hackathon Q&A stage, the lablab.ai organizing team confirmed
 ### Verification Metadata
 - **Speaker**: Hamza | lablab.ai (`hamzaimran_8`)
 - **Roles**: `lablab.ai team`, `Moderator`, `lablab.ai Mentor`
-- **Platform**: Official Hackathon Discord
+- **Discord Server**: LABLAB.AI (`877056448956346408`)
+- **Channel**: `💭 ╰participants-chat-ibm-bob-2-0-hackathon` (`1549403442206875779`)
 - **Message ID**: `1553083130045268114`
 - **Timestamp**: September 25, 2026 at 23:37 WIB
 - **Evidence Screenshots**:

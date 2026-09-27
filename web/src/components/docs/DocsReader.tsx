@@ -103,6 +103,43 @@ export function safeRenderKaTeX(tex: string, displayMode: boolean): string {
   return '';
 }
 
+// Resolve image paths for docs assets, compliance evidence, and session checkpoints
+export function resolveDocImagePath(rawPath: string): string {
+  const trimmed = rawPath.trim();
+  if (!trimmed) return '';
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('data:')) {
+    return trimmed;
+  }
+  // Strip leading relative path segments (./ or ../)
+  const clean = trimmed.replace(/^(\.\.?\/)+/, '');
+
+  if (clean.includes('lablab_organizer_')) {
+    const filename = clean.split('/').pop() || clean;
+    return `/docs/compliance/${filename}`;
+  }
+  if (
+    clean.includes('session_0') ||
+    clean.includes('core_engine') ||
+    clean.includes('dark_mode') ||
+    clean.includes('tree_subagents') ||
+    clean.includes('pypi_package') ||
+    clean.includes('github_publish')
+  ) {
+    const filename = clean.split('/').pop() || clean;
+    return `/bob_sessions/${filename}`;
+  }
+  if (clean.startsWith('docs/')) {
+    return `/${clean}`;
+  }
+  if (clean.startsWith('bob_sessions/')) {
+    return `/${clean}`;
+  }
+  if (trimmed.startsWith('/')) {
+    return trimmed;
+  }
+  return `/${clean}`;
+}
+
 // Render inline markdown tokens (bold, italic, code, KaTeX math, wikilinks, links)
 export function renderInline(text: string): string {
   // 1. Protect inline code spans
@@ -151,8 +188,15 @@ export function renderInline(text: string): string {
     const isWidth = opt && /^\d+$/.test(opt.trim());
     const widthStyle = isWidth ? `style="max-width:${opt.trim()}px"` : '';
     const alt = isWidth || !opt ? target.trim() : opt.trim();
-    const src = target.trim().startsWith('http') || target.trim().startsWith('/') ? target.trim() : `/${target.trim()}`;
-    return `<img src="${src}" alt="${alt}" ${widthStyle} class="rounded-lg border border-border/50 inline-block max-h-48 align-middle my-2" />`;
+    const src = resolveDocImagePath(target.trim());
+    return `<a href="${src}" target="_blank" rel="noopener noreferrer" class="inline-block cursor-zoom-in" title="${alt}"><img src="${src}" alt="${alt}" ${widthStyle} class="rounded-lg border border-border/50 inline-block max-h-80 align-middle my-2 shadow-sm transition-all hover:border-foreground/40" loading="lazy" /></a>`;
+  });
+
+  // 4b. Standard markdown image ![alt](url "title") or ![alt](url)
+  processed = processed.replace(/!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)/g, (_, alt, target, title) => {
+    const src = resolveDocImagePath(target.trim());
+    const caption = title || alt || '';
+    return `<a href="${src}" target="_blank" rel="noopener noreferrer" class="inline-block cursor-zoom-in" title="${caption}"><img src="${src}" alt="${alt || ''}" class="rounded-lg border border-border/50 inline-block max-h-80 align-middle my-2 shadow-sm transition-all hover:border-foreground/40" loading="lazy" /></a>`;
   });
 
   // 5. Obsidian Wikilinks: [[Target|Label]] or [[Target]] with Noether accent
@@ -470,17 +514,66 @@ export const DocsReader: React.FC<DocsReaderProps> = React.memo(({
         const isWidth = /^\d+$/.test(option);
         const width = isWidth ? parseInt(option, 10) : undefined;
         const caption = isWidth ? '' : option;
-        const src = rawPath.startsWith('http') || rawPath.startsWith('/') ? rawPath : `/${rawPath}`;
+        const src = resolveDocImagePath(rawPath);
 
         parsedBlocks.push(
           <figure key={`embed-img-${i}`} className="my-6 flex flex-col items-center">
-            <img
-              src={src}
-              alt={caption || rawPath}
-              style={width ? { maxWidth: `${width}px` } : undefined}
-              className="rounded-xl border border-border/50 max-w-full h-auto shadow-md"
-            />
-            {caption && <figcaption className="mt-2 text-xs text-muted-foreground">{caption}</figcaption>}
+            <a
+              href={src}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block cursor-zoom-in group max-w-full"
+              title="Click to view full size image"
+            >
+              <img
+                src={src}
+                alt={caption || rawPath}
+                style={width ? { maxWidth: `${width}px` } : undefined}
+                className="rounded-xl border border-border/50 max-w-full h-auto shadow-md transition-all group-hover:border-foreground/40 group-hover:shadow-lg"
+                loading="lazy"
+              />
+            </a>
+            {caption && (
+              <figcaption className="mt-2.5 text-xs text-muted-foreground font-mono lowercase tracking-wide">
+                {caption}
+              </figcaption>
+            )}
+          </figure>
+        );
+        i++;
+        continue;
+      }
+
+      // Standard Markdown Image Block: ![alt](url) or ![alt](url "title")
+      const mdImgBlockMatch = trimmed.match(/^!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)$/);
+      if (mdImgBlockMatch) {
+        const alt = mdImgBlockMatch[1].trim();
+        const rawPath = mdImgBlockMatch[2].trim();
+        const title = mdImgBlockMatch[3]?.trim() || '';
+        const caption = title || alt;
+        const src = resolveDocImagePath(rawPath);
+
+        parsedBlocks.push(
+          <figure key={`md-img-${i}`} className="my-6 flex flex-col items-center">
+            <a
+              href={src}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block cursor-zoom-in group max-w-full"
+              title="Click to view full size image"
+            >
+              <img
+                src={src}
+                alt={alt || rawPath}
+                className="rounded-xl border border-border/50 max-w-full h-auto shadow-md transition-all group-hover:border-foreground/40 group-hover:shadow-lg"
+                loading="lazy"
+              />
+            </a>
+            {caption && (
+              <figcaption className="mt-2.5 text-xs text-muted-foreground font-mono lowercase tracking-wide">
+                {caption}
+              </figcaption>
+            )}
           </figure>
         );
         i++;

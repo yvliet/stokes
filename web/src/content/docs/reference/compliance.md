@@ -27,11 +27,15 @@ During the official hackathon question-and-answer period, the lablab.ai organizi
 | :--- | :--- |
 | **Speaker** | Hamza \| lablab.ai (`hamzaimran_8`) |
 | **Official Roles** | `lablab.ai team`, `Moderator`, `lablab.ai Mentor` |
-| **Platform** | Official Hackathon Discord Server |
-| **Channel** | `#ask-anything` |
+| **Discord Server** | LABLAB.AI (`877056448956346408`) |
+| **Channel** | `💭 ╰participants-chat-ibm-bob-2-0-hackathon` (`1549403442206875779`) |
 | **Message ID** | `1553083130045268114` |
 | **Timestamp** | September 25, 2026 at 23:37 WIB (UTC+7) |
-| **Reference Artifacts** | `stokes/docs/compliance/lablab_organizer_ruling_msg.png`<br/>`stokes/docs/compliance/lablab_organizer_profile.png` |
+| **Evidence Screenshots** | [`lablab_organizer_ruling_msg.png`](/docs/compliance/lablab_organizer_ruling_msg.png)<br/>[`lablab_organizer_profile.png`](/docs/compliance/lablab_organizer_profile.png) |
+
+![Official Organizer Ruling - Discord Q&A Confirmation](./lablab_organizer_ruling_msg.png)
+
+![Organizer Profile & Badges - Hamza (lablab.ai Team, Moderator, Mentor)](./lablab_organizer_profile.png)
 
 > [!NOTE]
 > Per the organizer ruling, all core Stokes analysis, subagent orchestration, AST graph traversal, and verification engines were authored 100% from scratch inside the hackathon window using IBM Bob 2.0.
@@ -123,6 +127,9 @@ Stokes was developed through active collaboration with the IBM Bob 2.0 autonomou
 ---
 
 ### Session 01: Core Verification Engine & Multi-Agent Scaffolding
+
+![Session 01 - Core Verification Engine Build](./session_01_core_engine_build.png)
+
 - **Task ID**: `eca6a6d36cbe730f5c1064bc5f7970e4`
 - **Context Length**: 208.9k / 270.0k tokens (77%)
 - **Bobcoin Expenditure**: 27.180 Bobcoins
@@ -140,6 +147,9 @@ Stokes was developed through active collaboration with the IBM Bob 2.0 autonomou
   - Subtask 10: Run test suite and validate initial passes.
 
 ### Session 02: Git Repository Lifecycle & Remote Publishing
+
+![Session 02 - Git Repository Setup & Remote Publishing](./session_02_git_setup_and_github_publish.png)
+
 - **Task ID**: `bc3669627aec37f22070a3c49aa93209`
 - **Context Length**: 22.3k / 270.0k tokens (8%)
 - **Bobcoin Expenditure**: 0.534 Bobcoins
@@ -152,6 +162,9 @@ Stokes was developed through active collaboration with the IBM Bob 2.0 autonomou
   - Subtask 5: Verify remote repository status and branch protections.
 
 ### Session 03: PyPI Packaging, Validation & Distribution Gate
+
+![Session 03 - PyPI Package Release Gate](./session_03_pypi_package_release.png)
+
 - **Task ID**: `ee34ccd0b15f8e99001def36425c2fc1`
 - **Context Length**: 37.7k / 270.0k tokens (14%)
 - **Bobcoin Expenditure**: 1.450 Bobcoins
@@ -165,6 +178,9 @@ Stokes was developed through active collaboration with the IBM Bob 2.0 autonomou
   - Step 6: Post-release verification (`pip install` test in clean virtual environment).
 
 ### Session 04: Dark Mode Palette Alignment & Token Standardization
+
+![Session 04 - Dark Mode Tokens Alignment](./session_04_dark_mode_tokens_alignment.png)
+
 - **Task ID**: `f5100dc74eccb43137abd7edea0fb559`
 - **Context Length**: 103.9k / 270.0k tokens (38%)
 - **Bobcoin Expenditure**: 3.600 Bobcoins
@@ -180,6 +196,9 @@ Stokes was developed through active collaboration with the IBM Bob 2.0 autonomou
   - Subtask 8: Push updates to origin main.
 
 ### Session 05: CLI Matrix Bracket Header & Tree Subagent Visualizer
+
+![Session 05 - Matrix Bracket & Tree Subagents Parity](./session_05_matrix_bracket_and_tree_subagents.png)
+
 - **Task ID**: `fbd8a21d8eaa665c34a2d1e91ef85a0f`
 - **Context Length**: 60.4k / 270.0k tokens (22%)
 - **Bobcoin Expenditure**: 2.300 Bobcoins
